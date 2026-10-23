@@ -327,6 +327,7 @@ Agent tidak boleh memilih sendiri keputusan di tabel ini. Nilai bawaan dipakai s
 | K-6 | Kunci pembatas lookup kode kiosk | Per IP, gagal beruntun. Konsekuensi: satu orang yang salah lima kali mengunci kiosk selama 5 menit | Fase 3 |
 | K-7 | `sesi_idle_menit` dapat diubah dari UI | Middleware yang membandingkan aktivitas terakhir dengan nilai di `settings`. Alternatif: nilai tetap dari `.env` dan hapus dari UI | Fase 1 |
 | K-8 | Framework tes | Pest | Fase 1 |
+| K-9 | Versi Node untuk seluruh tim dan CI | Node LTS terbaru, dipin lewat `.nvmrc` dan `engines` di Task 1.19a. Node non-LTS tidak dipakai sebagai standar tim | Fase 1 (Task 1.19a) |
 
 ## 16. Riwayat revisi
 
