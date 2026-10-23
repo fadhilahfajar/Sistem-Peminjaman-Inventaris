@@ -9,7 +9,7 @@ Format: `- [ ] **ID** (P) Judul. Rujukan. Verifikasi.` P = M (Must), S (Should),
 ## Fase 0: Persiapan (tanpa kode aplikasi)
 
 - [x] **0.1** (M) Buat repo baru dan struktur `backend/`, `frontend/`, `docs/`. Taruh `AGENTS.md`, `todo.md`, `docs/PRD.md`, `docs/DESAIN.md`. `.gitignore` memuat `.env`, `vendor`, `node_modules`, `*.sql`. Commit awal.
-- [ ] **0.2** (M) Verifikasi lingkungan: PHP 8.4, Composer, Node + npm, MySQL ≥ 8.0.16 (`SELECT VERSION();`). Putuskan K-3 (satu cara menjalankan). Verifikasi: semua perintah versi berjalan.
+- [x] **0.2** (M) Verifikasi lingkungan: PHP 8.4, Composer, Node + npm, MySQL ≥ 8.0.16 (`SELECT VERSION();`). Putuskan K-3 (satu cara menjalankan). Verifikasi: semua perintah versi berjalan.
 - [ ] **0.3** (M) Setel kata sandi `root` MySQL. Buat database `inventaris_it_dev` dan `inventaris_it_test`. Buat akun `app_inventaris`, `migrator`, `backup` sesuai DESAIN 11.2 (versi dev). Verifikasi: login tiap akun, `app_inventaris` tidak bisa `DROP`.
 - [ ] **0.4** (M) Isi `my.ini` sesuai DESAIN 11.3 (`bind-address`, `utf8mb4`, zona waktu `+00:00`). Verifikasi `@@sql_mode`, `@@character_set_server`, `@@time_zone`.
 - [ ] **0.5** (M) Uji `AGENTS.md` terbaca: minta Antigravity dan agent VS Code meringkas "aturan wajib" dari berkas itu. Bila Antigravity tidak memuatnya, buat `.agents/rules/proyek.md` yang merujuk `AGENTS.md`. Bila agent VS Code tidak memuatnya, periksa pengaturan `chat.useAgentsMdFile`.
@@ -145,3 +145,17 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 (Agent mengisi: tanggal, ID task, hasil satu-dua kalimat, dan nilai bawaan K-x yang dipakai.)
 
 - 2026-10-22: 0.1 selesai. Struktur folder awal backend/, frontend/, docs/ beserta .gitignore dan dokumen acuan telah disiapkan di repo Git.
+- 2026-10-23: 0.2 selesai. Verifikasi lingkungan dan keputusan K-3:
+  - Keputusan K-3: opsi A (PHP dari Laravel Herd menjadi PHP default, folder php84 di PATH sistem, di atas XAMPP).
+  - Hasil pemeriksaan:
+    - PHP 8.4.16 (NTS), Herd, C:\Users\ASUS\.config\herd\bin\php84\php.exe
+    - Composer 2.9.5, berjalan di atas PHP 8.4.16
+    - Node v25.7.0 (bukan LTS), npm 11.10.1
+    - Git 2.52.0.windows.1
+    - MySQL server 8.4.3 dari Laragon di D:\Laragon, port 3306
+    - MySQL sql_mode memuat STRICT_TRANS_TABLES, character_set_server utf8mb4, time_zone masih SYSTEM
+    - Ekstensi PHP 8.4 yang diperlukan sudah terverifikasi pada laporan Task 0.2 sebelumnya
+  - Catatan untuk task berikutnya:
+    - Akun root MySQL masih tanpa kata sandi, diperbaiki di Task 0.3
+    - time_zone MySQL harus diubah ke +00:00 di Task 0.4
+    - Node v25 bukan LTS. Bila Vite atau Tailwind bermasalah di Fase 1, pertimbangkan pindah ke Node LTS
