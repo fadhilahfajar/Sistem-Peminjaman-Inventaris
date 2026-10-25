@@ -10,7 +10,7 @@ Format: `- [ ] **ID** (P) Judul. Rujukan. Verifikasi.` P = M (Must), S (Should),
 
 - [x] **0.1** (M) Buat repo baru dan struktur `backend/`, `frontend/`, `docs/`. Taruh `AGENTS.md`, `todo.md`, `docs/PRD.md`, `docs/DESAIN.md`. `.gitignore` memuat `.env`, `vendor`, `node_modules`, `*.sql`. Commit awal.
 - [x] **0.2** (M) Verifikasi lingkungan: PHP 8.4, Composer, Node + npm, MySQL ≥ 8.0.16 (`SELECT VERSION();`). Putuskan K-3 (satu cara menjalankan). Verifikasi: semua perintah versi berjalan.
-- [ ] **0.3** (M) Setel kata sandi `root` MySQL. Buat database `inventaris_it_dev` dan `inventaris_it_test`. Buat akun `app_inventaris`, `migrator`, `backup` sesuai DESAIN 11.2 (versi dev). Verifikasi: login tiap akun, `app_inventaris` tidak bisa `DROP`.
+- [x] **0.3** (M) Setel kata sandi `root` MySQL. Buat database `inventaris_it_dev` dan `inventaris_it_test`. Buat akun `app_inventaris`, `migrator`, `backup` sesuai DESAIN 11.2 (versi dev). Verifikasi: login tiap akun, `app_inventaris` tidak bisa `DROP`.
 - [ ] **0.4** (M) Isi `my.ini` sesuai DESAIN 11.3 (`bind-address`, `utf8mb4`, zona waktu `+00:00`). Verifikasi `@@sql_mode`, `@@character_set_server`, `@@time_zone`.
 - [ ] **0.5** (M) Uji `AGENTS.md` terbaca: minta Antigravity dan agent VS Code meringkas "aturan wajib" dari berkas itu. Bila Antigravity tidak memuatnya, buat `.agents/rules/proyek.md` yang merujuk `AGENTS.md`. Bila agent VS Code tidak memuatnya, periksa pengaturan `chat.useAgentsMdFile`.
 - [ ] **0.6** (M) Dari pemilik proyek: daftar awal divisi dan kategori (K-5), pilihan K-1 dan K-8. Catat di Log.
@@ -159,3 +159,8 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
     - Akun root MySQL masih tanpa kata sandi, diperbaiki di Task 0.3
     - time_zone MySQL harus diubah ke +00:00 di Task 0.4
     - Node v25 bukan LTS. Bila Vite atau Tailwind bermasalah di Fase 1, pertimbangkan pindah ke Node LTS
+- Catatan Task 0.2: lingkungan MySQL diganti ke phpBro pada 24 Oktober 2026, lihat entri 0.3.
+- 2026-10-26: 0.3 selesai. PHP tetap Herd 8.4.16 (K-3 opsi A); MySQL 8.4.10 berjalan di port 3306 dalam `<folder-pengguna>\AppData\Roaming\phpBro`, menggantikan Laragon. Database dev dan test dibuat dengan charset `utf8mb4` dan collation `utf8mb4_unicode_ci`; akun DB dibuat sesuai DESAIN 11.2 versi dev memakai `scripts/db/setup-dev.sql.example`, lalu salinan lokalnya dihapus. Akun root kini memiliki kata sandi. Verifikasi lulus: root tanpa kata sandi ditolak, tiap akun dapat login melalui TCP `127.0.0.1`, `app_inventaris` ditolak `DROP`, dan migrator dapat `CREATE` serta `DROP TABLE` di database dev.
+- Task 0.4: time_zone MySQL masih SYSTEM, ubah ke +00:00. Berkas konfigurasi MySQL milik phpBro, bukan my.ini Laragon, jadi lokasinya harus dicari dulu (datadir dan defaults-file dari proses mysqld).
+- Task 1.10: setelah migration, jalankan BAGIAN B scripts/db/setup-dev.sql.example (GRANT DELETE pada sessions, cache, cache_locks) sebagai root.
+- Task 1.2 dan 1.20: tes perlu hak DDL pada inventaris_it_test. Saat ini hanya akun migrator yang punya, app_inventaris hanya DML. Putuskan saat 1.2 apakah tes memakai migrator lewat .env.testing atau phpunit.xml.
