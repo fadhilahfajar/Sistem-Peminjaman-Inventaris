@@ -1,0 +1,32 @@
+-- Persiapan database lingkungan PENGEMBANGAN, dijalankan sekali per mesin.
+-- JANGAN mengisi kata sandi di berkas ini. Berkas ini dikomit ke Git.
+-- Cara pakai: salin ke scripts/db/setup-dev.local.sql (diabaikan Git), ganti semua
+-- placeholder <...>, jalankan sebagai root, lalu HAPUS salinan lokalnya.
+-- Rujukan: docs/DESAIN.md bagian 11.1 dan 11.2.
+
+-- ===== BAGIAN A: dijalankan pada Task 0.3 =====
+
+CREATE DATABASE IF NOT EXISTS inventaris_it_dev  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS inventaris_it_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE USER IF NOT EXISTS 'app_inventaris'@'localhost' IDENTIFIED BY '<KATA_SANDI_APP>';
+CREATE USER IF NOT EXISTS 'migrator'@'localhost'       IDENTIFIED BY '<KATA_SANDI_MIGRATOR>';
+CREATE USER IF NOT EXISTS 'backup'@'localhost'         IDENTIFIED BY '<KATA_SANDI_BACKUP>';
+
+-- app_inventaris: aplikasi sehari-hari (tanpa DDL, tanpa DELETE kecuali di database tes)
+GRANT SELECT, INSERT, UPDATE ON inventaris_it_dev.* TO 'app_inventaris'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON inventaris_it_test.* TO 'app_inventaris'@'localhost';
+
+-- migrator: menjalankan migration (hak penuh hanya pada database dev dan test)
+GRANT ALL PRIVILEGES ON inventaris_it_dev.*  TO 'migrator'@'localhost';
+GRANT ALL PRIVILEGES ON inventaris_it_test.* TO 'migrator'@'localhost';
+
+-- backup: hanya membaca untuk mysqldump
+GRANT SELECT, SHOW VIEW, TRIGGER, LOCK TABLES ON inventaris_it_dev.* TO 'backup'@'localhost';
+
+-- ===== BAGIAN B: JANGAN dijalankan sekarang =====
+-- Tabel-tabel ini belum ada. GRANT tingkat tabel gagal bila tabelnya belum ada.
+-- Jalankan (hapus tanda komentar) SETELAH migration Task 1.10, sebagai root.
+-- GRANT DELETE ON inventaris_it_dev.sessions    TO 'app_inventaris'@'localhost';
+-- GRANT DELETE ON inventaris_it_dev.cache       TO 'app_inventaris'@'localhost';
+-- GRANT DELETE ON inventaris_it_dev.cache_locks TO 'app_inventaris'@'localhost';
