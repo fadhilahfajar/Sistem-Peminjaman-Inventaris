@@ -319,14 +319,14 @@ Agent tidak boleh memilih sendiri keputusan di tabel ini. Nilai bawaan dipakai s
 
 | ID | Pertanyaan | Bawaan sementara | Dibutuhkan sebelum |
 |---|---|---|---|
-| K-1 | Frontend memakai JavaScript atau TypeScript? | JavaScript (`<script setup>`), tanpa TypeScript | Fase 1 (walking skeleton) |
+| K-1 | Frontend memakai JavaScript atau TypeScript? | JavaScript (`<script setup>`), tanpa TypeScript **Diputuskan 26 Okt 2026: JavaScript.** | Fase 1 (walking skeleton) |
 | K-2 | Pustaka PDF di server | `barryvdh/laravel-dompdf`, kompatibilitasnya dengan Laravel 13 dan PHP 8.4 diverifikasi dulu | Fase 6 |
 | K-3 | Cara menjalankan aplikasi: PHP dari mana, MySQL dari mana (Laragon, Herd, `php artisan serve`) | Dev: `php artisan serve` + `npm run dev` + MySQL Laragon. Produksi ditentukan di K-4 | Fase 0 |
 | K-4 | Penyajian produksi dan layanan otomatis | Laravel menyajikan hasil build frontend lewat satu port. MySQL sebagai layanan Windows | Fase 7 |
-| K-5 | Daftar awal kategori dan divisi untuk seeder | Hanya kategori "Tanpa Kategori". Divisi dari daftar yang Anda berikan | Fase 1 |
+| K-5 | Daftar awal kategori dan divisi untuk seeder | Hanya kategori "Tanpa Kategori". Divisi dari daftar yang Anda berikan **Diputuskan 26 Okt 2026: divisi awal IT, Media, EO. Kategori awal hanya "Tanpa Kategori"; kategori lain ditambah admin lewat aplikasi.** | Fase 1 |
 | K-6 | Kunci pembatas lookup kode kiosk | Per IP, gagal beruntun. Konsekuensi: satu orang yang salah lima kali mengunci kiosk selama 5 menit | Fase 3 |
 | K-7 | `sesi_idle_menit` dapat diubah dari UI | Middleware yang membandingkan aktivitas terakhir dengan nilai di `settings`. Alternatif: nilai tetap dari `.env` dan hapus dari UI | Fase 1 |
-| K-8 | Framework tes | Pest | Fase 1 |
+| K-8 | Framework tes | Pest **Diputuskan 26 Okt 2026: Pest.** | Fase 1 |
 | K-9 | Versi Node untuk seluruh tim dan CI | Node LTS terbaru, dipin lewat `.nvmrc` dan `engines` di Task 1.19a. Node non-LTS tidak dipakai sebagai standar tim | Fase 1 (Task 1.19a) |
 
 ## 16. Riwayat revisi
