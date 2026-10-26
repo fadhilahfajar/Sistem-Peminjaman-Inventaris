@@ -1,7 +1,7 @@
 # Panduan Kolaborasi dan Pembagian Jobdesk
 
 **Proyek:** Sistem Peminjaman & Inventaris Barang Tim IT  
-**Status dokumen:** Usulan aturan kerja tim; perlu diselaraskan ke `AGENTS.md` dan `todo.md` melalui PR sebelum dianggap sebagai aturan teknis yang berlaku.  
+**Status dokumen:** Berlaku. Selaras dengan `AGENTS.md` dan `todo.md` sejak PR sinkronisasi 23 Oktober 2026.  
 **Dokumen acuan utama:** `docs/PRD.md`, `docs/DESAIN.md`, `AGENTS.md`, dan `todo.md`.
 
 ## 1. Tujuan dan prinsip kerja
@@ -21,7 +21,7 @@ Prinsip yang tidak boleh dilanggar:
 9. Jangan push atau merge ke `main` tanpa mengikuti proses Pull Request (PR).
 10. Jangan pernah memasukkan `.env`, kata sandi, token, dump database, atau berkas SQL lokal yang berisi kredensial ke Git.
 
-> **Penting:** pembagian pemilik di bawah ini adalah kesepakatan kerja yang diusulkan. Sampai perubahan terkait disetujui dan di-merge ke `AGENTS.md` serta `todo.md`, instruksi yang tercantum dalam kedua berkas itu tetap berlaku.
+> **Prioritas:** bila berkas ini dan `AGENTS.md` berbeda soal pembagian task dan alur Git, berkas ini yang berlaku. Soal aturan kode, stok, dan database, `AGENTS.md` yang berlaku.
 
 ## 2. Pembagian tim
 
@@ -131,7 +131,7 @@ Ketentuan serah-terima:
 - Gunakan satu PR per task atau gabungan task yang kecil dan saling terkait.
 - Gunakan **Squash and merge** agar `main` memiliki riwayat yang ringkas.
 - Agent AI yang digunakan anggota hanya bekerja pada branch task yang menjadi tanggung jawab anggota tersebut. Jangan menjalankan dua agent pada branch yang sama secara bersamaan tanpa koordinasi.
-- Jangan push atau merge ke `main` tanpa instruksi dan proses PR.
+- Agent tidak push. Anggota memeriksa hasil (`git diff`, `git status`, tes), lalu push dan membuka PR. Tidak ada push atau merge langsung ke `main`.
 - Contoh alur umum:
 
 ```powershell
@@ -195,6 +195,8 @@ Minimal pipeline:
 
 Pastikan kredensial CI berasal dari konfigurasi aman GitHub Actions atau service database sementara, bukan dari `.env` atau berkas kredensial yang dikomit. Jangan menjadikan status check wajib sebelum workflow tersedia, namanya stabil, dan sudah pernah berjalan sukses.
 
+Workflow dibuat setelah backend (Task 1.1) dan frontend (Task 1.19a) ada, sehingga Task 0.7 bukan syarat Gerbang 0. Versi Node di CI dan di mesin semua anggota harus sama: gunakan Node LTS yang dipin lewat `.nvmrc` dan `engines` di `package.json` (keputusan K-9).
+
 ## 8. Fase 0 dan konfigurasi lokal tiap anggota
 
 - Task lingkungan, akun MySQL, `my.ini`, dan verifikasi runtime adalah pekerjaan **per mesin**. Satu anggota tidak dapat menuntaskan verifikasi lingkungan anggota lainnya.
@@ -203,9 +205,9 @@ Pastikan kredensial CI berasal dari konfigurasi aman GitHub Actions atau service
 - Untuk database lokal, akun aplikasi dan akun migrator tetap dipisahkan sesuai DESAIN. Tes yang memerlukan DDL hanya boleh memakai database `_test` dan akun yang berhak menjalankan migration; keputusan konfigurasi tes harus dicatat saat task terkait dikerjakan.
 - `scripts/db/setup-dev.local.sql`, `.env`, dan berkas lokal berisi kredensial tidak boleh dikomit. Berkas template tanpa kredensial boleh dikomit jika tidak memuat nilai rahasia.
 
-## 9. Usulan perubahan pada dokumen acuan
+## 9. Perubahan pada dokumen acuan
 
-Perubahan berikut perlu dilakukan melalui PR sebelum pola kerja baru diberlakukan sepenuhnya:
+Perubahan berikut diterapkan lewat PR sinkronisasi pada 23 Oktober 2026:
 
 1. `todo.md`: tambahkan kolom pemilik pada task.
 2. `todo.md`: pisahkan Log menjadi A, B, dan C.
@@ -243,6 +245,27 @@ Sebuah task dianggap selesai hanya bila:
 - [ ] Pembaruan aturan pada `AGENTS.md` dan `todo.md` diajukan melalui PR.
 - [ ] Task GitHub Actions dibuat dan CI diuji sebelum dijadikan syarat wajib merge.
 
+## 12. Daftar periksa peninjau
+
+- [ ] Aturan bisnis hanya di `app/Services`, Controller tipis, Vue tidak menghitung stok atau status
+- [ ] Setiap perubahan stok lewat `BukuBesarStok` dalam transaksi
+- [ ] Ada tes untuk perilaku baru, dan tes lulus
+- [ ] Tidak ada `.env`, kata sandi, dump SQL, atau data nyata
+- [ ] Tidak ada `migrate:fresh` atau perintah merusak di luar `_dev` dan `_test`
+- [ ] Bentuk JSON endpoint tercatat di `docs/DESAIN.md` bagian 8
+- [ ] Sesuai `docs/DESAIN.md` dan T-xx yang dirujuk task
+
+## 13. Anggota baru atau mesin baru
+
+1. Pasang PHP 8.4, Composer, Node LTS, Git, dan MySQL 8.4 (minimal 8.0.16).
+2. Atur email Git ke alamat noreply GitHub, lalu clone repo.
+3. Jalankan Task 0.2 sampai 0.5 di mesin sendiri tanpa mencentangnya di `todo.md`. Database dev dan test dibuat dengan `scripts/db/setup-dev.sql.example`: salin ke `setup-dev.local.sql`, isi kata sandi sendiri, jalankan sebagai root, lalu hapus salinannya.
+4. Baca `AGENTS.md`, berkas ini, `docs/PRD.md` bagian 1 sampai 8, dan bagian `docs/DESAIN.md` untuk peran Anda: B bagian 2 sampai 7, C bagian 8 dan 10, A semuanya.
+5. Uji bahwa agent membaca `AGENTS.md` (Task 0.5).
+
 ---
 
 **Catatan keamanan repository public:** menjadikan repository public berarti seluruh isi yang di-push dapat dibaca publik. Menghapus file rahasia dari versi terbaru tidak menghapusnya dari riwayat Git. Jika rahasia pernah ter-commit, rotasi/revoke rahasia tersebut dan tangani riwayat Git sebelum repository dipublikasikan.
+
+- Gunakan alamat email noreply GitHub untuk commit dan aktifkan 'Block command line pushes that expose my email' di pengaturan GitHub.
+- Jangan menulis nama pengguna Windows atau path pribadi di Log dan dokumen.

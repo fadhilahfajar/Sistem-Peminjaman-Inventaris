@@ -18,12 +18,13 @@ Sistem Peminjaman & Inventaris Barang Tim IT, dibangun dari nol. Dua mode: **kio
 | Maksud fitur, kriteria lulus (T-xx), keputusan terbuka (K-x) | `docs/PRD.md` |
 | Aturan bisnis BR-01..34, skema, status, Service, API, UI | `docs/DESAIN.md` |
 | Task yang harus dikerjakan | `todo.md` |
+| Cara tim bekerja: pemilik task, alur Git dan PR, review | `PANDUAN-KOLABORASI-TIM.md` |
 
 Bila dokumen bertentangan satu sama lain atau dengan permintaan, **berhenti dan tanyakan**. Jangan memilih sendiri. Keputusan bertanda **K-x** belum diputuskan: pakai nilai bawaan sementara di PRD dan sebutkan itu di log.
 
 ## Aturan wajib
 
-1. Satu task per giliran, urut dari `todo.md`. Jangan melompat fase. Sebelum menulis kode, baca bagian PRD dan DESAIN yang dirujuk task.
+1. Satu task per giliran, urut dalam daftar task milik pengguna (PANDUAN-KOLABORASI-TIM.md bagian 2). Jangan mengerjakan task milik anggota lain dan jangan melompat fase di luar yang diizinkan PANDUAN-KOLABORASI-TIM.md bagian 3 dan 4. Sebelum menulis kode, baca bagian PRD dan DESAIN yang dirujuk task.
 2. **Aturan bisnis hanya di `backend/app/Services`.** Controller tipis. Frontend tidak menghitung stok atau status dan tidak memutuskan boleh/tidaknya aksi.
 3. **Status peminjaman tidak disimpan di kolom.** Selalu diturunkan oleh `StatusPeminjaman`.
 4. **Stok hanya berubah lewat Service**, dan setiap perubahan `items.total/tersedia/rusak` menulis tepat satu baris `stock_movements` di transaksi yang sama, lewat `BukuBesarStok`. Dilarang meng-update angka stok langsung dari Controller, seeder bisnis, atau tes tanpa jalur ini.
@@ -46,7 +47,7 @@ Bila dokumen bertentangan satu sama lain atau dengan permintaan, **berhenti dan 
 - [ ] Tidak ada logika bisnis di Controller atau komponen Vue
 - [ ] Tidak ada `dd()`, `console.log`, atau kode uji di bundle produksi
 - [ ] Format rapi (`./vendor/bin/pint`)
-- [ ] Task dicentang di `todo.md` dan satu-dua kalimat ditulis di bagian Log (tanggal, ID task, hasil, catatan bila memakai nilai bawaan K-x)
+- [ ] Task dicentang di `todo.md` dan satu-dua kalimat ditulis di sub-bagian Log milik pengguna (Log A, Log B, atau Log C) (tanggal, ID task, hasil, catatan bila memakai nilai bawaan K-x)
 
 ## Perintah
 
@@ -68,7 +69,7 @@ npm run build
 
 ## Git
 
-Kerja di branch (satu branch per fase atau task besar). Commit kecil dengan awalan `feat:`, `fix:`, `test:`, `docs:`, `refactor:`. Jangan push atau merge ke `main` tanpa instruksi.
+Alur lengkap ada di PANDUAN-KOLABORASI-TIM.md bagian 5. Ringkasnya: kerja di branch `f<fase>/<id-task>-<slug>`, commit kecil berawalan `feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`. Agent tidak push dan tidak merge ke `main`. `main` hanya berubah lewat Pull Request yang disetujui anggota lain, dan push dilakukan pengguna.
 
 ## Bila ragu
 
