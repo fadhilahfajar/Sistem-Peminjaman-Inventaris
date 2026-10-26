@@ -15,7 +15,7 @@ Task 0.2 sampai 0.5 dikerjakan di mesin masing-masing anggota. Hanya A yang menc
 - [x] **0.3** (M) [A] Setel kata sandi `root` MySQL. Buat database `inventaris_it_dev` dan `inventaris_it_test`. Buat akun `app_inventaris`, `migrator`, `backup` sesuai DESAIN 11.2 (versi dev). Verifikasi: login tiap akun, `app_inventaris` tidak bisa `DROP`.
 - [x] **0.4** (M) [A] Isi `my.ini` sesuai DESAIN 11.3 (`bind-address`, `utf8mb4`, zona waktu `+00:00`). Verifikasi `@@sql_mode`, `@@character_set_server`, `@@time_zone`.
 - [x] **0.5** (M) [A] Uji `AGENTS.md` terbaca: minta Antigravity dan agent VS Code meringkas "aturan wajib" dari berkas itu. Bila Antigravity tidak memuatnya, buat `.agents/rules/proyek.md` yang merujuk `AGENTS.md`. Bila agent VS Code tidak memuatnya, periksa pengaturan `chat.useAgentsMdFile`.
-- [ ] **0.6** (M) [A] Dari pemilik proyek: daftar awal divisi dan kategori (K-5), pilihan K-1 dan K-8 dan K-9. Catat di Log.
+- [x] **0.6** (M) [A] Dari pemilik proyek: daftar awal divisi dan kategori (K-5), pilihan K-1 dan K-8 dan K-9. Catat di Log.
 - [ ] **0.7** (S) [A] GitHub Actions pada setiap PR ke `main`: PHP 8.4 dan MySQL 8.4 sebagai service, database `_test`, `php artisan test`, `./vendor/bin/pint --test`, Node LTS dengan `npm ci` dan `npm run build`. Dikerjakan setelah 1.1 dan 1.19a ada, bukan syarat Gerbang 0. Jadikan required status check hanya setelah workflow pernah berjalan sukses.
 
 **Gerbang 0:** lingkungan siap, kedua agent membaca `AGENTS.md`, K-1/K-3/K-5/K-8 tercatat.
@@ -177,5 +177,8 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - Task 1.10: setelah migration, jalankan BAGIAN B `scripts/db/setup-dev.sql.example` (GRANT DELETE pada `sessions`, `cache`, `cache_locks`) sebagai root.
 - Task 1.2 dan 1.20: tes perlu hak DDL pada `inventaris_it_test`. Saat ini hanya akun `migrator` yang punya, `app_inventaris` hanya DML. Putuskan saat 1.2 apakah tes memakai `migrator` lewat `.env.testing` atau `phpunit.xml`.
 - 2026-10-26: 0.5 selesai. Uji mandiri: Antigravity dan agent VS Code lulus; pada chat baru tanpa membaca berkas, keduanya menjawab benar empat pertanyaan tentang AGENTS.md. Tidak perlu membuat `.agents/rules/proyek.md`.
-
-
+- 2026-10-26: 0.6 selesai. Tim menetapkan K-1 JavaScript, K-5 divisi awal IT, Media, EO dan kategori awal hanya "Tanpa Kategori" (kategori lain ditambahkan admin lewat aplikasi), serta K-8 Pest. Task 0.6 menyebut K-1, K-5, K-8; K-9 juga diputuskan bersamaan: Node 24 (LTS), dipin lewat `.nvmrc` dan `engines` (>=24 <25) pada Task 1.19a karena Node 25 EOL sejak 1 Juni 2026.
+- 0.7 (GitHub Actions) ditunda. Pemilik A. Dikerjakan setelah 1.1 (backend) dan 1.19a (frontend) selesai. Versi Node di workflow harus sama dengan K-9 dan .nvmrc. Jadikan required status check hanya setelah workflow pernah berjalan sukses. Bukan syarat Gerbang 0.
+- Task 1.14: seeder divisi memakai IT, Media, EO. Kategori awal hanya 'Tanpa Kategori'.
+- Task 1.19a: pin Node 24 lewat .nvmrc dan engines (K-9). Anggota yang memakai versi Node lain perlu pindah ke 24 sebelum 1.19a.
+- Kriteria Gerbang 0 terpenuhi (0.1 sampai 0.6 selesai). Pernyataan lolos oleh A setelah PR ini ter-merge.
