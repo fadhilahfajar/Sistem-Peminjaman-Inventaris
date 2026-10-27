@@ -30,8 +30,8 @@ Nama anggota B dan C diisi setelah tim menyepakati penempatan berdasarkan kemamp
 | Peran | Pemilik | Fase/task utama | Perkiraan jumlah task | Karakter tanggung jawab |
 |---|---|---|---:|---|
 | **A — PM, DevOps, API, integrasi** | Pemilik repository | Fase 0; 1.1–1.4; 1.12; Fase 3; Fase 6 kecuali 6.3; Fase 7 kecuali 7.7 dan 7.9 | ±33 | Menjaga keputusan proyek, lingkungan, kontrak API, integrasi, review, CI, dan rilis |
-| **B — Backend inti** | [Isi nama anggota B] | 1.5–1.11; 1.13–1.18; 1.20; Fase 2 | ±30 | Menangani skema, autentikasi dan Service inti; paling berisiko pada stok, transaksi, dan konkurensi |
-| **C — Frontend** | [Isi nama anggota C] | 1.19a; Fase 4; Fase 5; 6.3; 7.7; 7.9 | ±27 | Membangun kiosk dan panel admin berdasarkan kontrak API yang telah tersedia |
+| **B — Backend inti** | idrsabdlh-coder | 1.5–1.11; 1.13–1.18; 1.20; Fase 2 | ±30 | Menangani skema, autentikasi dan Service inti; paling berisiko pada stok, transaksi, dan konkurensi |
+| **C — Frontend** | a710230117-faris | 1.19a; Fase 4; Fase 5; 6.3; 7.7; 7.9 | ±27 | Membangun kiosk dan panel admin berdasarkan kontrak API yang telah tersedia |
 
 Perkiraan jumlah task hanyalah estimasi berdasarkan pembagian saat ini, bukan ukuran beban kerja yang pasti. Penempatan akhir B dan C harus mempertimbangkan pengalaman Laravel, transaksi database, testing, Vue, dan ketersediaan waktu. Fase 2 dimiliki B dan wajib ditinjau A sebelum merge karena risiko integritas data dan konkurensinya paling tinggi.
 
