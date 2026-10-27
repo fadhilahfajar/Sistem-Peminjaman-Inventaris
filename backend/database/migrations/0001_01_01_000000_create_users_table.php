@@ -21,7 +21,7 @@ return new class extends Migration
             $table->boolean('aktif')->default(true);
             $table->dateTime('login_terakhir')->nullable();
             $table->dateTime('dibuat_pada')->useCurrent();
-            });
+        });
         DB::statement('ALTER TABLE users ADD CONSTRAINT users_aktif_check CHECK (aktif IN (0, 1))');
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->text('user_agent')->nullable();
             $table->longText('payload');
             $table->integer('last_activity')->index();
-            
+
             $table->engine('InnoDB');
             $table->charset('utf8mb4');
             $table->collation('utf8mb4_unicode_ci');
