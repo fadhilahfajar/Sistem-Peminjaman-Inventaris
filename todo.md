@@ -23,7 +23,7 @@ Task 0.2 sampai 0.5 dikerjakan di mesin masing-masing anggota. Hanya A yang menc
 ## Fase 1: Fondasi backend
 
 - [x] **1.1** (M) [A] Buat proyek Laravel 13 di `backend/` tanpa starter kit. Verifikasi perintah instalasi ke dokumentasi resmi. Hapus `jobs` dan `password_reset_tokens` dari migration bawaan.
-- [ ] **1.2** (M) [A] `.env.example` dan konfigurasi sesuai DESAIN 11.3 dan 6: `APP_TIMEZONE=UTC`, `APP_LOCALE=id`, koneksi DB `timezone +00:00`, sesi `database`, cookie `SameSite=strict`. Verifikasi: `php artisan about`.
+- [x] **1.2** (M) [A] `.env.example` dan konfigurasi sesuai DESAIN 11.3 dan 6: `APP_TIMEZONE=UTC`, `APP_LOCALE=id`, koneksi DB `timezone +00:00`, sesi `database`, cookie `SameSite=strict`. Verifikasi: `php artisan about`.
 - [ ] **1.3** (M) [A] Pasang Sanctum mode SPA (`statefulApi()`), CORS dengan kredensial, `SANCTUM_STATEFUL_DOMAINS`. Verifikasi di dokumentasi Laravel 13.
 - [ ] **1.4** (M) [A] Perintah `inventaris:periksa-lingkungan` (versi MySQL, `sql_mode`, charset). Rujukan FR-S-03. Verifikasi: **T-36**.
 - [ ] **1.5** (M) [B] Migration `users`, `divisions`, `categories`, `settings` beserta CHECK. DESAIN 5.
@@ -183,3 +183,4 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - Task 1.19a: pin Node 24 lewat .nvmrc dan engines (K-9). Anggota yang memakai versi Node lain perlu pindah ke 24 sebelum 1.19a.
 - Kriteria Gerbang 0 terpenuhi (0.1 sampai 0.6 selesai). Pernyataan lolos oleh A setelah PR ini ter-merge.
 - 2026-10-26 — Task 1.1: Skeleton resmi Laravel 13.38.0 berhasil dipasang di `backend/` tanpa starter kit. Migration jobs (termasuk `job_batches` dan `failed_jobs`) serta definisi `password_reset_tokens` dihapus; migration users, sessions, dan cache dipertahankan. Verifikasi: PHP 8.4.16, Composer 2.9.5, tes bawaan lulus (2 tes/2 assertions), dan Pint lulus. `.env` tidak terlacak Git dan tidak ada SQLite permanen. Tidak ada koneksi atau migrasi MySQL yang dijalankan.
+- 2026-10-27 — Task 1.2 selesai. Konfigurasi MySQL, zona waktu UTC/id, dan cookie sesi database strict/httpOnly disesuaikan; template testing memakai `inventaris_it_test` dan akun migrator tanpa kredensial. Verifikasi: `php artisan about`, 3 tes/18 assertions, dan Pint lulus. Tes tidak menghubungi atau mengubah MySQL; berkas environment lokal tetap diabaikan Git.
