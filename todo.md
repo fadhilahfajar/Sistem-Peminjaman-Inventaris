@@ -26,7 +26,7 @@ Task 0.2 sampai 0.5 dikerjakan di mesin masing-masing anggota. Hanya A yang menc
 - [ ] **1.2** (M) [A] `.env.example` dan konfigurasi sesuai DESAIN 11.3 dan 6: `APP_TIMEZONE=UTC`, `APP_LOCALE=id`, koneksi DB `timezone +00:00`, sesi `database`, cookie `SameSite=strict`. Verifikasi: `php artisan about`.
 - [ ] **1.3** (M) [A] Pasang Sanctum mode SPA (`statefulApi()`), CORS dengan kredensial, `SANCTUM_STATEFUL_DOMAINS`. Verifikasi di dokumentasi Laravel 13.
 - [ ] **1.4** (M) [A] Perintah `inventaris:periksa-lingkungan` (versi MySQL, `sql_mode`, charset). Rujukan FR-S-03. Verifikasi: **T-36**.
-- [ ] **1.5** (M) [B] Migration `users`, `divisions`, `categories`, `settings` beserta CHECK. DESAIN 5.
+- [x] **1.5** (M) [B] Migration `users`, `divisions`, `categories`, `settings` beserta CHECK. DESAIN 5.
 - [ ] **1.6** (M) [B] Migration `items`: `nama_aktif` (generated, unique), CHECK stok, `kategori_id` FK.
 - [ ] **1.7** (M) [B] Migration `loans` dan `loan_items`.
 - [ ] **1.8** (M) [B] Migration `return_claims` dan `return_claim_lines` (CHECK empat hasil, BR-05).
