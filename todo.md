@@ -29,8 +29,8 @@ Task 0.2 sampai 0.5 dikerjakan di mesin masing-masing anggota. Hanya A yang menc
 - [x] **1.5** (M) [B] Migration `users`, `divisions`, `categories`, `settings` beserta CHECK. DESAIN 5.
 - [x] **1.6** (M) [B] Migration `items`: `nama_aktif` (generated, unique), CHECK stok, `kategori_id` FK.
 - [x] **1.7** (M) [B] Migration `loans` dan `loan_items`.
-- [ ] **1.8** (M) [B] Migration `return_claims` dan `return_claim_lines` (CHECK empat hasil, BR-05).
-- [ ] **1.9** (M) [B] Migration `loan_extensions`, `loan_corrections`, `stock_movements` (enum 11 jenis), `audit_logs`.
+- [x] **1.8** (M) [B] Migration `return_claims` dan `return_claim_lines` (CHECK empat hasil, BR-05).
+- [x] **1.9** (M) [B] Migration `loan_extensions`, `loan_corrections`, `stock_movements` (enum 11 jenis), `audit_logs`.
 - [ ] **1.10** (M) [B] Tabel bawaan `sessions`, `cache`, `cache_locks`. Jalankan `migrate:fresh` di `_dev` dan `_test`. Verifikasi: tes memasukkan baris yang melanggar tiap CHECK dan UNIQUE penting, semuanya ditolak database.
 - [ ] **1.11** (M) [B] Model Eloquent dan relasi untuk 13 tabel. `$timestamps = false`, cast tanggal `date:Y-m-d`, `$fillable` eksplisit.
 - [ ] **1.12** (M) [A] `Support\Tanggal` (hari ini Asia/Jakarta, selisih hari) dan `Support\KodeAcak` (alfabet 31 karakter, `PJM-XXXXXX`, `KMB-XXXXXX`). Verifikasi: tes unit termasuk batas tengah malam Jakarta, tanpa karakter I, L, O, 0, 1.
@@ -192,3 +192,5 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - 2026-10-27: 1.5 selesai. Migration `users` (disesuaikan dari bawaan Laravel), `divisions`, `categories`, `settings` dengan CHECK `aktif`. Diverifikasi di MySQL 8.4.10 (`inventaris_it_dev`): `migrate:fresh` berhasil, `SHOW CREATE TABLE` sesuai DESAIN 5.
 - 2026-10-28: 1.6 selesai. Migration `items` dengan `nama_aktif` (generated stored, UNIQUE), FK `kategori_id` RESTRICT, dan lima CHECK termasuk `tersedia + rusak <= total`. Diverifikasi: insert melanggar CHECK, nama aktif ganda, dan FK ditolak; nama barang yang sudah di-soft-delete boleh dipakai lagi.
 - 2026-10-28: 1.7 selesai. Migration `loans` (CHECK `batas_kembali >= tanggal_pinjam`, UNIQUE `kode_pinjam` dan `idempotency_key`, FK RESTRICT) dan `loan_items` (CHECK `qty_dipinjam >= 1`, UNIQUE `loan_id, item_id`). Diverifikasi di MySQL 8.4.10: insert melanggar CHECK, duplikat, enum tidak valid, dan FK ditolak, serta penghapusan barang yang sudah dipinjam ditolak (RESTRICT).
+- 2026-10-28: 1.8 selesai. Migration `return_claims` (CHECK `hari_terlambat >= 0`, UNIQUE `kode_klaim` dan `idempotency_key`) dan `return_claim_lines`. CHECK BR-05 ditulis dengan `IS NOT NULL` eksplisit pada cabang kedua, karena versi harfiah meloloskan baris dengan sebagian kolom `qty_*` NULL (CHECK MySQL lolos pada hasil NULL). Nama UNIQUE dibuat manual (`rcl_klaim_item_kondisi_unique`) karena nama otomatis melebihi 64 karakter. Diverifikasi di MySQL 8.4.10: sebagian-NULL, jumlah beda, nilai negatif, qty 0, kombinasi ganda, dan hari terlambat negatif ditolak.
+- 2026-10-28: 1.9 selesai. Migration `loan_extensions`, `loan_corrections`, `stock_movements` (enum 11 jenis), `audit_logs` (kolom JSON). Diverifikasi: jenis tidak dikenal, FK, penghapusan barang yang punya riwayat stok (RESTRICT), dan JSON tidak valid ditolak.
