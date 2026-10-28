@@ -28,7 +28,7 @@ Task 0.2 sampai 0.5 dikerjakan di mesin masing-masing anggota. Hanya A yang menc
 - [x] **1.4** (M) [A] Perintah `inventaris:periksa-lingkungan` (versi MySQL, `sql_mode`, charset). Rujukan FR-S-03. Verifikasi: **T-36**.
 - [x] **1.5** (M) [B] Migration `users`, `divisions`, `categories`, `settings` beserta CHECK. DESAIN 5.
 - [x] **1.6** (M) [B] Migration `items`: `nama_aktif` (generated, unique), CHECK stok, `kategori_id` FK.
-- [ ] **1.7** (M) [B] Migration `loans` dan `loan_items`.
+- [x] **1.7** (M) [B] Migration `loans` dan `loan_items`.
 - [ ] **1.8** (M) [B] Migration `return_claims` dan `return_claim_lines` (CHECK empat hasil, BR-05).
 - [ ] **1.9** (M) [B] Migration `loan_extensions`, `loan_corrections`, `stock_movements` (enum 11 jenis), `audit_logs`.
 - [ ] **1.10** (M) [B] Tabel bawaan `sessions`, `cache`, `cache_locks`. Jalankan `migrate:fresh` di `_dev` dan `_test`. Verifikasi: tes memasukkan baris yang melanggar tiap CHECK dan UNIQUE penting, semuanya ditolak database.
@@ -186,18 +186,9 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - 2026-10-27 — Task 1.2 selesai. Konfigurasi MySQL, zona waktu UTC/id, dan cookie sesi database strict/httpOnly disesuaikan; template testing memakai `inventaris_it_test` dan akun migrator tanpa kredensial. Verifikasi: `php artisan about`, 3 tes/18 assertions, dan Pint lulus. Tes tidak menghubungi atau mengubah MySQL; berkas environment lokal tetap diabaikan Git.
 - 2026-10-27 — Task 1.3 selesai. Sanctum 4.3.3 dipasang untuk SPA berbasis sesi, `statefulApi()` dan CORS kredensial dibatasi ke dua origin frontend dev; tes lulus (6 tes/31 assertions) dan Pint lulus. Migration `personal_access_tokens` yang diterbitkan instalasi dihapus. Tambahkan `SANCTUM_STATEFUL_DOMAINS=localhost:5173,127.0.0.1:5173` ke `.env` lokal.
 - 2026-10-27 — Task 1.4 selesai. Perintah pemeriksa lingkungan dan kelas pemeriksaan murni dibuat; 18 tes/54 assertions dan Pint lulus menggunakan data tiruan tanpa koneksi database. Verifikasi terhadap MySQL asli dilakukan manual oleh pemilik. Kueri memakai @@global.sql_mode.
-- Task 1.5 (B): migration users, divisions, categories, settings sesuai DESAIN bagian 5.
-  Verifikasi (MySQL 8.4.10, inventaris_it_dev):
-  migrate:fresh berhasil
-  SHOW CREATE TABLE sesuai skema (INT UNSIGNED, utf8mb4_unicode_ci, InnoDB)
-  CHECK aktif IN (0,1) menolak nilai 2 pada users, divisions, categories
-  pint --test lolos
-  PERHATIAN: migration 0001_01_01_000000_create_users_table.php yang sudah
-  ada di main diubah. Setelah menarik perubahan ini, jalankan
-  php artisan migrate:fresh di inventaris_it_dev masing-masing.
-  Tabel sessions tidak diubah (Task 1.10).
   
 ### Log B (idrsabdlh-coder)
 
 - 2026-10-27: 1.5 selesai. Migration `users` (disesuaikan dari bawaan Laravel), `divisions`, `categories`, `settings` dengan CHECK `aktif`. Diverifikasi di MySQL 8.4.10 (`inventaris_it_dev`): `migrate:fresh` berhasil, `SHOW CREATE TABLE` sesuai DESAIN 5.
 - 2026-10-28: 1.6 selesai. Migration `items` dengan `nama_aktif` (generated stored, UNIQUE), FK `kategori_id` RESTRICT, dan lima CHECK termasuk `tersedia + rusak <= total`. Diverifikasi: insert melanggar CHECK, nama aktif ganda, dan FK ditolak; nama barang yang sudah di-soft-delete boleh dipakai lagi.
+- 2026-10-28: 1.7 selesai. Migration `loans` (CHECK `batas_kembali >= tanggal_pinjam`, UNIQUE `kode_pinjam` dan `idempotency_key`, FK RESTRICT) dan `loan_items` (CHECK `qty_dipinjam >= 1`, UNIQUE `loan_id, item_id`). Diverifikasi di MySQL 8.4.10: insert melanggar CHECK, duplikat, enum tidak valid, dan FK ditolak, serta penghapusan barang yang sudah dipinjam ditolak (RESTRICT).
