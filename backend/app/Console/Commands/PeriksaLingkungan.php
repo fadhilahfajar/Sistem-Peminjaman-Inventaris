@@ -17,7 +17,7 @@ class PeriksaLingkungan extends Command
     {
         try {
             $data = DB::selectOne(
-                'SELECT VERSION() AS version, @@sql_mode AS sql_mode, @@character_set_database AS character_set_database'
+                'SELECT VERSION() AS version, @@global.sql_mode AS sql_mode, @@character_set_database AS charset'
             );
         } catch (QueryException) {
             $this->error('Koneksi database gagal. Periksa konfigurasi dan ketersediaan server.');
@@ -31,12 +31,20 @@ class PeriksaLingkungan extends Command
             return self::FAILURE;
         }
 
-        $hasil = $pemeriksa->periksa((array) $data);
+        // Laravel's strict connection mode overrides the session sql_mode, so inspect the server global value.
+        $hasil = $pemeriksa->periksa([
+            'version' => $data->version,
+            'sql_mode' => $data->sql_mode,
+            'character_set_database' => $data->charset,
+        ]);
 
         foreach ($hasil['pemeriksaan'] as $pemeriksaan) {
+            $nama = $pemeriksaan['nama'] === 'Mode SQL'
+                ? 'sql_mode server (global)'
+                : $pemeriksaan['nama'];
             $baris = sprintf(
                 '%s: %s — %s',
-                $pemeriksaan['nama'],
+                $nama,
                 strtoupper($pemeriksaan['status']),
                 $pemeriksaan['pesan']
             );

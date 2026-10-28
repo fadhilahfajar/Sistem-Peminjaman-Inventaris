@@ -13,14 +13,15 @@ class PeriksaLingkunganCommandTest extends TestCase
     {
         DB::shouldReceive('selectOne')
             ->once()
-            ->with('SELECT VERSION() AS version, @@sql_mode AS sql_mode, @@character_set_database AS character_set_database')
+            ->with('SELECT VERSION() AS version, @@global.sql_mode AS sql_mode, @@character_set_database AS charset')
             ->andReturn((object) [
                 'version' => '8.4.10',
                 'sql_mode' => 'STRICT_TRANS_TABLES',
-                'character_set_database' => 'utf8mb4',
+                'charset' => 'utf8mb4',
             ]);
 
         $this->artisan('inventaris:periksa-lingkungan')
+            ->expectsOutputToContain('sql_mode server (global): LULUS')
             ->expectsOutputToContain('Semua pemeriksaan lingkungan lulus.')
             ->assertExitCode(0);
     }
