@@ -33,7 +33,7 @@ Task 0.2 sampai 0.5 dikerjakan di mesin masing-masing anggota. Hanya A yang menc
 - [x] **1.9** (M) [B] Migration `loan_extensions`, `loan_corrections`, `stock_movements` (enum 11 jenis), `audit_logs`.
 - [ ] **1.10** (M) [B] Tabel bawaan `sessions`, `cache`, `cache_locks`. Jalankan `migrate:fresh` di `_dev` dan `_test`. Verifikasi: tes memasukkan baris yang melanggar tiap CHECK dan UNIQUE penting, semuanya ditolak database.
 - [ ] **1.11** (M) [B] Model Eloquent dan relasi untuk 13 tabel. `$timestamps = false`, cast tanggal `date:Y-m-d`, `$fillable` eksplisit.
-- [ ] **1.12** (M) [A] `Support\Tanggal` (hari ini Asia/Jakarta, selisih hari) dan `Support\KodeAcak` (alfabet 31 karakter, `PJM-XXXXXX`, `KMB-XXXXXX`). Verifikasi: tes unit termasuk batas tengah malam Jakarta, tanpa karakter I, L, O, 0, 1.
+- [x] **1.12** (M) [A] `Support\Tanggal` (hari ini Asia/Jakarta, selisih hari) dan `Support\KodeAcak` (alfabet 31 karakter, `PJM-XXXXXX`, `KMB-XXXXXX`). Verifikasi: tes unit termasuk batas tengah malam Jakarta, tanpa karakter I, L, O, 0, 1.
 - [ ] **1.13** (M) [B] `Setting` (model atau service) dengan pembacaan terpusat, cast angka, dan validasi rentang di satu tempat. Seeder delapan kunci.
 - [ ] **1.14** (M) [B] Seeder divisi dan kategori dari 0.6 plus "Tanpa Kategori". Tanpa data bisnis palsu di produksi (factory hanya untuk dev dan tes).
 - [ ] **1.15** (M) [B] Perintah `BuatAdmin` (meminta password interaktif) dan `ResetPasswordAdmin` (mengakhiri semua sesi). Verifikasi: **T-29**.
@@ -186,6 +186,7 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - 2026-10-27 — Task 1.2 selesai. Konfigurasi MySQL, zona waktu UTC/id, dan cookie sesi database strict/httpOnly disesuaikan; template testing memakai `inventaris_it_test` dan akun migrator tanpa kredensial. Verifikasi: `php artisan about`, 3 tes/18 assertions, dan Pint lulus. Tes tidak menghubungi atau mengubah MySQL; berkas environment lokal tetap diabaikan Git.
 - 2026-10-27 — Task 1.3 selesai. Sanctum 4.3.3 dipasang untuk SPA berbasis sesi, `statefulApi()` dan CORS kredensial dibatasi ke dua origin frontend dev; tes lulus (6 tes/31 assertions) dan Pint lulus. Migration `personal_access_tokens` yang diterbitkan instalasi dihapus. Tambahkan `SANCTUM_STATEFUL_DOMAINS=localhost:5173,127.0.0.1:5173` ke `.env` lokal.
 - 2026-10-27 — Task 1.4 selesai. Perintah pemeriksa lingkungan dan kelas pemeriksaan murni dibuat; 18 tes/54 assertions dan Pint lulus menggunakan data tiruan tanpa koneksi database. Verifikasi terhadap MySQL asli dilakukan manual oleh pemilik. Kueri memakai @@global.sql_mode.
+- 2026-10-28 — Task 1.12 selesai. Utilitas Tanggal (hariIni zona Asia/Jakarta, selisih hari kalender bertanda) dan KodeAcak (alfabet 31 karakter tanpa karakter ambigu I, L, O, 0, 1, generator PJM-XXXXXX dan KMB-XXXXXX berbasis random_int) dibuat. Verifikasi: 32 tes unit baru lulus (mencakup batas tengah malam Jakarta, selisih hari kalender, dan format kode), seluruh 50 tes backend lulus (1790 assertions), dan Pint lulus tanpa masalah format.
   
 ### Log B (idrsabdlh-coder)
 
