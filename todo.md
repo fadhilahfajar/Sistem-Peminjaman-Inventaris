@@ -27,7 +27,7 @@ Task 0.2 sampai 0.5 dikerjakan di mesin masing-masing anggota. Hanya A yang menc
 - [x] **1.3** (M) [A] Pasang Sanctum mode SPA (`statefulApi()`), CORS dengan kredensial, `SANCTUM_STATEFUL_DOMAINS`. Verifikasi di dokumentasi Laravel 13.
 - [x] **1.4** (M) [A] Perintah `inventaris:periksa-lingkungan` (versi MySQL, `sql_mode`, charset). Rujukan FR-S-03. Verifikasi: **T-36**.
 - [x] **1.5** (M) [B] Migration `users`, `divisions`, `categories`, `settings` beserta CHECK. DESAIN 5.
-- [ ] **1.6** (M) [B] Migration `items`: `nama_aktif` (generated, unique), CHECK stok, `kategori_id` FK.
+- [x] **1.6** (M) [B] Migration `items`: `nama_aktif` (generated, unique), CHECK stok, `kategori_id` FK.
 - [ ] **1.7** (M) [B] Migration `loans` dan `loan_items`.
 - [ ] **1.8** (M) [B] Migration `return_claims` dan `return_claim_lines` (CHECK empat hasil, BR-05).
 - [ ] **1.9** (M) [B] Migration `loan_extensions`, `loan_corrections`, `stock_movements` (enum 11 jenis), `audit_logs`.
@@ -196,3 +196,8 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
   ada di main diubah. Setelah menarik perubahan ini, jalankan
   php artisan migrate:fresh di inventaris_it_dev masing-masing.
   Tabel sessions tidak diubah (Task 1.10).
+  
+### Log B (idrsabdlh-coder)
+
+- 2026-10-27: 1.5 selesai. Migration `users` (disesuaikan dari bawaan Laravel), `divisions`, `categories`, `settings` dengan CHECK `aktif`. Diverifikasi di MySQL 8.4.10 (`inventaris_it_dev`): `migrate:fresh` berhasil, `SHOW CREATE TABLE` sesuai DESAIN 5.
+- 2026-10-28: 1.6 selesai. Migration `items` dengan `nama_aktif` (generated stored, UNIQUE), FK `kategori_id` RESTRICT, dan lima CHECK termasuk `tersedia + rusak <= total`. Diverifikasi: insert melanggar CHECK, nama aktif ganda, dan FK ditolak; nama barang yang sudah di-soft-delete boleh dipakai lagi.
