@@ -1,9 +1,24 @@
 <?php
 
 use App\Models\User;
+use Database\Seeders\SettingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->seed(SettingSeeder::class);
+});
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->seed(SettingSeeder::class);
+});
+
+beforeEach(function () {
+    $this->seed(SettingSeeder::class);
+});
 
 function adminUji(bool $aktif = true): User
 {
