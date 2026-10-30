@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\KataSandiController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Middleware\AkunAktif;
 use App\Http\Middleware\SesiIdle;
@@ -11,5 +12,6 @@ Route::prefix('auth')->group(function () {
     Route::middleware(['auth:sanctum', AkunAktif::class, SesiIdle::class])->group(function () {
         Route::get('me', [LoginController::class, 'me']);
         Route::post('logout', [LoginController::class, 'logout']);
+        Route::post('change-password', [KataSandiController::class, 'ubah']);
     });
 });
