@@ -87,7 +87,7 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 
 ## Fase 4: Frontend dan kiosk
 
-- [ ] **4.1** (M) [C] Rapikan scaffold dari 1.19: router, store Pinia (tanpa persist untuk kode), tiga layout, token desain Tailwind (DESAIN 10.5), font sistem.
+- [x] **4.1** (M) [C] Rapikan scaffold dari 1.19: router, store Pinia (tanpa persist untuk kode), tiga layout, token desain Tailwind (DESAIN 10.5), font sistem.
 - [ ] **4.2** (M) [C] Klien API per endpoint, interceptor galat (401/419 ke login, 409 muat ulang, 429 pesan tunggu), CSRF otomatis.
 - [ ] **4.3** (M) [C] Komponen dasar: `TombolBesar`, `FormField`, `InputJumlah`, `InputKode`, `ModalKonfirmasi`, `NotifikasiToast`, `StatusKosong`, `Memuat`, `PesanGalat`, `BadgeStatus`, `BadgeLencana`, `StrukCetak`.
 - [ ] **4.4** (M) [C] Kiosk: Beranda dan Katalog (pencarian, filter kategori, stok 0 tidak bisa dipilih). FR-K-01.
@@ -210,3 +210,4 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 ### Log C (a710230117-faris)
 
 - 2026-10-29: 1.19a selesai. `frontend/` berisi Vue 3.5, Vue Router 5, Pinia 4, Axios 1, Tailwind 4, dan Vite 8 (versi dari registry saat ini; A boleh meminta versi lain). Node 24 dipin lewat `.nvmrc` dan `engines` (>=24 <25), K-9. Proxy `/api` dan `/sanctum` ke 127.0.0.1:8000, port 5173 dikunci karena `SANCTUM_STATEFUL_DOMAINS`. Tiga layout (kiosk, auth, admin), halaman login admin (kerangka tanpa pengiriman), beranda kiosk, dan dasbor admin berupa placeholder. Verifikasi: `npm run build` lulus di Node v24.21.0, `npm run dev` berjalan di localhost:5173, `/sanctum/csrf-cookie` lewat proxy mengembalikan 204. Tidak termasuk: ESLint, Prettier, Vitest, token desain (4.1), interceptor galat (4.2), penjaga rute dan pengiriman login (5.1).
+- 2026-11-02: 4.1 selesai. Token desain Tailwind (font sistem, warna aksen, warna status, target sentuh 44px) dan base focus-visible ditambahkan di main.css. Tiga layout disesuaikan namanya (LayoutKiosk, LayoutLogin, LayoutAdmin) dengan tipografi serta aksesibilitas sesuai DESAIN 10.4-10.5. Router diperbarui dengan layout baru, meta.judul, scrollBehavior ke atas, dan document.title otomatis. Store Pinia kiosk dibuat murni dalam memori tanpa persistensi sesuai DESAIN 10.1. Verifikasi: npm run build lulus.
