@@ -12,28 +12,49 @@ class StokService
 {
     public function tambah(int $itemId, int $jumlah, int $userId, string $alasan): Item
     {
-        $alasan = $this->validasiMasukan($jumlah, $alasan);
+        $alasan = $this->validasiMasukan($jumlah, $alasan, true);
 
         return $this->terapkan($itemId, 'TAMBAH_STOK', 'tambah_stok', $jumlah, $jumlah, 0, $userId, $alasan);
     }
 
     public function kurangi(int $itemId, int $jumlah, int $userId, string $alasan): Item
     {
-        $alasan = $this->validasiMasukan($jumlah, $alasan);
+        $alasan = $this->validasiMasukan($jumlah, $alasan, true);
 
         return $this->terapkan($itemId, 'KURANG_STOK', 'kurangi_stok', -$jumlah, -$jumlah, 0, $userId, $alasan);
     }
 
-    private function validasiMasukan(int $jumlah, string $alasan): string
+    public function tandaiRusak(int $itemId, int $jumlah, int $userId, string $alasan): Item
     {
-        $alasan = trim($alasan);
+        $alasan = $this->validasiMasukan($jumlah, $alasan, true);
+
+        return $this->terapkan($itemId, 'TANDAI_RUSAK', 'tandai_rusak', 0, -$jumlah, $jumlah, $userId, $alasan);
+    }
+
+    public function selesaiPerbaikan(int $itemId, int $jumlah, int $userId, ?string $catatan = null): Item
+    {
+        $catatan = $this->validasiMasukan($jumlah, $catatan, false);
+
+        return $this->terapkan($itemId, 'PERBAIKAN_SELESAI', 'selesai_perbaikan', 0, $jumlah, -$jumlah, $userId, $catatan);
+    }
+
+    public function afkir(int $itemId, int $jumlah, int $userId, string $alasan): Item
+    {
+        $alasan = $this->validasiMasukan($jumlah, $alasan, true);
+
+        return $this->terapkan($itemId, 'AFKIR', 'afkir', -$jumlah, 0, -$jumlah, $userId, $alasan);
+    }
+
+    private function validasiMasukan(int $jumlah, ?string $alasan, bool $alasanWajib): ?string
+    {
+        $alasan = $alasan === null ? '' : trim($alasan);
         $galat = [];
 
         if ($jumlah < 1) {
             $galat['jumlah'] = 'Jumlah harus bilangan bulat positif.';
         }
 
-        if ($alasan === '') {
+        if ($alasanWajib && $alasan === '') {
             $galat['alasan'] = 'Alasan wajib diisi.';
         } elseif (mb_strlen($alasan) > 500) {
             $galat['alasan'] = 'Alasan maksimal 500 karakter.';
@@ -43,7 +64,7 @@ class StokService
             throw ValidationException::withMessages($galat);
         }
 
-        return $alasan;
+        return $alasan === '' ? null : $alasan;
     }
 
     private function terapkan(
@@ -54,7 +75,7 @@ class StokService
         int $deltaTersedia,
         int $deltaRusak,
         int $userId,
-        string $alasan,
+        ?string $alasan,
     ): Item {
         return DB::transaction(function () use ($itemId, $jenis, $aksi, $deltaTotal, $deltaTersedia, $deltaRusak, $userId, $alasan) {
             $item = Item::query()->lockForUpdate()->findOrFail($itemId);
