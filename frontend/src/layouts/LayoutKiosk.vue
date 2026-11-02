@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50 text-slate-900">
+  <div class="min-h-screen bg-slate-50 font-sans text-kiosk text-slate-900">
     <header class="border-b border-slate-200 bg-white px-6 py-4">
       <h1 class="text-2xl font-bold">Peminjaman Inventaris IT</h1>
     </header>
