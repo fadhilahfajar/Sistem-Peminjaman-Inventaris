@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --text-kiosk: 1.125rem;
+  --text-admin: 0.9375rem;
+  --spacing-sentuh: 2.75rem;
+
+  --color-aksen: #1d4ed8;
+  --color-aksen-hover: #1e40af;
+  --color-aksen-lembut: #dbeafe;
+
+  --color-status-dipesan: #f3e8ff;
+  --color-status-dipesan-teks: #6b21a8;
+  --color-status-dipinjam: #dbeafe;
+  --color-status-dipinjam-teks: #1e40af;
+  --color-status-terlambat: #fee2e2;
+  --color-status-terlambat-teks: #991b1b;
+  --color-status-menunggu: #fef9c3;
+  --color-status-menunggu-teks: #854d0e;
+  --color-status-selesai: #dcfce7;
+  --color-status-selesai-teks: #166534;
+  --color-status-batal: #e2e8f0;
+  --color-status-batal-teks: #1e293b;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-aksen);
+    outline-offset: 2px;
+  }
+}
