@@ -55,7 +55,7 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - [x] **2.3** (M) [B] `StokService`: tambah dan kurangi stok. BR-15. Verifikasi bagian **T-42**.
 - [x] **2.4** (M) [B] `StokService`: tandai rusak, perbaikan, afkir. BR-09, BR-34. Verifikasi: **T-15**, **T-33**.
 - [x] **2.5** (M) [B] `PeminjamanService::buat` untuk peminjaman hari ini: idempotensi, validasi BR-22 dan BR-23, pembaruan bersyarat, kode unik, mutasi `PINJAM`. Verifikasi: **T-02**, **T-11**, **T-32**, **T-34**.
-- [ ] **2.6** (S) [B] `PeminjamanService::buat` untuk pemesanan (tanggal masa depan, stok ditahan). BR-23, D-10. Verifikasi: **T-23**.
+- [X] **2.6** (S) [B] `PeminjamanService::buat` untuk pemesanan (tanggal masa depan, stok ditahan). BR-23, D-10. Verifikasi: **T-23**.
 - [ ] **2.7** (M) [B] `KlaimService::buat`. BR-03, BR-04, BR-10. Verifikasi: **T-07**, **T-08**, **T-12**, **T-25**.
 - [ ] **2.8** (M) [B] `VerifikasiService::proses`. BR-05 sampai BR-08, cek BR-01 sebelum commit. Verifikasi: **T-03**, **T-09**, **T-14**.
 - [ ] **2.9** (S) [B] `PembatalanService` (peminjam dan admin). BR-24, BR-25. Verifikasi: **T-24**, **T-26**.
@@ -211,6 +211,7 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - 2026-10-30: 2.3 selesai. StokService tambah dan kurangi stok (BR-15): alasan wajib, jumlah bilangan bulat positif, tersedia tidak boleh negatif, satu mutasi per perubahan lewat BukuBesarStok. Tes: <N> tes/<M> assertions (StokServiceTest). Bagian T-42 (angka items sama dengan jumlah delta_*) diuji; pemeriksaan BR-01 penuh menunggu 2.13 dan 2.12.
 - 2026-10-30: 2.4 selesai. StokService tandai rusak (BR-34), selesai perbaikan, dan afkir (BR-09, alasan wajib untuk tandai rusak dan afkir). Tes: <N> tes/<M> assertions (StokRusakServiceTest). T-15 dan T-33 diuji: <tulis hanya kasus yang benar-benar ada tesnya, mis. nol, negatif, pecahan, dan melebihi stok ditolak tanpa mengubah apa pun>. BR-01 menyeluruh menunggu 2.13.
 - - 2026-10-30: 2.5 selesai. `PeminjamanService::buat` untuk peminjaman hari ini: idempotensi, validasi BR-22 dan BR-23, pembaruan stok bersyarat per barang berurut `id`, kode dari `KodeAcak`, mutasi `PINJAM` per barang, audit tanpa userId (kiosk). Tes: T-02, T-11, T-32, T-34 lulus (satu proses). Konkurensi nyata (T-21) menunggu 2.14. Perbaikan: pemanggilan `Audit::catat` sempat tertukar urutan argumen (userId di depan), dikoreksi ke urutan `(aksi, entitas, entitasId, userId, detail)`. Catatan untuk A: `PenangananGalat` memetakan 409 ke pesan tetap, sehingga nama barang yang gagal tidak terkirim ke klien.
+- 2026-10-30: 2.6 selesai. Penahanan stok dan validasi tanggal pemesanan sudah dibuat di 2.5 karena `simpan()` tidak membedakan tanggal. 2.6 menambah empat tes T-23 (stok langsung berkurang untuk tanggal masa depan, status turunan `dipesan` dan `dipinjam`, batas tepat `maks_booking_hari` diterima, stok kurang ditolak 409 tanpa efek). Tes langsung lulus karena tidak ada kode baru. Total PeminjamanServiceTest: [ANGKA] tes lulus ([ANGKA] assertions).
 
 ### Log C (a710230117-faris)
 
