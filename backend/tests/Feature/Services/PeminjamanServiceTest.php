@@ -9,6 +9,7 @@ use App\Models\Loan;
 use App\Models\LoanItem;
 use App\Models\StockMovement;
 use App\Services\PeminjamanService;
+use App\Services\StatusPeminjaman;
 use App\Support\Tanggal;
 use Database\Seeders\SettingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -238,4 +239,58 @@ it('meminjam beberapa barang sekaligus menulis satu mutasi per barang', function
         ->and($a->fresh()->tersedia)->toBe(3)
         ->and($b->fresh()->tersedia)->toBe(4)
         ->and(StockMovement::where('jenis', 'PINJAM')->count())->toBe(2);
+});
+
+it('pemesanan tanggal masa depan menahan stok sejak dibuat dan berstatus dipesan (T-23)', function () {
+    $item = p25Barang('Proyektor', 10);
+
+    $loan = $this->layanan->buat(p25Data($item, 4, [
+        'tanggal_pinjam' => p25Tgl(3),
+        'batas_kembali' => p25Tgl(5),
+    ]));
+
+    $item->refresh();
+    expect([$item->total, $item->tersedia, $item->rusak])->toBe([10, 6, 0]);
+
+    $status = app(StatusPeminjaman::class)->dariModel($loan, Tanggal::hariIni());
+    expect($status['status'])->toBe(StatusPeminjaman::DIPESAN);
+
+    expect(StockMovement::where('item_id', $item->id)->where('jenis', 'PINJAM')->count())->toBe(1);
+    expect(AuditLog::where('aksi', 'buat_peminjaman')->firstOrFail()->detail['pemesanan'])->toBeTrue();
+});
+
+it('peminjaman hari ini tidak berstatus dipesan (T-23)', function () {
+    $item = p25Barang('Proyektor', 10);
+
+    $loan = $this->layanan->buat(p25Data($item, 2));
+
+    $status = app(StatusPeminjaman::class)->dariModel($loan, Tanggal::hariIni());
+    expect($status['status'])->toBe(StatusPeminjaman::DIPINJAM);
+    expect(AuditLog::where('aksi', 'buat_peminjaman')->firstOrFail()->detail['pemesanan'])->toBeFalse();
+});
+
+it('pemesanan tepat di batas maks_booking_hari diterima (T-23)', function () {
+    $item = p25Barang('Proyektor', 10);
+
+    $loan = $this->layanan->buat(p25Data($item, 1, [
+        'tanggal_pinjam' => p25Tgl(7),
+        'batas_kembali' => p25Tgl(8),
+    ]));
+
+    expect($loan->tanggal_pinjam->format('Y-m-d'))->toBe(p25Tgl(7));
+    expect($item->fresh()->tersedia)->toBe(9);
+});
+
+it('pemesanan melebihi stok ditolak 409 tanpa efek (T-23)', function () {
+    $item = p25Barang('Proyektor', 10);
+
+    $e = p25Tangkap(fn () => $this->layanan->buat(p25Data($item, 11, [
+        'tanggal_pinjam' => p25Tgl(2),
+        'batas_kembali' => p25Tgl(4),
+    ])));
+
+    expect($e)->toBeInstanceOf(GalatBisnis::class)
+        ->and($e->getStatusCode())->toBe(409);
+    expect($item->fresh()->tersedia)->toBe(10);
+    p25TidakAdaEfek();
 });
