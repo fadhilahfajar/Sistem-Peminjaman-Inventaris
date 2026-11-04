@@ -377,6 +377,61 @@ Semua JSON, awalan `/api`. Nama kolom JSON `snake_case`. Galat: `{ "kode": "..."
 
 Kode selalu di badan permintaan, bukan URL, agar tidak masuk log akses.
 
+Seluruh respons sukses kiosk mempertahankan pembungkus bawaan `data` (konsisten dengan format paginasi), dan keempat endpoint baca dibatasi oleh limiter `kiosk-baca` (120 permintaan per menit per IP; status 429 mengembalikan bentuk galat seragam).
+
+Contoh respons JSON:
+
+- `GET /api/kiosk/config` (200 OK):
+```json
+{
+  "data": {
+    "maks_durasi_awal_hari": 7,
+    "maks_booking_hari": 7,
+    "maks_perpanjangan": 2,
+    "maks_hari_per_perpanjangan": 7,
+    "kiosk_idle_detik": 60
+  }
+}
+```
+
+- `GET /api/kiosk/items?q=&kategori=` (200 OK):
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "nama": "Kabel HDMI 2M",
+      "tersedia": 8,
+      "kategori_id": 2
+    }
+  ]
+}
+```
+
+- `GET /api/kiosk/categories` (200 OK):
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "nama": "Audio Video"
+    }
+  ]
+}
+```
+
+- `GET /api/kiosk/divisions` (200 OK):
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "nama": "IT"
+    }
+  ]
+}
+```
+
 ### 8.2 Admin
 
 | Method | Path | Fungsi | FR |

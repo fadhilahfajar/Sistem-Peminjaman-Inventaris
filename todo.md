@@ -70,8 +70,8 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 
 ## Fase 3: API
 
-- [ ] **3.1** (M) [A] Konvensi: struktur route, Form Request per aksi, Resource per entitas, kunci idempotensi di request.
-- [ ] **3.2** (M) [A] Kiosk baca: `config`, `items`, `categories`, `divisions`. Hanya nama dan `tersedia` di katalog. Rate limit.
+- [x] **3.1** (M) [A] Konvensi: struktur route, Form Request per aksi, Resource per entitas, kunci idempotensi di request.
+- [x] **3.2** (M) [A] Kiosk baca: `config`, `items`, `categories`, `divisions`. Hanya nama dan `tersedia` di katalog. Rate limit.
 - [ ] **3.3** (M) [A] Kiosk: `POST loans` (peminjaman dan pemesanan). Verifikasi: **T-02**, **T-11**, **T-23**.
 - [ ] **3.4** (M) [A] Kiosk: `POST loans/lookup` dengan pembatas laju (K-6). Telepon tidak pernah di respons. Verifikasi: **T-06**.
 - [ ] **3.5** (M) [A] Kiosk: klaim, perpanjangan, pembatalan. Verifikasi: **T-07**, **T-17**, **T-24**, **T-25**.
@@ -187,6 +187,7 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - 2026-10-27 — Task 1.3 selesai. Sanctum 4.3.3 dipasang untuk SPA berbasis sesi, `statefulApi()` dan CORS kredensial dibatasi ke dua origin frontend dev; tes lulus (6 tes/31 assertions) dan Pint lulus. Migration `personal_access_tokens` yang diterbitkan instalasi dihapus. Tambahkan `SANCTUM_STATEFUL_DOMAINS=localhost:5173,127.0.0.1:5173` ke `.env` lokal.
 - 2026-10-27 — Task 1.4 selesai. Perintah pemeriksa lingkungan dan kelas pemeriksaan murni dibuat; 18 tes/54 assertions dan Pint lulus menggunakan data tiruan tanpa koneksi database. Verifikasi terhadap MySQL asli dilakukan manual oleh pemilik. Kueri memakai @@global.sql_mode.
 - 2026-10-28 — Task 1.12 selesai. Utilitas Tanggal (hariIni zona Asia/Jakarta, selisih hari kalender bertanda) dan KodeAcak (alfabet 31 karakter tanpa karakter ambigu I, L, O, 0, 1, generator PJM-XXXXXX dan KMB-XXXXXX berbasis random_int) dibuat. Verifikasi: 32 tes unit baru lulus (mencakup batas tengah malam Jakarta, selisih hari kalender, dan format kode), seluruh 50 tes backend lulus (1790 assertions), dan Pint lulus tanpa masalah format.
+- 2026-11-04 — Task 3.1 dan 3.2 selesai. Pemisahan rute routes/kiosk.php dan routes/admin.php; rute admin dilindungi auth:sanctum, AkunAktif, dan SesiIdle; rute auth milik B dipertahankan. Konvensi Form Request (App\Http\Requests\Kiosk dan App\Http\Requests\Admin), trait MemilikiKunciIdempotensi (UUID wajib), dan Resource (App\Http\Resources) dengan keputusan mempertahankan pembungkus bawaan data (konsisten dengan format paginasi). Endpoint kiosk baca: GET /api/kiosk/config (dipakai ulang dari 1.19b, 5 kunci angka publik), GET /api/kiosk/items (pencarian LIKE di-escape, filter kategori_id, soft-delete dikecualikan, stok 0 tetap tampil, urut nama), GET /api/kiosk/categories dan GET /api/kiosk/divisions (aktif saja, urut nama). Keempat endpoint dibatasi limiter kiosk-baca (120 req/menit/IP, nilai bawaan sementara yang perlu ditinjau, galat 429 seragam). Temuan langkah 0: GET /api/kiosk/config dan POST /api/kiosk/uji-integrasi sudah ada dari 1.19b, POST sementara tetap dipertahankan; App\Http\Resources belum ada; limiter terdaftar di AppServiceProvider. Seluruh 277 tes backend lulus (2844 assertions) dan Pint lulus.
   
 ### Log B (idrsabdlh-coder)
 
