@@ -1,33 +1,60 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import KioskLayout from '@/layouts/KioskLayout.vue'
-import AuthLayout from '@/layouts/AuthLayout.vue'
-import AdminLayout from '@/layouts/AdminLayout.vue'
+import LayoutKiosk from '@/layouts/LayoutKiosk.vue'
+import LayoutLogin from '@/layouts/LayoutLogin.vue'
+import LayoutAdmin from '@/layouts/LayoutAdmin.vue'
 
 const routes = [
   {
     path: '/',
-    component: KioskLayout,
+    component: LayoutKiosk,
+    meta: { judul: 'Beranda' },
     children: [
-      { path: '', name: 'kiosk.beranda', component: () => import('@/pages/kiosk/BerandaPage.vue') },
+      {
+        path: '',
+        name: 'kiosk.beranda',
+        component: () => import('@/pages/kiosk/BerandaPage.vue'),
+        meta: { judul: 'Beranda' },
+      },
     ],
   },
   {
     path: '/admin/login',
-    component: AuthLayout,
+    component: LayoutLogin,
+    meta: { judul: 'Login' },
     children: [
-      { path: '', name: 'admin.login', component: () => import('@/pages/admin/LoginPage.vue') },
+      {
+        path: '',
+        name: 'admin.login',
+        component: () => import('@/pages/admin/LoginPage.vue'),
+        meta: { judul: 'Login' },
+      },
     ],
   },
   {
     path: '/admin',
-    component: AdminLayout,
+    component: LayoutAdmin,
+    meta: { judul: 'Dasbor' },
     children: [
-      { path: '', name: 'admin.dasbor', component: () => import('@/pages/admin/DasborPage.vue') },
+      {
+        path: '',
+        name: 'admin.dasbor',
+        component: () => import('@/pages/admin/DasborPage.vue'),
+        meta: { judul: 'Dasbor' },
+      },
     ],
   },
 ]
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior() {
+    return { top: 0 }
+  },
 })
+
+router.afterEach((to) => {
+  document.title = to.meta.judul ? `${to.meta.judul} - Inventaris IT` : 'Inventaris IT'
+})
+
+export default router
