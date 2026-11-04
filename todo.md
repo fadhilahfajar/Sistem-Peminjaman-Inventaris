@@ -58,7 +58,7 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - [x] **2.6** (S) [B] `PeminjamanService::buat` untuk pemesanan (tanggal masa depan, stok ditahan). BR-23, D-10. Verifikasi: **T-23**.
 - [x] **2.7** (M) [B] `KlaimService::buat`. BR-03, BR-04, BR-10. Verifikasi: **T-07**, **T-08**, **T-12**, **T-25**.
 - [x] **2.8** (M) [B] `VerifikasiService::proses`. BR-05 sampai BR-08, cek BR-01 sebelum commit. Verifikasi: **T-03**, **T-09**, **T-14**.
-- [ ] **2.9** (S) [B] `PembatalanService` (peminjam dan admin). BR-24, BR-25. Verifikasi: **T-24**, **T-26**.
+- [x] **2.9** (S) [B] `PembatalanService` (peminjam dan admin). BR-24, BR-25. Verifikasi: **T-24**, **T-26**.
 - [ ] **2.10** (S) [B] `PerpanjanganService` (peminjam dan admin). BR-11 sampai BR-13, BR-26. Verifikasi: **T-17**, **T-18**, **T-19**, **T-27**.
 - [ ] **2.11** (S) [B] `KoreksiService`. BR-16. Verifikasi: tes koreksi jumlah, penolakan bila sudah ada klaim, riwayat tersimpan.
 - [ ] **2.12** (M) [B] Perintah `inventaris:periksa-invarian`: hitung ulang BR-01 dan cocokkan dengan jumlah `delta_*`. Exit code non-nol bila ada pelanggaran. Verifikasi: **T-42**.
@@ -216,6 +216,7 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - 2026-10-30: 2.6 selesai. Penahanan stok dan validasi tanggal pemesanan sudah dibuat di 2.5 karena `simpan()` tidak membedakan tanggal. 2.6 menambah empat tes T-23 (stok langsung berkurang untuk tanggal masa depan, status turunan `dipesan` dan `dipinjam`, batas tepat `maks_booking_hari` diterima, stok kurang ditolak 409 tanpa efek). Tes langsung lulus karena tidak ada kode baru. Total PeminjamanServiceTest: lulus.
 - 2026-10-30: 2.7 selesai. KlaimService::buat: (isi ringkas dari kode Anda). T-07, T-08, T-12, T-25 diuji: (isi hanya yang ada tesnya). Tes: (N tes/M assertions).
 - 2026-10-30: 2.8 selesai. VerifikasiService::proses: klaim dikunci lalu items menurut id menaik, empat hasil per baris wajib berjumlah sama dengan klaim, catatan admin wajib bila hasil berbeda dari laporan atau ada unit ditolak (BR-06), tersedia +baik, rusak +rusak, total -hilang, satu mutasi per barang per jenis lewat BukuBesarStok::catat, unit ditolak tidak mengubah stok, pembaruan bersyarat status = 'menunggu' (BR-07), BR-01 diperiksa per barang sebelum commit. T-03, T-09, T-14 diuji, serta T-22 hanya berurutan. Tes: (N tes/M assertions). Belum diuji: konkurensi nyata (2.14) dan BR-01 menyeluruh (2.13 ditunda). Audit ditulis langsung ke AuditLog, bukan lewat Support\Audit.
+- 2026-11-04: 2.9 selesai. `PembatalanService` menangani pembatalan pemesanan oleh peminjam sebelum tanggal pinjam dan pembatalan oleh admin dengan alasan wajib; perubahan stok, mutasi `BATAL_PINJAM`, dan audit berada dalam transaksi. Tes T-24/T-26 lulus (7 tes, 40 assertions); tidak memakai nilai bawaan K-x.
 
 ### Log C (a710230117-faris)
 
