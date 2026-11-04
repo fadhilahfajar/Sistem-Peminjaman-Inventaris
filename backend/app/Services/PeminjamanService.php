@@ -88,11 +88,17 @@ class PeminjamanService
             $this->catatPinjam($item, $it['qty'], $loan->id);
         }
 
-        Audit::catat('buat_peminjaman', 'loans', $loan->id, null, [
-            'kode_pinjam' => $loan->kode_pinjam,
-            'jumlah_barang' => $urut->count(),
-            'pemesanan' => $n['tanggal_pinjam'] > Tanggal::hariIni(),
-        ]);
+      Audit::catat(
+            aksi: 'buat_peminjaman',
+            entitas: 'loans',
+            entitasId: $loan->id,
+            userId: null,
+            detail: [
+        'kode_pinjam' => $loan->kode_pinjam,
+        'jumlah_barang' => $urut->count(),
+        'pemesanan' => $n['tanggal_pinjam'] > Tanggal::hariIni(),
+    ],
+);
 
         return $loan->load(['items.item', 'divisi']);
     }
