@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Exceptions\GalatBisnis;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -42,6 +43,11 @@ class PenangananGalat
             return self::balas(401);
         }
 
+        // GalatBisnis membawa kode dan pesan khusus yang aman ditampilkan ke klien.
+        if ($e instanceof GalatBisnis) {
+            return self::balasKustom($e->getStatusCode(), $e->kode, $e->getMessage(), self::ambilHeaderAman($e));
+        }
+
         $status = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
         $headers = $e instanceof HttpExceptionInterface ? $e->getHeaders() : [];
 
@@ -62,9 +68,16 @@ class PenangananGalat
             $isi['errors'] = $errors;
         }
 
-        // Hanya header yang aman dan perlu (mis. Retry-After pada 429).
-        $aman = array_intersect_key($headers, array_flip(['Retry-After', 'X-RateLimit-Limit', 'X-RateLimit-Remaining']));
+        return response()->json($isi, $status, $headers);
+    }
 
-        return response()->json($isi, $status, $aman);
+    private static function balasKustom(int $status, string $kode, string $pesan, array $headers = []): JsonResponse
+    {
+        return response()->json(['kode' => $kode, 'pesan' => $pesan], $status, $headers);
+    }
+
+    private static function ambilHeaderAman(HttpExceptionInterface $e): array
+    {
+        return array_intersect_key($e->getHeaders(), array_flip(['Retry-After', 'X-RateLimit-Limit', 'X-RateLimit-Remaining']));
     }
 }

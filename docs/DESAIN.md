@@ -467,6 +467,45 @@ Filter `GET /api/admin/loans`: `status`, `barang`, `kategori`, `tipe_peminjam`, 
 
 Bentuk JSON yang sebenarnya dicatat di bagian ini oleh agent saat tiap endpoint selesai (todo 3.11).
 
+Contoh bentuk JSON yang sudah selesai (agent A, Task 3.7, T-28 dan T-30):
+
+- `GET /api/admin/categories` dan `GET /api/admin/divisions` (200 OK): semua baris, aktif dan nonaktif, urut nama, tanpa pagination.
+
+```json
+{
+  "data": [
+    { "id": 2, "nama": "Audio Video", "aktif": true },
+    { "id": 1, "nama": "Komputer", "aktif": false }
+  ]
+}
+```
+
+- `POST /api/admin/categories` (201 Created) — isian hanya `nama`, minimal 2 dan maksimal 100 karakter; status awal selalu `aktif: true` (BR-28). `POST /api/admin/divisions` sama bentuknya (BR-27).
+
+```json
+{ "nama": "Elektronik" }
+```
+
+```json
+{ "data": { "id": 3, "nama": "Elektronik", "aktif": true } }
+```
+
+- `PATCH /api/admin/categories/{id}` dan `PATCH /api/admin/divisions/{id}` (200 OK) — isian `nama` dan atau `aktif`, keduanya `sometimes`. Menonaktifkan kategori yang masih punya barang aktif (soft-delete dikecualikan) ditolak (BR-33); divisi selalu boleh dinonaktifkan (BR-27). Tidak ada DELETE untuk keduanya.
+
+```json
+{ "aktif": false }
+```
+
+```json
+{ "data": { "id": 2, "nama": "Elektronik", "aktif": false } }
+```
+
+- Nama ganda saat POST atau PATCH ditolak 422; menonaktifkan kategori yang dipakai barang ditolak 409:
+
+```json
+{ "kode": "kategori_masih_dipakai", "pesan": "Kategori ini masih dipakai oleh 1 barang aktif. Pindahkan barang ke kategori lain dulu." }
+```
+
 ## 9. Struktur folder
 
 ```
