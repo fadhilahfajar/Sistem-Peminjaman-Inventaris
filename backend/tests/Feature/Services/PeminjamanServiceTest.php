@@ -18,6 +18,10 @@ use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
 
+afterEach(function () {
+    assertInvarian(false);
+});
+
 beforeEach(function () {
     $this->seed(SettingSeeder::class);
     $this->layanan = app(PeminjamanService::class);

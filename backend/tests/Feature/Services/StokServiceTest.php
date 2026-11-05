@@ -12,6 +12,10 @@ use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
 
+afterEach(function () {
+    assertInvarian(false);
+});
+
 function adminStok(): User
 {
     return User::create([
@@ -112,7 +116,7 @@ it('menolak alasan kosong', function (string $alasan) {
 
 it('menolak pengurangan yang membuat tersedia negatif walau total mencukupi', function () {
     $admin = adminStok();
-    $item = itemKosong(total: 5, tersedia: 2);
+    $item = itemKosong(total: 5, tersedia: 2, rusak: 3);
 
     expect(fn () => app(StokService::class)->kurangi($item->id, 3, $admin->id, 'Uji'))
         ->toThrow(ValidationException::class);
