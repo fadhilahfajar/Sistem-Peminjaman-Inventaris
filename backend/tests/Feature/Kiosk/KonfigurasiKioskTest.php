@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Setting;
 use Database\Seeders\SettingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -10,13 +11,25 @@ it('mengembalikan hanya lima parameter publik tanpa login', function () {
     $this->seed(SettingSeeder::class);
 
     $r = $this->getJson('/api/kiosk/config');
-    dump($r->status(), $r->getContent());
     $r->assertOk();
 
     expect(array_keys($r->json('data')))->toEqualCanonicalizing([
         'maks_durasi_awal_hari', 'maks_booking_hari', 'maks_perpanjangan',
         'maks_hari_per_perpanjangan', 'kiosk_idle_detik',
     ]);
+});
+
+it('mengembalikan nilai yang sesuai dengan pengaturan dan bertipe angka', function () {
+    $this->seed(SettingSeeder::class);
+    Setting::query()->where('kunci', 'maks_durasi_awal_hari')->update(['nilai' => '14']);
+
+    $r = $this->getJson('/api/kiosk/config')->assertOk();
+
+    expect($r->json('data.maks_durasi_awal_hari'))->toBe(14)
+        ->and($r->json('data.maks_booking_hari'))->toBeInt()
+        ->and($r->json('data.maks_perpanjangan'))->toBeInt()
+        ->and($r->json('data.maks_hari_per_perpanjangan'))->toBeInt()
+        ->and($r->json('data.kiosk_idle_detik'))->toBeInt();
 });
 
 it('tidak membuka parameter keamanan', function () {

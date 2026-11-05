@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Division extends ModelDomain
 {
+    use HasFactory;
+
     protected $fillable = ['nama', 'aktif'];
 
     protected $casts = ['aktif' => 'boolean'];
