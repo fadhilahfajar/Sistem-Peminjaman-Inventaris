@@ -60,11 +60,11 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - [x] **2.8** (M) [B] `VerifikasiService::proses`. BR-05 sampai BR-08, cek BR-01 sebelum commit. Verifikasi: **T-03**, **T-09**, **T-14**.
 - [x] **2.9** (S) [B] `PembatalanService` (peminjam dan admin). BR-24, BR-25. Verifikasi: **T-24**, **T-26**.
 - [x] **2.10** (S) [B] `PerpanjanganService` (peminjam dan admin). BR-11 sampai BR-13, BR-26. Verifikasi: **T-17**, **T-18**, **T-19**, **T-27**.
-- [ ] **2.11** (S) [B] `KoreksiService`. BR-16. Verifikasi: tes koreksi jumlah, penolakan bila sudah ada klaim, riwayat tersimpan.
-- [ ] **2.12** (M) [B] Perintah `inventaris:periksa-invarian`: hitung ulang BR-01 dan cocokkan dengan jumlah `delta_*`. Exit code non-nol bila ada pelanggaran. Verifikasi: **T-42**.
-- [ ] **2.13** (M) [B] Helper tes `assertInvarian()` dipanggil di akhir setiap tes Service.
-- [ ] **2.14** (M) [B] Tes konkurensi **nyata** dengan dua proses atau dua koneksi terpisah (satu proses PHP tidak membuktikan `lockForUpdate`). **T-21**, **T-22**.
-- [ ] **2.15** (M) [B] Tes acak 1.000 operasi dengan seed tetap supaya dapat diulang, lalu `periksa-invarian`. **T-10**.
+- [x] **2.11** (S) [B] `KoreksiService`. BR-16. Verifikasi: tes koreksi jumlah, penolakan bila sudah ada klaim, riwayat tersimpan.
+- [x] **2.12** (M) [B] Perintah `inventaris:periksa-invarian`: hitung ulang BR-01 dan cocokkan dengan jumlah `delta_*`. Exit code non-nol bila ada pelanggaran. Verifikasi: **T-42**.
+- [x] **2.13** (M) [B] Helper tes `assertInvarian()` dipanggil di akhir setiap tes Service.
+- [x] **2.14** (M) [B] Tes konkurensi **nyata** dengan dua proses atau dua koneksi terpisah (satu proses PHP tidak membuktikan `lockForUpdate`). **T-21**, **T-22**.
+- [x] **2.15** (M) [B] Tes acak 1.000 operasi dengan seed tetap supaya dapat diulang, lalu `periksa-invarian`. **T-10**.
 
 **Gerbang 2:** T-02, T-03, T-04, T-07 sampai T-12, T-14, T-15, T-21, T-22, T-34, T-42 lulus. `periksa-invarian` melaporkan 0 pelanggaran setelah T-10.
 
@@ -219,6 +219,11 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - 2026-10-30: 2.8 selesai. VerifikasiService::proses: klaim dikunci lalu items menurut id menaik, empat hasil per baris wajib berjumlah sama dengan klaim, catatan admin wajib bila hasil berbeda dari laporan atau ada unit ditolak (BR-06), tersedia +baik, rusak +rusak, total -hilang, satu mutasi per barang per jenis lewat BukuBesarStok::catat, unit ditolak tidak mengubah stok, pembaruan bersyarat status = 'menunggu' (BR-07), BR-01 diperiksa per barang sebelum commit. T-03, T-09, T-14 diuji, serta T-22 hanya berurutan. Tes lulus. Belum diuji: konkurensi nyata (2.14) dan BR-01 menyeluruh (2.12 dan 2.13). Tindak lanjut: audit ditulis langsung ke AuditLog dan melewati penjaga kata sandi di Support\Audit. Audit ditulis langsung ke AuditLog, bukan lewat Support\Audit.
 - 2026-11-04: 2.9 selesai. `PembatalanService` menangani pembatalan pemesanan oleh peminjam sebelum tanggal pinjam dan pembatalan oleh admin dengan alasan wajib; perubahan stok, mutasi `BATAL_PINJAM`, dan audit berada dalam transaksi. Tes T-24/T-26 lulus (7 tes, 40 assertions); tidak memakai nilai bawaan K-x.
 - 2026-11-04: 2.10 selesai. `PerpanjanganService` mencatat riwayat append-only dan audit, menghitung batas baru dari batas lama, menerapkan syarat peminjam serta alasan wajib dan kelonggaran admin sesuai BR-13/T-27. Tes T-17/T-18/T-19/T-27 lulus ( tes,  assertions); seluruh backend lulus (275 tes, 2684 assertions). Tidak memakai nilai bawaan K-x.
+- 2026-11-05: 2.11 selesai. `KoreksiService` menangani koreksi peminjaman admin (nama, divisi, telepon, tanggal, batas kembali, dan jumlah per barang sesuai BR-16). Mengunci baris `items` urut ID menaik, menolak bila barang sudah memiliki klaim, mencatat riwayat di `loan_corrections`, mutasi `KOREKSI_PINJAM`, dan audit log.
+- 2026-11-05: 2.12 selesai. Perintah artisan `inventaris:periksa-invarian` dan service `PemeriksaInvarian` memvalidasi invarian BR-01 dan mencocokkan total/tersedia/rusak dengan delta buku besar stok (T-42). Mengembalikan kode keluar non-nol bila ada pelanggaran dan 0 saat konsisten.
+- 2026-11-05: 2.13 selesai. Helper tes `assertInvarian()` dibuat dan diintegrasikan secara global serta pada `afterEach` tes service domain.
+- 2026-11-05: 2.14 selesai. Tes konkurensi nyata multi-proses via `proc_open` dan barrier `flock`: T-21 (dua peminjaman bersamaan untuk stok 1: tepat satu berhasil dan satu 409) dan T-22 (dua verifikasi paralel pada satu klaim: satu berhasil dan satu 409).
+- 2026-11-05: 2.15 selesai. Tes acak 1.000 operasi (T-10) dengan seed tetap mencakup pinjam, pesan, klaim, verifikasi, batal, perpanjang, penyesuaian stok, tandai rusak, perbaikan, afkir, dan koreksi, diverifikasi dengan `periksa-invarian` 0 pelanggaran. Gerbang 2 terpenuhi seluruhnya (315 tes lulus).
 
 ### Log C (a710230117-faris)
 
