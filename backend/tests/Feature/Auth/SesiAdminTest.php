@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\User;
 use Database\Seeders\SettingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -9,35 +8,6 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->seed(SettingSeeder::class);
 });
-
-uses(RefreshDatabase::class);
-
-beforeEach(function () {
-    $this->seed(SettingSeeder::class);
-});
-
-beforeEach(function () {
-    $this->seed(SettingSeeder::class);
-});
-
-function adminUji(bool $aktif = true): User
-{
-    return User::create([
-        'name' => 'Admin',
-        'email' => uniqid().'@uji.test',
-        'password' => 'rahasia-panjang-123',
-        'aktif' => $aktif,
-    ]);
-}
-
-function spa()
-{
-    return test()->withHeaders([
-        'Origin' => 'http://localhost:5173',
-        'Referer' => 'http://localhost:5173/',
-    ])
-        ->withSession([]);
-}
 
 it('me menolak 401 tanpa sesi (T-01)', function () {
     spa()->getJson('/api/auth/me')->assertStatus(401);
