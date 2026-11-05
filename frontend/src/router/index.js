@@ -15,6 +15,24 @@ const routes = [
         component: () => import('@/pages/kiosk/BerandaPage.vue'),
         meta: { judul: 'Beranda' },
       },
+      {
+        path: 'katalog',
+        name: 'kiosk.katalog',
+        component: () => import('@/pages/kiosk/KatalogPage.vue'),
+        meta: { judul: 'Katalog Barang' },
+      },
+      {
+        path: 'pinjam',
+        name: 'kiosk.pinjam',
+        component: () => import('@/pages/kiosk/PinjamPage.vue'),
+        meta: { judul: 'Pinjam Barang' },
+      },
+      {
+        path: 'cek',
+        name: 'kiosk.cek',
+        component: () => import('@/pages/kiosk/CekPage.vue'),
+        meta: { judul: 'Cek Peminjaman' },
+      },
     ],
   },
   {
