@@ -10,6 +10,7 @@ const expected = [
   'FormField.vue',
   'InputJumlah.vue',
   'InputKode.vue',
+  'KartuBarang.vue',
   'Memuat.vue',
   'ModalKonfirmasi.vue',
   'NotifikasiToast.vue',
@@ -51,4 +52,4 @@ for (const name of expected) {
 }
 
 // ponytail: check parse/compile SFC statis; pasang vitest + @vue/test-utils saat butuh uji interaksi DOM
-console.log('Semua 12 komponen lulus validasi sintaks dan kompilasi SFC.')
+console.log('Semua komponen dasar lulus validasi sintaks dan kompilasi SFC.')
