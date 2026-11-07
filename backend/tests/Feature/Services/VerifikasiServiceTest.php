@@ -19,6 +19,10 @@ use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
 
+afterEach(function () {
+    assertInvarian(false);
+});
+
 beforeEach(function () {
     $this->admin = User::create([
         'name' => 'Admin', 'email' => 'v28-'.uniqid().'@uji.test',
@@ -301,4 +305,6 @@ it('rollback penuh bila stok tidak konsisten sehingga BR-01 atau CHECK dilanggar
         ->and(v28Mutasi())->toBe(0)
         ->and($b->fresh()->qty_baik)->toBeNull()
         ->and(AuditLog::where('aksi', 'verifikasi_klaim')->count())->toBe(0);
+
+    $item->update(['tersedia' => 7]); // pulihkan data uji agar invarian valid
 });

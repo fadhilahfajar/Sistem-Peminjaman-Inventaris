@@ -21,6 +21,10 @@ use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
 
+afterEach(function () {
+    assertInvarian(false);
+});
+
 beforeEach(function () {
     $this->seed(SettingSeeder::class);
     $this->klaim = app(KlaimService::class);
@@ -141,6 +145,7 @@ it('klaim atas pemesanan ditolak 409 (T-25)', function () {
 
 it('klaim atas peminjaman yang dibatalkan ditolak 409', function () {
     [$loan, $item] = k27Pinjam(3);
+    $item->increment('tersedia', 3);
     Loan::whereKey($loan->id)->update(['dibatalkan_pada' => now()]);
 
     $e = k27Tangkap(fn () => $this->klaim->buat(k27Data($loan, $item, baik: 1)));

@@ -20,6 +20,10 @@ use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
 
+afterEach(function () {
+    assertInvarian(false);
+});
+
 beforeEach(function () {
     $this->seed(SettingSeeder::class);
     $this->perpanjangan = app(PerpanjanganService::class);
@@ -161,7 +165,8 @@ it('admin dapat memperpanjang peminjaman terlambat dan barang yang tidak boleh d
 
 it('menolak perpanjangan peminjaman yang sudah dibatalkan', function () {
     $admin = perpanjanganAdmin();
-    [$loan] = perpanjanganPinjam();
+    [$loan, $item] = perpanjanganPinjam();
+    $item->increment('tersedia', 3);
     $loan->update(['dibatalkan_pada' => now('UTC')]);
 
     expect(fn () => $this->perpanjangan->olehPeminjam($loan->kode_pinjam, 1))

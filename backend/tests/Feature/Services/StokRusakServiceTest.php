@@ -11,6 +11,10 @@ use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
 
+afterEach(function () {
+    assertInvarian();
+});
+
 function adminRusak(): User
 {
     return User::create([
