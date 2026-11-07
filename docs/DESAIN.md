@@ -432,6 +432,60 @@ Contoh respons JSON:
 }
 ```
 
+- `POST /api/kiosk/loans` (201 Created): contoh permintaan dan respons peminjaman atau pemesanan kiosk. Permintaan ulang dengan `idempotency_key` yang sama dan badan identik mengembalikan status 200 OK dengan isi badan yang sama, dan rute ini dilindungi oleh limiter `kiosk-tulis` (30 permintaan per menit per IP).
+
+Permintaan:
+```json
+{
+  "nama_peminjam": "Budi Santoso",
+  "division_id": 1,
+  "tipe_peminjam": "karyawan",
+  "telepon": "081234567890",
+  "tanggal_pinjam": "2026-11-07",
+  "batas_kembali": "2026-11-10",
+  "idempotency_key": "c3f8e6b1-42ab-4d2c-9a1b-782f9d8e4c10",
+  "items": [
+    {
+      "item_id": 1,
+      "qty": 2
+    }
+  ]
+}
+```
+
+Respons sukses (201 Created):
+```json
+{
+  "data": {
+    "kode_pinjam": "PJM-A7B8C9",
+    "nama_peminjam": "Budi Santoso",
+    "division": {
+      "id": 1,
+      "nama": "IT"
+    },
+    "tipe_peminjam": "karyawan",
+    "tanggal_pinjam": "2026-11-07",
+    "batas_kembali": "2026-11-10",
+    "status": "dipinjam",
+    "pemesanan": false,
+    "items": [
+      {
+        "nama": "Kabel HDMI 2M",
+        "qty_dipinjam": 2
+      }
+    ]
+  }
+}
+```
+
+Respons stok tidak cukup (409 Conflict):
+```json
+{
+  "kode": "stok_tidak_cukup",
+  "pesan": "Stok barang 'Kabel HDMI 2M' tidak mencukupi atau sudah berubah (tersedia 1). Muat ulang lalu coba lagi."
+}
+```
+
 ### 8.2 Admin
 
 | Method | Path | Fungsi | FR |

@@ -25,5 +25,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('kiosk-baca', function (Request $request) {
             return Limit::perMinute(120)->by($request->ip());
         });
+
+        RateLimiter::for('kiosk-tulis', function (Request $request) {
+            return Limit::perMinute(30)->by($request->ip());
+        });
     }
 }
