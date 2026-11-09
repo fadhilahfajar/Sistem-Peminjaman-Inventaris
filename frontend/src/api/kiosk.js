@@ -37,12 +37,12 @@ export const kioskApi = {
 
   /**
    * Buat peminjaman atau pemesanan baru.
-   * Mengembalikan kode pinjam.
+   * Mengembalikan data transaksi dan kode pinjam (DESAIN 8.1).
    * @param {{
    *   nama_peminjam: string,
-   *   divisi_id: number,
-   *   tipe_peminjam: 'internal' | 'eksternal',
-   *   telepon: string,
+   *   division_id: number,
+   *   tipe_peminjam: 'karyawan' | 'magang',
+   *   telepon?: string|null,
    *   tanggal_pinjam: string,
    *   batas_kembali: string,
    *   items: Array<{ item_id: number, qty: number }>,
