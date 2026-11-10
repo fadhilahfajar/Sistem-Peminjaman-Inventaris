@@ -6,8 +6,8 @@ const route = useRoute()
 
 <template>
   <div class="min-h-screen bg-slate-50 font-sans text-kiosk text-slate-900 flex flex-col">
-    <!-- Header Kiosk -->
-    <header class="border-b border-slate-200 bg-white px-4 md:px-6 py-4 shadow-2xs">
+    <!-- Header Kiosk (Sembunyi saat cetak sesuai US-03, T-39, UI-06) -->
+    <header class="print:hidden border-b border-slate-200 bg-white px-4 md:px-6 py-4 shadow-2xs">
       <div class="mx-auto flex max-w-5xl items-center justify-between">
         <RouterLink
           to="/"
@@ -31,7 +31,7 @@ const route = useRoute()
     </header>
 
     <!-- Konten Utama Kiosk -->
-    <main class="mx-auto w-full max-w-5xl flex-1 p-4 md:p-6">
+    <main class="mx-auto w-full max-w-5xl flex-1 p-4 md:p-6 print:p-0 print:max-w-none">
       <RouterView />
     </main>
   </div>
