@@ -48,5 +48,16 @@ assert.ok(pinjamPageContent.includes('sedangKirim'), 'PinjamPage harus memiliki 
 assert.ok(pinjamPageContent.includes('apakahPemesanan'), 'PinjamPage harus mendeteksi mode pemesanan jika tanggal pinjam masa depan')
 assert.ok(pinjamPageContent.includes('keranjang'), 'PinjamPage harus memiliki keranjang barang')
 
+// Uji aturan FR-K-03 & T-39 / UI-06 pada StrukCetak & Layout:
+const strukCetakContent = fs.readFileSync(path.resolve('src/components/StrukCetak.vue'), 'utf-8')
+assert.ok(strukCetakContent.includes('pemesanan'), 'StrukCetak harus mendukung prop pemesanan')
+assert.ok(strukCetakContent.includes('[PEMESANAN]'), 'StrukCetak harus memiliki penanda [PEMESANAN] bila masa depan (FR-K-03)')
+assert.ok(strukCetakContent.includes('Petunjuk Pengembalian'), 'StrukCetak harus memuat petunjuk pengembalian (FR-K-03)')
+assert.ok(strukCetakContent.includes('@media print'), 'StrukCetak harus memiliki stylesheet cetak')
+assert.ok(strukCetakContent.includes('salinKode'), 'StrukCetak harus memiliki aksi salin kode')
+
+const layoutKioskContent = fs.readFileSync(path.resolve('src/layouts/LayoutKiosk.vue'), 'utf-8')
+assert.ok(layoutKioskContent.includes('print:hidden'), 'LayoutKiosk harus menyembunyikan header navigasi saat cetak (US-03, T-39, UI-06)')
+
 // ponytail: check parse/compile SFC halaman kiosk; tambahkan vitest mount bila sudah dibutuhkan di pengujian interaktif
-console.log('Semua halaman kiosk dan aturan FR-K-01/FR-K-02/UI-02 lulus pengujian.')
+console.log('Semua halaman kiosk dan aturan FR-K-01/FR-K-02/FR-K-03/UI-02/UI-06 lulus pengujian.')

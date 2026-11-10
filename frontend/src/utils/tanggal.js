@@ -30,3 +30,12 @@ export function formatTanggalIndo(tanggalStr) {
     dateStyle: 'medium',
   }).format(date)
 }
+
+export function formatWaktuCetak(date = new Date()) {
+  const tgl = new Intl.DateTimeFormat('id-ID', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Asia/Jakarta',
+  }).format(date)
+  return `${tgl} WIB`
+}
