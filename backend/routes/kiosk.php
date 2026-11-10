@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Kiosk\CategoryController;
 use App\Http\Controllers\Api\Kiosk\DivisionController;
 use App\Http\Controllers\Api\Kiosk\ItemController;
 use App\Http\Controllers\Api\Kiosk\LoanController;
+use App\Http\Controllers\Api\Kiosk\ReturnClaimController;
 use App\Http\Controllers\Kiosk\KonfigurasiController;
 use App\Http\Controllers\Kiosk\UjiIntegrasiController;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,7 @@ Route::middleware('throttle:kiosk-baca')->group(function () {
 Route::middleware('throttle:kiosk-tulis')->group(function () {
     Route::post('loans', [LoanController::class, 'buat']);
     Route::post('loans/lookup', [LoanController::class, 'lookup']);
+    Route::post('return-claims', [ReturnClaimController::class, 'buat']);
 });
 
 // SEMENTARA (1.19b). Hapus setelah A membuktikan cookie, CSRF, dan CORS.

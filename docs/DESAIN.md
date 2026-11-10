@@ -569,6 +569,69 @@ Respons terkunci pembatas percobaan (429 Too Many Requests, header `Retry-After:
 }
 ```
 
+- `POST /api/kiosk/return-claims` (201 Created, 200 OK, 409 Conflict, 404 Not Found, 429 Too Many Requests): contoh permintaan dan respons klaim pengembalian kiosk. Permintaan ulang dengan `idempotency_key` yang sama dan isi identik mengembalikan status 200 OK dengan badan respons yang sama. Rute ini dilindungi oleh limiter `kiosk-tulis` (30 permintaan per menit per IP) dan pembatas percobaan kode berbasis IP.
+
+Permintaan:
+```json
+{
+  "kode": "PJM-A7B8C9",
+  "idempotency_key": "c3f8e6b1-42ab-4d2c-9a1b-782f9d8e4c10",
+  "catatan": "Kabel HDMI berfungsi baik.",
+  "lines": [
+    {
+      "item_id": 1,
+      "kondisi": "baik",
+      "qty": 2
+    }
+  ]
+}
+```
+
+Respons sukses (201 Created):
+```json
+{
+  "data": {
+    "kode_klaim": "KMB-A7B8C9",
+    "kode_pinjam": "PJM-A7B8C9",
+    "status": "menunggu",
+    "diklaim_pada": "2026-11-10T09:00:00+00:00",
+    "hari_terlambat": 0,
+    "catatan_peminjam": "Kabel HDMI berfungsi baik.",
+    "lines": [
+      {
+        "nama": "Kabel HDMI 2M",
+        "kondisi_dilaporkan": "baik",
+        "qty": 2
+      }
+    ]
+  }
+}
+```
+
+Respons klaim melebihi sisa (409 Conflict):
+```json
+{
+  "kode": "klaim_melebihi_sisa",
+  "pesan": "Jumlah klaim Kabel HDMI 2M melebihi sisa (1 unit)."
+}
+```
+
+Respons kode tidak ditemukan atau format salah (404 Not Found):
+```json
+{
+  "kode": "kode_tidak_ditemukan",
+  "pesan": "Kode peminjaman tidak ditemukan."
+}
+```
+
+Respons terkunci pembatas percobaan (429 Too Many Requests, header `Retry-After: 300`):
+```json
+{
+  "kode": "lookup_terkunci",
+  "pesan": "Terlalu banyak percobaan, coba lagi dalam 5 menit."
+}
+```
+
 ### 8.2 Admin
 
 | Method | Path | Fungsi | FR |
