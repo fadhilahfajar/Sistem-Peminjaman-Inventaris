@@ -9,6 +9,7 @@ const expectedPages = [
   'CekPage.vue',
   'KatalogPage.vue',
   'PinjamPage.vue',
+  'PinjamSelesaiPage.vue',
 ]
 
 for (const pageName of expectedPages) {
@@ -40,5 +41,12 @@ const kartuBarangContent = fs.readFileSync(path.resolve('src/components/KartuBar
 assert.ok(kartuBarangContent.includes('Stok Habis'), 'KartuBarang harus memuat teks penanda Stok Habis')
 assert.ok(kartuBarangContent.includes('dinonaktifkan'), 'KartuBarang harus menonaktifkan aksi saat stok 0')
 
+// Uji aturan FR-K-02 & UI-02 pada PinjamPage:
+const pinjamPageContent = fs.readFileSync(path.resolve('src/pages/kiosk/PinjamPage.vue'), 'utf-8')
+assert.ok(pinjamPageContent.includes('crypto.randomUUID()'), 'PinjamPage harus membuat kunci idempotensi UUID')
+assert.ok(pinjamPageContent.includes('sedangKirim'), 'PinjamPage harus memiliki state sedangKirim untuk mencegah pengiriman berulang')
+assert.ok(pinjamPageContent.includes('apakahPemesanan'), 'PinjamPage harus mendeteksi mode pemesanan jika tanggal pinjam masa depan')
+assert.ok(pinjamPageContent.includes('keranjang'), 'PinjamPage harus memiliki keranjang barang')
+
 // ponytail: check parse/compile SFC halaman kiosk; tambahkan vitest mount bila sudah dibutuhkan di pengujian interaktif
-console.log('Semua halaman kiosk dan aturan stok 0 KartuBarang lulus pengujian.')
+console.log('Semua halaman kiosk dan aturan FR-K-01/FR-K-02/UI-02 lulus pengujian.')

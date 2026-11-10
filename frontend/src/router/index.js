@@ -28,6 +28,12 @@ const routes = [
         meta: { judul: 'Pinjam Barang' },
       },
       {
+        path: 'pinjam/selesai',
+        name: 'kiosk.pinjam-selesai',
+        component: () => import('@/pages/kiosk/PinjamSelesaiPage.vue'),
+        meta: { judul: 'Peminjaman Selesai' },
+      },
+      {
         path: 'cek',
         name: 'kiosk.cek',
         component: () => import('@/pages/kiosk/CekPage.vue'),
