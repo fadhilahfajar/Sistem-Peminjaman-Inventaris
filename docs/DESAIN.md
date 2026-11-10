@@ -307,6 +307,8 @@ Semua operasi multi-baris berjalan dalam `DB::transaction()` dengan 3 percobaan 
 | `KoreksiService` | Koreksi peminjaman |
 | `StokService` | Penyesuaian total, tandai rusak, perbaikan, afkir |
 | `StatusPeminjaman` | Turunan status, O dan P, lencana, hari terlambat (murni baca) |
+| `KartuPeminjamanService` | Bangun data kartu peminjaman, rincian per barang, riwayat klaim, dan kelayakan aksi (murni baca) |
+| `PembatasKodeKiosk` | Batas percobaan kode per IP dan penguncian sementara (K-6, murni cache) |
 | `LaporanService` | Data laporan PDF |
 | `BukuBesarStok` (di `Support/`) | **Satu-satunya** jalur penulisan `stock_movements`, menjamin satu baris per perubahan |
 
@@ -486,6 +488,87 @@ Respons stok tidak cukup (409 Conflict):
 }
 ```
 
+- `POST /api/kiosk/loans/lookup` (200 OK, 404 Not Found, 429 Too Many Requests): contoh permintaan dan respons lookup peminjaman kiosk. Seluruh respons sukses mempertahankan pembungkus bawaan `data`. Kartu peminjaman tidak pernah memuat nomor telepon peminjam dan angka stok barang internal (`total`, `tersedia`, `rusak`). Pembatas percobaan kode berbasis IP berlaku untuk semua endpoint kiosk yang menerima kode peminjaman.
+
+Permintaan:
+```json
+{
+  "kode": "PJM-A7B8C9"
+}
+```
+
+Respons sukses (200 OK):
+```json
+{
+  "data": {
+    "kode_pinjam": "PJM-A7B8C9",
+    "nama_peminjam": "Budi Santoso",
+    "division": {
+      "nama": "IT"
+    },
+    "tipe_peminjam": "karyawan",
+    "tanggal_pinjam": "2026-11-07",
+    "batas_kembali_awal": "2026-11-10",
+    "batas_kembali": "2026-11-10",
+    "status": "dipinjam",
+    "lencana": [],
+    "pemesanan": false,
+    "hitung_mundur": {
+      "sisa_hari": 3,
+      "hari_terlambat": 0
+    },
+    "perpanjangan": {
+      "terpakai": 0,
+      "maks": 2,
+      "sisa_kuota": 2,
+      "maks_hari_per_perpanjangan": 7
+    },
+    "items": [
+      {
+        "item_id": 1,
+        "nama": "Kabel HDMI 2M",
+        "qty_dipinjam": 2,
+        "menunggu": 0,
+        "terverifikasi": 0,
+        "sisa": 2,
+        "boleh_diperpanjang": true
+      }
+    ],
+    "klaim": [],
+    "aksi": {
+      "klaim": {
+        "boleh": true,
+        "alasan": null
+      },
+      "perpanjang": {
+        "boleh": true,
+        "alasan": null
+      },
+      "batal": {
+        "boleh": false,
+        "alasan": "Pemesanan hanya dapat dibatalkan sebelum tanggal pinjam."
+      }
+    }
+  }
+}
+```
+
+Respons kode tidak ditemukan atau format salah (404 Not Found):
+```json
+{
+  "kode": "kode_tidak_ditemukan",
+  "pesan": "Kode peminjaman tidak ditemukan."
+}
+```
+
+Respons terkunci pembatas percobaan (429 Too Many Requests, header `Retry-After: 300`):
+```json
+{
+  "kode": "lookup_terkunci",
+  "pesan": "Terlalu banyak percobaan, coba lagi dalam 5 menit."
+}
+```
+
 ### 8.2 Admin
 
 | Method | Path | Fungsi | FR |
@@ -572,7 +655,8 @@ backend/
   app/Models/               User, Division, Category, Item, Loan, LoanItem, ReturnClaim, ReturnClaimLine,
                             LoanExtension, LoanCorrection, StockMovement, AuditLog, Setting
   app/Services/             PeminjamanService, KlaimService, VerifikasiService, PerpanjanganService,
-                            PembatalanService, KoreksiService, StokService, StatusPeminjaman, LaporanService
+                            PembatalanService, KoreksiService, StokService, StatusPeminjaman,
+                            KartuPeminjamanService, PembatasKodeKiosk, LaporanService
   app/Support/              Tanggal, KodeAcak, BukuBesarStok
   database/                 migrations/, seeders/, factories/
   routes/                   api.php, web.php, console.php
