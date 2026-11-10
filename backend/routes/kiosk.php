@@ -17,6 +17,7 @@ Route::middleware('throttle:kiosk-baca')->group(function () {
 
 Route::middleware('throttle:kiosk-tulis')->group(function () {
     Route::post('loans', [LoanController::class, 'buat']);
+    Route::post('loans/lookup', [LoanController::class, 'lookup']);
 });
 
 // SEMENTARA (1.19b). Hapus setelah A membuktikan cookie, CSRF, dan CORS.
