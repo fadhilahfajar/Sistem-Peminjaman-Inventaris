@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\ItemController;
 use App\Http\Controllers\Api\Admin\ItemStockController;
 use App\Http\Controllers\Api\Admin\LoanController;
 use App\Http\Controllers\Api\Admin\RepairController;
+use App\Http\Controllers\Api\Admin\ReturnClaimController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('categories', [CategoryController::class, 'index']);
@@ -34,3 +35,7 @@ Route::get('loans/{loan}', [LoanController::class, 'tampil']);
 Route::patch('loans/{loan}', [LoanController::class, 'koreksi']);
 Route::post('loans/{loan}/extensions', [LoanController::class, 'perpanjang']);
 Route::post('loans/{loan}/cancel', [LoanController::class, 'batal']);
+
+Route::get('return-claims', [ReturnClaimController::class, 'index']);
+Route::get('return-claims/{klaim}', [ReturnClaimController::class, 'tampil']);
+Route::post('return-claims/{klaim}/verify', [ReturnClaimController::class, 'verifikasi']);
