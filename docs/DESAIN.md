@@ -706,6 +706,128 @@ Contoh bentuk JSON yang sudah selesai (agent A, Task 3.7, T-28 dan T-30):
 { "kode": "kategori_masih_dipakai", "pesan": "Kategori ini masih dipakai oleh 1 barang aktif. Pindahkan barang ke kategori lain dulu." }
 ```
 
+Contoh bentuk JSON yang sudah selesai (agent A, Task 3.6, FR-A-03, FR-A-09, FR-A-10):
+
+`kondisi` (BR-29) dan `sedang_keluar` (BR-01, `total - tersedia - rusak`) tidak disimpan sebagai kolom; keduanya diturunkan dari angka stok setiap kali JSON dibentuk. `kondisi` bernilai `baik` bila `rusak = 0`, `sebagian_rusak` bila `0 < rusak < total`, dan `semua_rusak` bila `rusak = total` dan `total > 0`.
+
+- `GET /api/admin/items?q=&kategori=&page=&page_size=` (200 OK). `page_size` bawaan 25, maksimal 100; urut nama. Barang terhapus tidak ikut. Paginator bawaan Laravel menambahkan `links` dan `meta`; bagian `meta.links` dipersingkat di contoh.
+
+```json
+{
+  "data": [
+    {
+      "id": 7,
+      "nama": "Proyektor Epson",
+      "deskripsi": "Untuk rapat ruang besar",
+      "kategori": { "id": 2, "nama": "Audio Video" },
+      "total": 5,
+      "tersedia": 3,
+      "rusak": 1,
+      "sedang_keluar": 1,
+      "kondisi": "sebagian_rusak",
+      "boleh_diperpanjang": true,
+      "dibuat_pada": "2026-11-11T02:15:00.000000Z",
+      "diubah_pada": "2026-11-11T03:40:12.000000Z"
+    }
+  ],
+  "links": { "first": "http://localhost:8000/api/admin/items?page=1", "last": "http://localhost:8000/api/admin/items?page=1", "prev": null, "next": null },
+  "meta": { "current_page": 1, "from": 1, "last_page": 1, "per_page": 25, "to": 1, "total": 1 }
+}
+```
+
+- `GET /api/admin/items/{id}` (200 OK) memakai bentuk elemen yang sama. Barang yang sudah dihapus (soft-delete) menjawab 404.
+
+- `POST /api/admin/items` (201 Created). Isian: `nama` 2 sampai 150 karakter dan unik di antara barang aktif, `deskripsi` opsional, `kategori_id` wajib kategori aktif (BR-28), `boleh_diperpanjang` bawaan `true`, `jumlah_awal` bulat 0 sampai 100000 bawaan 0. Baris dibuat dengan stok 0 lalu `jumlah_awal` dimasukkan lewat `StokService::tambah` (`TAMBAH_STOK`) dalam satu transaksi.
+
+```json
+{ "nama": "Proyektor Epson", "deskripsi": "Untuk rapat ruang besar", "kategori_id": 2, "boleh_diperpanjang": true, "jumlah_awal": 5 }
+```
+
+```json
+{
+  "data": {
+    "id": 7,
+    "nama": "Proyektor Epson",
+    "deskripsi": "Untuk rapat ruang besar",
+    "kategori": { "id": 2, "nama": "Audio Video" },
+    "total": 5,
+    "tersedia": 5,
+    "rusak": 0,
+    "sedang_keluar": 0,
+    "kondisi": "baik",
+    "boleh_diperpanjang": true,
+    "dibuat_pada": "2026-11-11T02:15:00.000000Z",
+    "diubah_pada": "2026-11-11T02:15:00.000000Z"
+  }
+}
+```
+
+- `PUT /api/admin/items/{id}` (200 OK): isian `nama`, `deskripsi`, `kategori_id` (aktif), `boleh_diperpanjang`. Kolom stok ditolak dengan pesan "Gunakan penyesuaian stok".
+
+```json
+{ "nama": "Proyektor Epson EB-X06", "deskripsi": null, "kategori_id": 2, "boleh_diperpanjang": false }
+```
+
+```json
+{
+  "kode": "validasi_gagal",
+  "pesan": "Data yang dikirim tidak valid.",
+  "errors": { "total": ["Gunakan penyesuaian stok."] }
+}
+```
+
+- `DELETE /api/admin/items/{id}` (200 OK) melakukan soft-delete (mengisi `dihapus_pada`) setelah pemeriksaan BR-14 dan BR-33. Penolakan konflik memakai 409.
+
+```json
+{ "pesan": "Barang berhasil dihapus." }
+```
+
+```json
+{ "kode": "barang_masih_dipinjam", "pesan": "Barang tidak dapat dihapus karena masih ada 2 unit yang sedang dipinjam atau menunggu verifikasi." }
+```
+
+```json
+{ "kode": "barang_masih_rusak", "pesan": "Barang tidak dapat dihapus karena masih ada 1 unit rusak. Selesaikan dulu lewat perbaikan atau afkir." }
+```
+
+```json
+{ "kode": "kategori_nonaktif", "pesan": "Barang tidak dapat dihapus karena kategorinya dinonaktifkan." }
+```
+
+- `POST /api/admin/items/{id}/stock-adjustments` (200 OK): `arah` = `tambah` atau `kurang`, `jumlah` bulat minimal 1, `alasan` wajib. Diteruskan ke `StokService::tambah` atau `StokService::kurangi`; galat Service diteruskan apa adanya (422 bila melebihi `tersedia`, tanpa perubahan stok). Respons memakai bentuk elemen barang yang sama.
+
+```json
+{ "arah": "kurang", "jumlah": 2, "alasan": "Dipinjam untuk rapat klien" }
+```
+
+- `POST /api/admin/items/{id}/mark-damaged` (200 OK): `jumlah` bulat minimal 1, `alasan` wajib. `tersedia` berkurang, `rusak` bertambah, `total` tetap, satu mutasi `TANDAI_RUSAK` (T-33).
+
+```json
+{ "jumlah": 1, "alasan": "Lensa proyektor retak" }
+```
+
+- `POST /api/admin/items/{id}/repair-complete` (200 OK): `jumlah` bulat minimal 1, `catatan` opsional. `rusak` berkurang dan `tersedia` bertambah, `total` tetap (BR-09, T-15).
+
+```json
+{ "jumlah": 1, "catatan": "Lensa diganti" }
+```
+
+- `POST /api/admin/items/{id}/write-off` (200 OK): `jumlah` bulat minimal 1, `alasan` wajib. `rusak` dan `total` berkurang sama banyak (afkir, BR-09, T-15).
+
+```json
+{ "jumlah": 1, "alasan": "Tidak ekonomis diperbaiki" }
+```
+
+- `GET /api/admin/repairs` (200 OK): hanya barang belum terhapus dengan `rusak > 0`, urut `rusak` menurun lalu nama. Tanpa pagination.
+
+```json
+{
+  "data": [
+    { "id": 7, "nama": "Proyektor Epson", "kategori": { "id": 2, "nama": "Audio Video" }, "rusak": 1, "tersedia": 3, "total": 5 }
+  ]
+}
+```
+
 ## 9. Struktur folder
 
 ```
