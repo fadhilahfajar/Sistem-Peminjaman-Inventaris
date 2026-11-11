@@ -947,6 +947,104 @@ Contoh bentuk JSON yang sudah selesai (agent A, Task 3.8, FR-A-05 sampai FR-A-08
 { "kode": "validasi_gagal", "pesan": "Data yang dikirim tidak valid.", "errors": { "alasan": ["Alasan wajib diisi."] } }
 ```
 
+Contoh bentuk JSON yang sudah selesai (agent A, Task 3.9, FR-A-04, BR-05 sampai BR-08):
+
+- `GET /api/admin/return-claims` (200 OK): antrean verifikasi. Tanpa `status` hanya memuat `menunggu`, urut `diklaim_pada` menaik (terlama di atas). `?status=diverifikasi` menampilkan riwayat, urut terbaru di atas. Filter `status` hanya menerima `menunggu` atau `diverifikasi`; nilai lain 422. `page`, `page_size` (bawaan 25, maksimal 100). Telepon hanya di endpoint admin (BR-18).
+
+```json
+{
+  "data": [
+    {
+      "id": 5,
+      "kode_klaim": "KMB-4Q7X2B",
+      "status": "menunggu",
+      "hari_terlambat": 2,
+      "catatan_peminjam": "Satu unit masih dipakai",
+      "catatan_admin": null,
+      "diklaim_pada": "2026-11-14T03:00:00.000000Z",
+      "diverifikasi_pada": null,
+      "verifikator": null,
+      "peminjaman": {
+        "id": 12,
+        "kode_pinjam": "PJM-7K3M9Q",
+        "nama_peminjam": "Budi Santoso",
+        "telepon": "081234567890",
+        "divisi": { "id": 1, "nama": "IT" },
+        "tanggal_pinjam": "2026-11-09",
+        "batas_kembali": "2026-11-12"
+      },
+      "jumlah_unit": 1,
+      "lines": [
+        { "line_id": 9, "item_id": 7, "nama": "Proyektor Epson", "kondisi_dilaporkan": "baik", "qty": 1, "hasil": null }
+      ]
+    }
+  ],
+  "links": { "first": "http://localhost:8000/api/admin/return-claims?page=1", "last": "http://localhost:8000/api/admin/return-claims?page=1", "prev": null, "next": null },
+  "meta": { "current_page": 1, "from": 1, "last_page": 1, "per_page": 25, "to": 1, "total": 1 }
+}
+```
+
+- `GET /api/admin/return-claims/{id}` (200 OK): bentuk sama dengan satu baris antrean. `hari_terlambat` adalah hari terlambat saat klaim dikirim. Id tidak ada → 404 `klaim_tidak_ditemukan`. Setelah diverifikasi, tiap baris memuat `hasil` berisi `qty_baik`, `qty_rusak`, `qty_hilang`, `qty_ditolak`, dan klaim memuat `catatan_admin`, `diverifikasi_pada`, serta `verifikator`.
+
+```json
+{
+  "data": {
+    "id": 5,
+    "kode_klaim": "KMB-4Q7X2B",
+    "status": "diverifikasi",
+    "hari_terlambat": 2,
+    "catatan_peminjam": "Satu unit masih dipakai",
+    "catatan_admin": "Ternyata rusak saat diperiksa",
+    "diklaim_pada": "2026-11-14T03:00:00.000000Z",
+    "diverifikasi_pada": "2026-11-14T04:15:00.000000Z",
+    "verifikator": { "id": 1, "nama": "Admin" },
+    "peminjaman": {
+      "id": 12,
+      "kode_pinjam": "PJM-7K3M9Q",
+      "nama_peminjam": "Budi Santoso",
+      "telepon": "081234567890",
+      "divisi": { "id": 1, "nama": "IT" },
+      "tanggal_pinjam": "2026-11-09",
+      "batas_kembali": "2026-11-12"
+    },
+    "jumlah_unit": 1,
+    "lines": [
+      {
+        "line_id": 9,
+        "item_id": 7,
+        "nama": "Proyektor Epson",
+        "kondisi_dilaporkan": "baik",
+        "qty": 1,
+        "hasil": { "qty_baik": 0, "qty_rusak": 1, "qty_hilang": 0, "qty_ditolak": 0 }
+      }
+    ]
+  }
+}
+```
+
+- `POST /api/admin/return-claims/{id}/verify` (200 OK): admin membagi tiap baris ke Baik, Rusak, Hilang, Ditolak. Jumlah keempatnya harus sama dengan `qty` baris (422 bila tidak). Hasil berbeda dari `kondisi_dilaporkan` wajib disertai `catatan_admin` (BR-06); tanpa catatan → 422. Stok berubah lewat `VERIFIKASI_BAIK`, `VERIFIKASI_RUSAK`, `VERIFIKASI_HILANG`; `ditolak` tidak mengubah stok. Respons memakai bentuk detail di atas.
+
+```json
+{
+  "lines": [
+    { "line_id": 9, "qty_baik": 0, "qty_rusak": 1, "qty_hilang": 0, "qty_ditolak": 0 }
+  ],
+  "catatan_admin": "Ternyata rusak saat diperiksa"
+}
+```
+
+- Klaim yang sudah diverifikasi tidak dapat diverifikasi ulang → 409 `klaim_sudah_diproses`. Id klaim tidak ada → 404 `klaim_tidak_ditemukan`.
+
+```json
+{ "kode": "klaim_sudah_diproses", "pesan": "Klaim ini sudah diverifikasi." }
+```
+
+- Validasi bentuk ditolak 422. `lines` kosong atau `line_id` bukan milik klaim ini, jumlah hasil tidak sama dengan `qty` baris, `qty_*` negatif, dan `catatan_admin` lebih dari 500 karakter ditolak 422 dengan `errors` per kolom.
+
+```json
+{ "kode": "validasi_gagal", "pesan": "Data yang dikirim tidak valid.", "errors": { "catatan_admin": ["Catatan admin wajib bila hasil berbeda dari laporan atau ada unit ditolak."] } }
+```
+
 ## 9. Struktur folder
 
 ```
