@@ -39,6 +39,12 @@ const routes = [
         component: () => import('@/pages/kiosk/CekPage.vue'),
         meta: { judul: 'Cek Peminjaman' },
       },
+      {
+        path: 'cek/kartu',
+        name: 'kiosk.cek-kartu',
+        component: () => import('@/pages/kiosk/KartuPage.vue'),
+        meta: { judul: 'Kartu Peminjaman' },
+      },
     ],
   },
   {
