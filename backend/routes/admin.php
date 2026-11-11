@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\DivisionController;
 use App\Http\Controllers\Api\Admin\ItemController;
 use App\Http\Controllers\Api\Admin\ItemStockController;
+use App\Http\Controllers\Api\Admin\LoanController;
 use App\Http\Controllers\Api\Admin\RepairController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,3 +28,9 @@ Route::post('items/{item}/repair-complete', [ItemStockController::class, 'selesa
 Route::post('items/{item}/write-off', [ItemStockController::class, 'afkir']);
 
 Route::get('repairs', [RepairController::class, 'index']);
+
+Route::get('loans', [LoanController::class, 'index']);
+Route::get('loans/{loan}', [LoanController::class, 'tampil']);
+Route::patch('loans/{loan}', [LoanController::class, 'koreksi']);
+Route::post('loans/{loan}/extensions', [LoanController::class, 'perpanjang']);
+Route::post('loans/{loan}/cancel', [LoanController::class, 'batal']);
