@@ -45,6 +45,36 @@ const routes = [
         component: () => import('@/pages/kiosk/KartuPage.vue'),
         meta: { judul: 'Kartu Peminjaman' },
       },
+      {
+        path: 'klaim',
+        name: 'kiosk.klaim',
+        component: () => import('@/pages/kiosk/KlaimPage.vue'),
+        meta: { judul: 'Klaim Pengembalian' },
+      },
+      {
+        path: 'klaim/selesai',
+        name: 'kiosk.klaim-selesai',
+        component: () => import('@/pages/kiosk/KlaimSelesaiPage.vue'),
+        meta: { judul: 'Bukti Klaim' },
+      },
+      {
+        path: 'perpanjang',
+        name: 'kiosk.perpanjang',
+        component: () => import('@/pages/kiosk/PerpanjangPage.vue'),
+        meta: { judul: 'Perpanjangan' },
+      },
+      {
+        path: 'perpanjang/selesai',
+        name: 'kiosk.perpanjang-selesai',
+        component: () => import('@/pages/kiosk/PerpanjangSelesaiPage.vue'),
+        meta: { judul: 'Bukti Perpanjangan' },
+      },
+      {
+        path: 'batal',
+        name: 'kiosk.batal',
+        component: () => import('@/pages/kiosk/BatalPage.vue'),
+        meta: { judul: 'Batalkan Pemesanan' },
+      },
     ],
   },
   {

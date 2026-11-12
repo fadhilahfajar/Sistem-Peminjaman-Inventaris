@@ -11,6 +11,8 @@ export const useKioskStore = defineStore('kiosk', () => {
   const kode = ref('')
   const pinjamSelesai = ref(null)
   const kartuPinjam = ref(null)
+  const klaimSelesai = ref(null)
+  const perpanjangSelesai = ref(null)
 
   function setKode(nilai) {
     kode.value = nilai
@@ -30,6 +32,14 @@ export const useKioskStore = defineStore('kiosk', () => {
     }
   }
 
+  function setKlaimSelesai(data) {
+    klaimSelesai.value = data
+  }
+
+  function setPerpanjangSelesai(data) {
+    perpanjangSelesai.value = data
+  }
+
   function hapusKode() {
     kode.value = ''
     kartuPinjam.value = null
@@ -39,15 +49,21 @@ export const useKioskStore = defineStore('kiosk', () => {
     kode.value = ''
     pinjamSelesai.value = null
     kartuPinjam.value = null
+    klaimSelesai.value = null
+    perpanjangSelesai.value = null
   }
 
   return {
     kode,
     pinjamSelesai,
     kartuPinjam,
+    klaimSelesai,
+    perpanjangSelesai,
     setKode,
     setPinjamSelesai,
     setKartuPinjam,
+    setKlaimSelesai,
+    setPerpanjangSelesai,
     hapusKode,
     resetSesi,
   }
