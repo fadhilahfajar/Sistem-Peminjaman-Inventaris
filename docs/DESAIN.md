@@ -667,6 +667,40 @@ Filter `GET /api/admin/loans`: `status`, `barang`, `kategori`, `tipe_peminjam`, 
 
 Bentuk JSON yang sebenarnya dicatat di bagian ini oleh agent saat tiap endpoint selesai (todo 3.11).
 
+Contoh bentuk JSON yang sudah selesai (agent A, Task 3.11, FR-A-01 dan FR-A-02):
+
+- `POST /api/auth/login` (200 OK). Permintaan gagal dibatasi 5 per 15 menit per IP dan email (429). Akun nonaktif ditolak 403 `akun_nonaktif`.
+
+```json
+{ "email": "admin@uji.test", "password": "rahasia-panjang-123" }
+```
+
+```json
+{ "id": 1, "name": "Admin", "email": "admin@uji.test" }
+```
+
+- `POST /api/auth/logout` (200 OK).
+
+```json
+{ "pesan": "Berhasil keluar." }
+```
+
+- `GET /api/auth/me` (200 OK).
+
+```json
+{ "data": { "id": 1, "name": "Admin", "email": "admin@uji.test" } }
+```
+
+- `POST /api/auth/change-password` (200 OK). `password_baru` minimal 12 karakter dan wajib dikonfirmasi lewat `password_baru_confirmation`.
+
+```json
+{ "password_lama": "rahasia-panjang-123", "password_baru": "sandi-baru-panjang-123", "password_baru_confirmation": "sandi-baru-panjang-123" }
+```
+
+```json
+{ "pesan": "Kata sandi berhasil diganti." }
+```
+
 Contoh bentuk JSON yang sudah selesai (agent A, Task 3.7, T-28 dan T-30):
 
 - `GET /api/admin/categories` dan `GET /api/admin/divisions` (200 OK): semua baris, aktif dan nonaktif, urut nama, tanpa pagination.
