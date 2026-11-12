@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AuditLogController;
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\DivisionController;
 use App\Http\Controllers\Api\Admin\ItemController;
@@ -7,6 +8,9 @@ use App\Http\Controllers\Api\Admin\ItemStockController;
 use App\Http\Controllers\Api\Admin\LoanController;
 use App\Http\Controllers\Api\Admin\RepairController;
 use App\Http\Controllers\Api\Admin\ReturnClaimController;
+use App\Http\Controllers\Api\Admin\SettingController;
+use App\Http\Controllers\Api\Admin\SummaryController;
+use App\Http\Controllers\Api\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('categories', [CategoryController::class, 'index']);
@@ -39,3 +43,14 @@ Route::post('loans/{loan}/cancel', [LoanController::class, 'batal']);
 Route::get('return-claims', [ReturnClaimController::class, 'index']);
 Route::get('return-claims/{klaim}', [ReturnClaimController::class, 'tampil']);
 Route::post('return-claims/{klaim}/verify', [ReturnClaimController::class, 'verifikasi']);
+
+Route::get('summary', [SummaryController::class, 'index']);
+
+Route::get('settings', [SettingController::class, 'index']);
+Route::put('settings', [SettingController::class, 'perbarui']);
+
+Route::get('audit-logs', [AuditLogController::class, 'index']);
+
+Route::get('users', [UserController::class, 'index']);
+Route::post('users', [UserController::class, 'simpan']);
+Route::patch('users/{user}', [UserController::class, 'ubah']);
