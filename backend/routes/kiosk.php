@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\Kiosk\CancelKioskController;
 use App\Http\Controllers\Api\Kiosk\CategoryController;
 use App\Http\Controllers\Api\Kiosk\DivisionController;
+use App\Http\Controllers\Api\Kiosk\ExtensionKioskController;
 use App\Http\Controllers\Api\Kiosk\ItemController;
 use App\Http\Controllers\Api\Kiosk\LoanController;
 use App\Http\Controllers\Api\Kiosk\ReturnClaimController;
