@@ -1045,6 +1045,87 @@ Contoh bentuk JSON yang sudah selesai (agent A, Task 3.9, FR-A-04, BR-05 sampai 
 { "kode": "validasi_gagal", "pesan": "Data yang dikirim tidak valid.", "errors": { "catatan_admin": ["Catatan admin wajib bila hasil berbeda dari laporan atau ada unit ditolak."] } }
 ```
 
+Contoh bentuk JSON yang sudah selesai (agent A, Task 3.10, FR-A-02, FR-A-12, FR-A-13, FR-A-15, FR-A-19):
+
+- `GET /api/admin/summary` (200 OK): angka dasbor dan jumlah antrean. `peminjaman_terlambat` memakai bentuk baris `GET /api/admin/loans`.
+
+```json
+{
+  "data": {
+    "dipinjam": 3,
+    "terlambat": 1,
+    "menunggu_verifikasi": 2,
+    "selesai": 10,
+    "stok_rusak": 4,
+    "antrean_verifikasi": 2,
+    "antrean_perbaikan": 2,
+    "peminjaman_terlambat": [
+      { "id": 12, "kode_pinjam": "PJM-7K3M9Q", "nama_peminjam": "Budi Santoso", "status": "terlambat", "hari_terlambat": 2, "o": 1, "p": 0 }
+    ]
+  }
+}
+```
+
+- `GET /api/admin/settings` (200 OK): delapan kunci dengan nilai, min, dan maks. `PUT /api/admin/settings` (200 OK) mengubah sebagian atau seluruh kunci; nilai di luar rentang ditolak 422 per kunci. Nilai baru langsung berlaku (PengaturanService).
+
+```json
+{
+  "data": [
+    { "kunci": "maks_durasi_awal_hari", "nilai": 7, "min": 1, "maks": 30 },
+    { "kunci": "sesi_idle_menit", "nilai": 15, "min": 1, "maks": 120 }
+  ]
+}
+```
+
+```json
+{ "sesi_idle_menit": 30, "maks_perpanjangan": 3 }
+```
+
+- `GET /api/admin/audit-logs` (200 OK): filter `aksi`, `entitas`, `user_id`, `page`, `page_size`. Urut `dibuat_pada` menurun. `user` null bila entri sistem.
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "aksi": "verifikasi_klaim",
+      "entitas": "return_claims",
+      "entitas_id": 5,
+      "detail": { "kode_klaim": "KMB-4Q7X2B", "hasil": { "baik": 1, "rusak": 0, "hilang": 0, "ditolak": 0 }, "berbeda_dari_laporan": false },
+      "user": { "id": 1, "name": "Admin" },
+      "dibuat_pada": "2026-11-14T04:15:00.000000Z"
+    }
+  ],
+  "meta": { "current_page": 1, "last_page": 1, "per_page": 25, "total": 1 }
+}
+```
+
+- `GET /api/admin/users` (200 OK): semua akun admin, urut nama.
+
+```json
+{
+  "data": [
+    { "id": 1, "name": "Admin", "email": "admin@uji.test", "aktif": true, "login_terakhir": "2026-11-14T04:00:00.000000Z", "dibuat_pada": null }
+  ]
+}
+```
+
+- `POST /api/admin/users` (201 Created): `name`, `email`, `password` (minimal 12). Email ganda ditolak 422.
+
+```json
+{ "name": "Admin Baru", "email": "baru@uji.test", "password": "rahasia-panjang-123" }
+```
+
+- `PATCH /api/admin/users/{id}` (200 OK): `name` dan atau `aktif`. Menonaktifkan akun sendiri ditolak 409 `tidak_dapat_menonaktifkan_diri`. Sesi akun yang dinonaktifkan diakhiri.
+
+```json
+{ "aktif": false }
+```
+
+```json
+{ "kode": "tidak_dapat_menonaktifkan_diri", "pesan": "Akun sendiri tidak dapat dinonaktifkan." }
+```
+
 ## 9. Struktur folder
 
 ```
