@@ -13,6 +13,22 @@ function adminUji(bool $aktif = true): User
     ]);
 }
 
+/** Ambil semua kunci (rekursif) dari struktur JSON/array. */
+function kunciJsonRekursif(array $data): array
+{
+    $hasil = [];
+    foreach ($data as $kunci => $nilai) {
+        if (is_string($kunci)) {
+            $hasil[] = $kunci;
+        }
+        if (is_array($nilai)) {
+            array_push($hasil, ...kunciJsonRekursif($nilai));
+        }
+    }
+
+    return $hasil;
+}
+
 /** Klien SPA: header Origin/Referer frontend dev + sesi kosong. */
 function spa()
 {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Kiosk;
 use App\Exceptions\GalatBisnis;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Kiosk\SimpanPembatalanRequest;
+use App\Models\Loan;
 use App\Services\PembatalanService;
 use App\Services\PembatasKodeKiosk;
 use Illuminate\Http\JsonResponse;

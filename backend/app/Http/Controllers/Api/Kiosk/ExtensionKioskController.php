@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api\Kiosk;
 use App\Exceptions\GalatBisnis;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Kiosk\SimpanPerpanjanganRequest;
+use App\Models\Loan;
 use App\Services\PembatasKodeKiosk;
+use App\Services\PengaturanService;
 use App\Services\PerpanjanganService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
@@ -74,8 +76,8 @@ class ExtensionKioskController extends Controller
                 'tambahan_hari' => $loan->extensions->last()?->tambahan_hari ?? $request->validated('tambahan_hari'),
                 'perpanjangan' => [
                     'terpakai' => $terpakai,
-                    'maks' => $this->perpanjangan->pengaturan->angka('maks_perpanjangan'),
-                    'sisa_kuota' => $this->perpanjangan->pengaturan->angka('maks_perpanjangan') - $terpakai,
+                    'maks' => app(PengaturanService::class)->angka('maks_perpanjangan'),
+                    'sisa_kuota' => app(PengaturanService::class)->angka('maks_perpanjangan') - $terpakai,
                 ],
                 'status' => $loan->status,
             ],
