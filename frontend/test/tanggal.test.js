@@ -1,5 +1,5 @@
 import assert from 'node:assert'
-import { formatTanggalIndo, formatWaktuCetak, formatYmd, hariIniYmd, tambahHariYmd } from '../src/utils/tanggal.js'
+import { formatTanggalIndo, formatWaktuCetak, formatWaktuIndo, formatYmd, hariIniYmd, tambahHariYmd } from '../src/utils/tanggal.js'
 
 // Format YMD
 const d = new Date(2026, 10, 9) // 9 Nov 2026
@@ -20,5 +20,9 @@ assert.ok(indo.includes('2026'), 'Harus memuat tahun 2026')
 // Format Waktu Cetak
 const waktu = formatWaktuCetak(d)
 assert.ok(waktu.includes('WIB'), 'Harus memuat zona WIB')
+
+// Format Waktu Indo
+const waktuIndo = formatWaktuIndo('2026-11-09T10:30:00Z')
+assert.ok(waktuIndo.includes('WIB'), 'Harus memuat zona WIB')
 
 console.log('Semua pengujian utilitas tanggal lulus.')

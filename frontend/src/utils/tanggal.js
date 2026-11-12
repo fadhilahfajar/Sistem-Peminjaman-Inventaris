@@ -39,3 +39,13 @@ export function formatWaktuCetak(date = new Date()) {
   }).format(date)
   return `${tgl} WIB`
 }
+
+export function formatWaktuIndo(isoString) {
+  if (!isoString) return ''
+  const date = new Date(isoString)
+  return new Intl.DateTimeFormat('id-ID', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Asia/Jakarta',
+  }).format(date) + ' WIB'
+}

@@ -7,6 +7,7 @@ const pagesDir = path.resolve('src/pages/kiosk')
 const expectedPages = [
   'BerandaPage.vue',
   'CekPage.vue',
+  'KartuPage.vue',
   'KatalogPage.vue',
   'PinjamPage.vue',
   'PinjamSelesaiPage.vue',
@@ -59,5 +60,21 @@ assert.ok(strukCetakContent.includes('salinKode'), 'StrukCetak harus memiliki ak
 const layoutKioskContent = fs.readFileSync(path.resolve('src/layouts/LayoutKiosk.vue'), 'utf-8')
 assert.ok(layoutKioskContent.includes('print:hidden'), 'LayoutKiosk harus menyembunyikan header navigasi saat cetak (US-03, T-39, UI-06)')
 
+// Uji aturan FR-K-04 pada CekPage:
+const cekPageContent = fs.readFileSync(path.resolve('src/pages/kiosk/CekPage.vue'), 'utf-8')
+assert.ok(cekPageContent.includes('PJM-'), 'CekPage harus memvalidasi awalan kode PJM-')
+assert.ok(cekPageContent.includes('lookupLoan'), 'CekPage harus memanggil lookupLoan via kioskApi')
+assert.ok(cekPageContent.includes('terkunci'), 'CekPage harus menangani status terkunci 429')
+
+// Uji aturan FR-K-04 & FR-K-09 pada KartuPage:
+const kartuPageContent = fs.readFileSync(path.resolve('src/pages/kiosk/KartuPage.vue'), 'utf-8')
+assert.ok(kartuPageContent.includes('menunggu'), 'KartuPage harus menampilkan unit menunggu')
+assert.ok(kartuPageContent.includes('terverifikasi'), 'KartuPage harus menampilkan unit terverifikasi')
+assert.ok(kartuPageContent.includes('sisa'), 'KartuPage harus menampilkan sisa unit')
+assert.ok(kartuPageContent.includes('hitung_mundur'), 'KartuPage harus menampilkan status hitung mundur')
+assert.ok(kartuPageContent.includes('perpanjangan'), 'KartuPage harus menampilkan status dan kuota perpanjangan')
+assert.ok(kartuPageContent.includes('catatan_admin'), 'KartuPage harus menampilkan catatan admin pada hasil klaim (FR-K-09)')
+assert.ok(kartuPageContent.includes('Batalkan Pemesanan'), 'KartuPage harus menyediakan tombol Batalkan Pemesanan untuk pemesanan')
+
 // ponytail: check parse/compile SFC halaman kiosk; tambahkan vitest mount bila sudah dibutuhkan di pengujian interaktif
-console.log('Semua halaman kiosk dan aturan FR-K-01/FR-K-02/FR-K-03/UI-02/UI-06 lulus pengujian.')
+console.log('Semua halaman kiosk dan aturan FR-K-01/FR-K-02/FR-K-03/FR-K-04/FR-K-09 lulus pengujian.')
