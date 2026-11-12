@@ -667,6 +667,40 @@ Filter `GET /api/admin/loans`: `status`, `barang`, `kategori`, `tipe_peminjam`, 
 
 Bentuk JSON yang sebenarnya dicatat di bagian ini oleh agent saat tiap endpoint selesai (todo 3.11).
 
+Contoh bentuk JSON yang sudah selesai (agent A, Task 3.11, FR-A-01 dan FR-A-02):
+
+- `POST /api/auth/login` (200 OK). Permintaan gagal dibatasi 5 per 15 menit per IP dan email (429). Akun nonaktif ditolak 403 `akun_nonaktif`.
+
+```json
+{ "email": "admin@uji.test", "password": "rahasia-panjang-123" }
+```
+
+```json
+{ "id": 1, "name": "Admin", "email": "admin@uji.test" }
+```
+
+- `POST /api/auth/logout` (200 OK).
+
+```json
+{ "pesan": "Berhasil keluar." }
+```
+
+- `GET /api/auth/me` (200 OK).
+
+```json
+{ "data": { "id": 1, "name": "Admin", "email": "admin@uji.test" } }
+```
+
+- `POST /api/auth/change-password` (200 OK). `password_baru` minimal 12 karakter dan wajib dikonfirmasi lewat `password_baru_confirmation`.
+
+```json
+{ "password_lama": "rahasia-panjang-123", "password_baru": "sandi-baru-panjang-123", "password_baru_confirmation": "sandi-baru-panjang-123" }
+```
+
+```json
+{ "pesan": "Kata sandi berhasil diganti." }
+```
+
 Contoh bentuk JSON yang sudah selesai (agent A, Task 3.7, T-28 dan T-30):
 
 - `GET /api/admin/categories` dan `GET /api/admin/divisions` (200 OK): semua baris, aktif dan nonaktif, urut nama, tanpa pagination.
@@ -704,6 +738,426 @@ Contoh bentuk JSON yang sudah selesai (agent A, Task 3.7, T-28 dan T-30):
 
 ```json
 { "kode": "kategori_masih_dipakai", "pesan": "Kategori ini masih dipakai oleh 1 barang aktif. Pindahkan barang ke kategori lain dulu." }
+```
+
+Contoh bentuk JSON yang sudah selesai (agent A, Task 3.6, FR-A-03, FR-A-09, FR-A-10):
+
+`kondisi` (BR-29) dan `sedang_keluar` (BR-01, `total - tersedia - rusak`) tidak disimpan sebagai kolom; keduanya diturunkan dari angka stok setiap kali JSON dibentuk. `kondisi` bernilai `baik` bila `rusak = 0`, `sebagian_rusak` bila `0 < rusak < total`, dan `semua_rusak` bila `rusak = total` dan `total > 0`.
+
+- `GET /api/admin/items?q=&kategori=&page=&page_size=` (200 OK). `page_size` bawaan 25, maksimal 100; urut nama. Barang terhapus tidak ikut. Paginator bawaan Laravel menambahkan `links` dan `meta`; bagian `meta.links` dipersingkat di contoh.
+
+```json
+{
+  "data": [
+    {
+      "id": 7,
+      "nama": "Proyektor Epson",
+      "deskripsi": "Untuk rapat ruang besar",
+      "kategori": { "id": 2, "nama": "Audio Video" },
+      "total": 5,
+      "tersedia": 3,
+      "rusak": 1,
+      "sedang_keluar": 1,
+      "kondisi": "sebagian_rusak",
+      "boleh_diperpanjang": true,
+      "dibuat_pada": "2026-11-11T02:15:00.000000Z",
+      "diubah_pada": "2026-11-11T03:40:12.000000Z"
+    }
+  ],
+  "links": { "first": "http://localhost:8000/api/admin/items?page=1", "last": "http://localhost:8000/api/admin/items?page=1", "prev": null, "next": null },
+  "meta": { "current_page": 1, "from": 1, "last_page": 1, "per_page": 25, "to": 1, "total": 1 }
+}
+```
+
+- `GET /api/admin/items/{id}` (200 OK) memakai bentuk elemen yang sama. Barang yang sudah dihapus (soft-delete) menjawab 404.
+
+- `POST /api/admin/items` (201 Created). Isian: `nama` 2 sampai 150 karakter dan unik di antara barang aktif, `deskripsi` opsional, `kategori_id` wajib kategori aktif (BR-28), `boleh_diperpanjang` bawaan `true`, `jumlah_awal` bulat 0 sampai 100000 bawaan 0. Baris dibuat dengan stok 0 lalu `jumlah_awal` dimasukkan lewat `StokService::tambah` (`TAMBAH_STOK`) dalam satu transaksi.
+
+```json
+{ "nama": "Proyektor Epson", "deskripsi": "Untuk rapat ruang besar", "kategori_id": 2, "boleh_diperpanjang": true, "jumlah_awal": 5 }
+```
+
+```json
+{
+  "data": {
+    "id": 7,
+    "nama": "Proyektor Epson",
+    "deskripsi": "Untuk rapat ruang besar",
+    "kategori": { "id": 2, "nama": "Audio Video" },
+    "total": 5,
+    "tersedia": 5,
+    "rusak": 0,
+    "sedang_keluar": 0,
+    "kondisi": "baik",
+    "boleh_diperpanjang": true,
+    "dibuat_pada": "2026-11-11T02:15:00.000000Z",
+    "diubah_pada": "2026-11-11T02:15:00.000000Z"
+  }
+}
+```
+
+- `PUT /api/admin/items/{id}` (200 OK): isian `nama`, `deskripsi`, `kategori_id` (aktif), `boleh_diperpanjang`. Kolom stok ditolak dengan pesan "Gunakan penyesuaian stok".
+
+```json
+{ "nama": "Proyektor Epson EB-X06", "deskripsi": null, "kategori_id": 2, "boleh_diperpanjang": false }
+```
+
+```json
+{
+  "kode": "validasi_gagal",
+  "pesan": "Data yang dikirim tidak valid.",
+  "errors": { "total": ["Gunakan penyesuaian stok."] }
+}
+```
+
+- `DELETE /api/admin/items/{id}` (200 OK) melakukan soft-delete (mengisi `dihapus_pada`) setelah pemeriksaan BR-14 dan BR-33. Penolakan konflik memakai 409.
+
+```json
+{ "pesan": "Barang berhasil dihapus." }
+```
+
+```json
+{ "kode": "barang_masih_dipinjam", "pesan": "Barang tidak dapat dihapus karena masih ada 2 unit yang sedang dipinjam atau menunggu verifikasi." }
+```
+
+```json
+{ "kode": "barang_masih_rusak", "pesan": "Barang tidak dapat dihapus karena masih ada 1 unit rusak. Selesaikan dulu lewat perbaikan atau afkir." }
+```
+
+```json
+{ "kode": "kategori_nonaktif", "pesan": "Barang tidak dapat dihapus karena kategorinya dinonaktifkan." }
+```
+
+- `POST /api/admin/items/{id}/stock-adjustments` (200 OK): `arah` = `tambah` atau `kurang`, `jumlah` bulat minimal 1, `alasan` wajib. Diteruskan ke `StokService::tambah` atau `StokService::kurangi`; galat Service diteruskan apa adanya (422 bila melebihi `tersedia`, tanpa perubahan stok). Respons memakai bentuk elemen barang yang sama.
+
+```json
+{ "arah": "kurang", "jumlah": 2, "alasan": "Dipinjam untuk rapat klien" }
+```
+
+- `POST /api/admin/items/{id}/mark-damaged` (200 OK): `jumlah` bulat minimal 1, `alasan` wajib. `tersedia` berkurang, `rusak` bertambah, `total` tetap, satu mutasi `TANDAI_RUSAK` (T-33).
+
+```json
+{ "jumlah": 1, "alasan": "Lensa proyektor retak" }
+```
+
+- `POST /api/admin/items/{id}/repair-complete` (200 OK): `jumlah` bulat minimal 1, `catatan` opsional. `rusak` berkurang dan `tersedia` bertambah, `total` tetap (BR-09, T-15).
+
+```json
+{ "jumlah": 1, "catatan": "Lensa diganti" }
+```
+
+- `POST /api/admin/items/{id}/write-off` (200 OK): `jumlah` bulat minimal 1, `alasan` wajib. `rusak` dan `total` berkurang sama banyak (afkir, BR-09, T-15).
+
+```json
+{ "jumlah": 1, "alasan": "Tidak ekonomis diperbaiki" }
+```
+
+- `GET /api/admin/repairs` (200 OK): hanya barang belum terhapus dengan `rusak > 0`, urut `rusak` menurun lalu nama. Tanpa pagination.
+
+```json
+{
+  "data": [
+    { "id": 7, "nama": "Proyektor Epson", "kategori": { "id": 2, "nama": "Audio Video" }, "rusak": 1, "tersedia": 3, "total": 5 }
+  ]
+}
+```
+
+Contoh bentuk JSON yang sudah selesai (agent A, Task 3.8, FR-A-05 sampai FR-A-08, FR-A-17):
+
+- `GET /api/admin/loans` (200 OK). Filter: `status` (`dipesan`, `dipinjam`, `terlambat`, `menunggu_verifikasi`, `selesai`, `dibatalkan`), `barang` (id barang), `kategori` (id kategori barang), `divisi`, `tipe_peminjam`, `dari` dan `sampai` (tanggal pinjam, `Y-m-d`), `q` (nama, kode pinjam, telepon), `ada_catatan`, `ada_kerusakan`, `belum_kembali` (`o + p > 0`), `page`, `page_size` (bawaan 25, maksimal 100). Urut `dibuat_pada` menurun. Telepon hanya muncul di endpoint admin (BR-18). Status pada filter dihitung dari agregat klaim di SQL, bukan kolom.
+
+```json
+{
+  "data": [
+    {
+      "id": 12,
+      "kode_pinjam": "PJM-7K3M9Q",
+      "nama_peminjam": "Budi Santoso",
+      "divisi": { "id": 1, "nama": "IT" },
+      "tipe_peminjam": "karyawan",
+      "telepon": "081234567890",
+      "tanggal_pinjam": "2026-11-09",
+      "batas_kembali": "2026-11-12",
+      "status": "terlambat",
+      "hari_terlambat": 2,
+      "o": 1,
+      "p": 0,
+      "lencana": [],
+      "diperpanjang_kali": 0,
+      "jumlah_unit": 2,
+      "items": [
+        { "item_id": 7, "nama": "Proyektor Epson", "qty_dipinjam": 2 }
+      ],
+      "dibuat_pada": "2026-11-09T01:10:00.000000Z",
+      "dibatalkan_pada": null
+    }
+  ],
+  "links": { "first": "http://localhost:8000/api/admin/loans?page=1", "last": "http://localhost:8000/api/admin/loans?page=1", "prev": null, "next": null },
+  "meta": { "current_page": 1, "from": 1, "last_page": 1, "per_page": 25, "to": 1, "total": 1 }
+}
+```
+
+- `GET /api/admin/loans/{id}` (200 OK) menambah `batas_kembali_awal`, rincian per barang (`menunggu`, `terverifikasi`, `sisa`), `perpanjangan`, `klaim`, `koreksi`, data pembatalan, dan `lini_masa` gabungan urut waktu menaik (dibuat, perpanjangan, klaim, verifikasi, koreksi, pembatalan). Id tidak ada → 404.
+
+```json
+{
+  "data": {
+    "id": 12,
+    "kode_pinjam": "PJM-7K3M9Q",
+    "nama_peminjam": "Budi Santoso",
+    "divisi": { "id": 1, "nama": "IT" },
+    "tipe_peminjam": "karyawan",
+    "telepon": "081234567890",
+    "tanggal_pinjam": "2026-11-09",
+    "batas_kembali_awal": "2026-11-12",
+    "batas_kembali": "2026-11-14",
+    "status": "terlambat",
+    "hari_terlambat": 2,
+    "o": 1,
+    "p": 1,
+    "lencana": ["sebagian", "ada_klaim_menunggu", "diperpanjang"],
+    "diperpanjang_kali": 1,
+    "jumlah_unit": 2,
+    "items": [
+      { "item_id": 7, "nama": "Proyektor Epson", "qty_dipinjam": 2, "menunggu": 1, "terverifikasi": 0, "sisa": 1 }
+    ],
+    "perpanjangan": [
+      { "batas_lama": "2026-11-12", "batas_baru": "2026-11-14", "tambahan_hari": 2, "alasan": "Peminjam masih butuh", "diajukan_oleh": "admin", "admin": { "id": 1, "nama": "Admin" }, "dibuat_pada": "2026-11-13T02:00:00.000000Z" }
+    ],
+    "klaim": [
+      {
+        "id": 5,
+        "kode_klaim": "KMB-4Q7X2B",
+        "status": "menunggu",
+        "hari_terlambat": 2,
+        "catatan_peminjam": "Satu unit masih dipakai",
+        "catatan_admin": null,
+        "diklaim_pada": "2026-11-14T03:00:00.000000Z",
+        "diverifikasi_pada": null,
+        "verifikator": null,
+        "lines": [
+          { "item_id": 7, "nama": "Proyektor Epson", "kondisi_dilaporkan": "baik", "qty": 1, "qty_baik": null, "qty_rusak": null, "qty_hilang": null, "qty_ditolak": null }
+        ]
+      }
+    ],
+    "koreksi": [],
+    "dibatalkan_pada": null,
+    "alasan_batal": null,
+    "dibatalkan_oleh": null,
+    "dibuat_pada": "2026-11-09T01:10:00.000000Z",
+    "lini_masa": [
+      { "jenis": "dibuat", "waktu": "2026-11-09T01:10:00.000000Z", "ringkasan": "Peminjaman dibuat oleh Budi Santoso (karyawan)." },
+      { "jenis": "klaim", "waktu": "2026-11-14T03:00:00.000000Z", "ringkasan": "Klaim KMB-4Q7X2B dikirim.", "catatan_peminjam": "Satu unit masih dipakai" }
+    ]
+  }
+}
+```
+
+- `PATCH /api/admin/loans/{id}` (200 OK) koreksi (BR-16): field yang boleh diubah `nama_peminjam`, `division_id`, `telepon`, `tanggal_pinjam`, `batas_kembali`, `items[{item_id, qty}]`; `alasan` wajib. Respons memakai bentuk detail di atas. Koreksi jumlah saat barang sudah punya klaim → 409 `barang_sudah_memiliki_klaim`.
+
+```json
+{ "batas_kembali": "2026-11-15", "telepon": "081200000001", "alasan": "Salah tanggal" }
+```
+
+- `POST /api/admin/loans/{id}/extensions` (200 OK) perpanjangan admin (BR-13): `tambahan_hari` dan `alasan` wajib, tanpa kuota, boleh untuk yang terlambat. Respons bentuk detail.
+
+```json
+{ "tambahan_hari": 2, "alasan": "Peminjam masih butuh" }
+```
+
+- `POST /api/admin/loans/{id}/cancel` (200 OK) pembatalan admin (BR-25): `alasan` wajib. Ditolak 409 `peminjaman_memiliki_klaim` bila sudah ada klaim. Stok kembali lewat `BATAL_PINJAM`.
+
+```json
+{ "alasan": "Barang dibutuhkan mendesak" }
+```
+
+```json
+{ "kode": "peminjaman_memiliki_klaim", "pesan": "Peminjaman yang sudah memiliki klaim tidak dapat dibatalkan." }
+```
+
+- Validasi bentuk ditolak 422 dengan `errors` per kolom. `status` di luar daftar, `page_size` lebih dari 100, atau `sampai` sebelum `dari` ditolak 422.
+
+```json
+{ "kode": "validasi_gagal", "pesan": "Data yang dikirim tidak valid.", "errors": { "alasan": ["Alasan wajib diisi."] } }
+```
+
+Contoh bentuk JSON yang sudah selesai (agent A, Task 3.9, FR-A-04, BR-05 sampai BR-08):
+
+- `GET /api/admin/return-claims` (200 OK): antrean verifikasi. Tanpa `status` hanya memuat `menunggu`, urut `diklaim_pada` menaik (terlama di atas). `?status=diverifikasi` menampilkan riwayat, urut terbaru di atas. Filter `status` hanya menerima `menunggu` atau `diverifikasi`; nilai lain 422. `page`, `page_size` (bawaan 25, maksimal 100). Telepon hanya di endpoint admin (BR-18).
+
+```json
+{
+  "data": [
+    {
+      "id": 5,
+      "kode_klaim": "KMB-4Q7X2B",
+      "status": "menunggu",
+      "hari_terlambat": 2,
+      "catatan_peminjam": "Satu unit masih dipakai",
+      "catatan_admin": null,
+      "diklaim_pada": "2026-11-14T03:00:00.000000Z",
+      "diverifikasi_pada": null,
+      "verifikator": null,
+      "peminjaman": {
+        "id": 12,
+        "kode_pinjam": "PJM-7K3M9Q",
+        "nama_peminjam": "Budi Santoso",
+        "telepon": "081234567890",
+        "divisi": { "id": 1, "nama": "IT" },
+        "tanggal_pinjam": "2026-11-09",
+        "batas_kembali": "2026-11-12"
+      },
+      "jumlah_unit": 1,
+      "lines": [
+        { "line_id": 9, "item_id": 7, "nama": "Proyektor Epson", "kondisi_dilaporkan": "baik", "qty": 1, "hasil": null }
+      ]
+    }
+  ],
+  "links": { "first": "http://localhost:8000/api/admin/return-claims?page=1", "last": "http://localhost:8000/api/admin/return-claims?page=1", "prev": null, "next": null },
+  "meta": { "current_page": 1, "from": 1, "last_page": 1, "per_page": 25, "to": 1, "total": 1 }
+}
+```
+
+- `GET /api/admin/return-claims/{id}` (200 OK): bentuk sama dengan satu baris antrean. `hari_terlambat` adalah hari terlambat saat klaim dikirim. Id tidak ada → 404 `klaim_tidak_ditemukan`. Setelah diverifikasi, tiap baris memuat `hasil` berisi `qty_baik`, `qty_rusak`, `qty_hilang`, `qty_ditolak`, dan klaim memuat `catatan_admin`, `diverifikasi_pada`, serta `verifikator`.
+
+```json
+{
+  "data": {
+    "id": 5,
+    "kode_klaim": "KMB-4Q7X2B",
+    "status": "diverifikasi",
+    "hari_terlambat": 2,
+    "catatan_peminjam": "Satu unit masih dipakai",
+    "catatan_admin": "Ternyata rusak saat diperiksa",
+    "diklaim_pada": "2026-11-14T03:00:00.000000Z",
+    "diverifikasi_pada": "2026-11-14T04:15:00.000000Z",
+    "verifikator": { "id": 1, "nama": "Admin" },
+    "peminjaman": {
+      "id": 12,
+      "kode_pinjam": "PJM-7K3M9Q",
+      "nama_peminjam": "Budi Santoso",
+      "telepon": "081234567890",
+      "divisi": { "id": 1, "nama": "IT" },
+      "tanggal_pinjam": "2026-11-09",
+      "batas_kembali": "2026-11-12"
+    },
+    "jumlah_unit": 1,
+    "lines": [
+      {
+        "line_id": 9,
+        "item_id": 7,
+        "nama": "Proyektor Epson",
+        "kondisi_dilaporkan": "baik",
+        "qty": 1,
+        "hasil": { "qty_baik": 0, "qty_rusak": 1, "qty_hilang": 0, "qty_ditolak": 0 }
+      }
+    ]
+  }
+}
+```
+
+- `POST /api/admin/return-claims/{id}/verify` (200 OK): admin membagi tiap baris ke Baik, Rusak, Hilang, Ditolak. Jumlah keempatnya harus sama dengan `qty` baris (422 bila tidak). Hasil berbeda dari `kondisi_dilaporkan` wajib disertai `catatan_admin` (BR-06); tanpa catatan → 422. Stok berubah lewat `VERIFIKASI_BAIK`, `VERIFIKASI_RUSAK`, `VERIFIKASI_HILANG`; `ditolak` tidak mengubah stok. Respons memakai bentuk detail di atas.
+
+```json
+{
+  "lines": [
+    { "line_id": 9, "qty_baik": 0, "qty_rusak": 1, "qty_hilang": 0, "qty_ditolak": 0 }
+  ],
+  "catatan_admin": "Ternyata rusak saat diperiksa"
+}
+```
+
+- Klaim yang sudah diverifikasi tidak dapat diverifikasi ulang → 409 `klaim_sudah_diproses`. Id klaim tidak ada → 404 `klaim_tidak_ditemukan`.
+
+```json
+{ "kode": "klaim_sudah_diproses", "pesan": "Klaim ini sudah diverifikasi." }
+```
+
+- Validasi bentuk ditolak 422. `lines` kosong atau `line_id` bukan milik klaim ini, jumlah hasil tidak sama dengan `qty` baris, `qty_*` negatif, dan `catatan_admin` lebih dari 500 karakter ditolak 422 dengan `errors` per kolom.
+
+```json
+{ "kode": "validasi_gagal", "pesan": "Data yang dikirim tidak valid.", "errors": { "catatan_admin": ["Catatan admin wajib bila hasil berbeda dari laporan atau ada unit ditolak."] } }
+```
+
+Contoh bentuk JSON yang sudah selesai (agent A, Task 3.10, FR-A-02, FR-A-12, FR-A-13, FR-A-15, FR-A-19):
+
+- `GET /api/admin/summary` (200 OK): angka dasbor dan jumlah antrean. `peminjaman_terlambat` memakai bentuk baris `GET /api/admin/loans`.
+
+```json
+{
+  "data": {
+    "dipinjam": 3,
+    "terlambat": 1,
+    "menunggu_verifikasi": 2,
+    "selesai": 10,
+    "stok_rusak": 4,
+    "antrean_verifikasi": 2,
+    "antrean_perbaikan": 2,
+    "peminjaman_terlambat": [
+      { "id": 12, "kode_pinjam": "PJM-7K3M9Q", "nama_peminjam": "Budi Santoso", "status": "terlambat", "hari_terlambat": 2, "o": 1, "p": 0 }
+    ]
+  }
+}
+```
+
+- `GET /api/admin/settings` (200 OK): delapan kunci dengan nilai, min, dan maks. `PUT /api/admin/settings` (200 OK) mengubah sebagian atau seluruh kunci; nilai di luar rentang ditolak 422 per kunci. Nilai baru langsung berlaku (PengaturanService).
+
+```json
+{
+  "data": [
+    { "kunci": "maks_durasi_awal_hari", "nilai": 7, "min": 1, "maks": 30 },
+    { "kunci": "sesi_idle_menit", "nilai": 15, "min": 1, "maks": 120 }
+  ]
+}
+```
+
+```json
+{ "sesi_idle_menit": 30, "maks_perpanjangan": 3 }
+```
+
+- `GET /api/admin/audit-logs` (200 OK): filter `aksi`, `entitas`, `user_id`, `page`, `page_size`. Urut `dibuat_pada` menurun. `user` null bila entri sistem.
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "aksi": "verifikasi_klaim",
+      "entitas": "return_claims",
+      "entitas_id": 5,
+      "detail": { "kode_klaim": "KMB-4Q7X2B", "hasil": { "baik": 1, "rusak": 0, "hilang": 0, "ditolak": 0 }, "berbeda_dari_laporan": false },
+      "user": { "id": 1, "name": "Admin" },
+      "dibuat_pada": "2026-11-14T04:15:00.000000Z"
+    }
+  ],
+  "meta": { "current_page": 1, "last_page": 1, "per_page": 25, "total": 1 }
+}
+```
+
+- `GET /api/admin/users` (200 OK): semua akun admin, urut nama.
+
+```json
+{
+  "data": [
+    { "id": 1, "name": "Admin", "email": "admin@uji.test", "aktif": true, "login_terakhir": "2026-11-14T04:00:00.000000Z", "dibuat_pada": null }
+  ]
+}
+```
+
+- `POST /api/admin/users` (201 Created): `name`, `email`, `password` (minimal 12). Email ganda ditolak 422.
+
+```json
+{ "name": "Admin Baru", "email": "baru@uji.test", "password": "rahasia-panjang-123" }
+```
+
+- `PATCH /api/admin/users/{id}` (200 OK): `name` dan atau `aktif`. Menonaktifkan akun sendiri ditolak 409 `tidak_dapat_menonaktifkan_diri`. Sesi akun yang dinonaktifkan diakhiri.
+
+```json
+{ "aktif": false }
+```
+
+```json
+{ "kode": "tidak_dapat_menonaktifkan_diri", "pesan": "Akun sendiri tidak dapat dinonaktifkan." }
 ```
 
 ## 9. Struktur folder
