@@ -10,6 +10,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  labelKode: {
+    type: String,
+    default: 'KODE PEMINJAMAN',
+  },
   namaPeminjam: {
     type: String,
     default: '',
@@ -41,6 +45,10 @@ const props = defineProps({
   catatan: {
     type: String,
     default: '',
+  },
+  barisTambahan: {
+    type: Array,
+    default: () => [],
   },
   waktuCetak: {
     type: String,
@@ -124,7 +132,7 @@ function cetak() {
       <!-- Kode Transaksi Utama (Besar & Tegas) -->
       <div class="py-4 text-center border-b border-dashed border-slate-300 print:border-black bg-slate-50 print:bg-transparent rounded-lg my-3">
         <span class="text-[11px] text-slate-500 print:text-black font-semibold uppercase tracking-widest block">
-          {{ pemesanan ? 'KODE PEMESANAN' : 'KODE PEMINJAMAN' }}
+          {{ labelKode || (pemesanan ? 'KODE PEMESANAN' : 'KODE PEMINJAMAN') }}
         </span>
         <span class="text-3xl md:text-4xl font-extrabold tracking-widest text-slate-900 print:text-black block my-1">
           {{ kode }}
@@ -166,6 +174,14 @@ function cetak() {
         <div v-if="batasKembali" class="flex justify-between items-start gap-2">
           <span class="text-slate-500 print:text-black shrink-0">Batas Kembali:</span>
           <span class="font-bold text-right">{{ batasKembali }}</span>
+        </div>
+        <div
+          v-for="b in barisTambahan"
+          :key="b.label"
+          class="flex justify-between items-start gap-2"
+        >
+          <span class="text-slate-500 print:text-black shrink-0">{{ b.label }}:</span>
+          <span class="font-bold text-right">{{ b.nilai }}</span>
         </div>
       </div>
 

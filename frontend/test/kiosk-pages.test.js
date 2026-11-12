@@ -6,9 +6,14 @@ import { compileScript, compileTemplate, parse } from 'vue/compiler-sfc'
 const pagesDir = path.resolve('src/pages/kiosk')
 const expectedPages = [
   'BerandaPage.vue',
+  'BatalPage.vue',
   'CekPage.vue',
   'KartuPage.vue',
   'KatalogPage.vue',
+  'KlaimPage.vue',
+  'KlaimSelesaiPage.vue',
+  'PerpanjangPage.vue',
+  'PerpanjangSelesaiPage.vue',
   'PinjamPage.vue',
   'PinjamSelesaiPage.vue',
 ]
@@ -76,5 +81,50 @@ assert.ok(kartuPageContent.includes('perpanjangan'), 'KartuPage harus menampilka
 assert.ok(kartuPageContent.includes('catatan_admin'), 'KartuPage harus menampilkan catatan admin pada hasil klaim (FR-K-09)')
 assert.ok(kartuPageContent.includes('Batalkan Pemesanan'), 'KartuPage harus menyediakan tombol Batalkan Pemesanan untuk pemesanan')
 
+// Uji aturan FR-K-05 & FR-K-06 pada KlaimPage / KlaimSelesaiPage:
+const klaimPageContent = fs.readFileSync(path.resolve('src/pages/kiosk/KlaimPage.vue'), 'utf-8')
+assert.ok(klaimPageContent.includes('baik'), 'KlaimPage harus menyediakan isian kondisi baik')
+assert.ok(klaimPageContent.includes('rusak'), 'KlaimPage harus menyediakan isian kondisi rusak')
+assert.ok(klaimPageContent.includes('hilang'), 'KlaimPage harus menyediakan isian kondisi hilang')
+assert.ok(klaimPageContent.includes('sisa'), 'KlaimPage harus membatasi total pengembalian ≤ sisa (FR-K-05)')
+assert.ok(klaimPageContent.includes('crypto.randomUUID()'), 'KlaimPage harus memakai kunci idempotensi UUID')
+
+const klaimSelesaiContent = fs.readFileSync(path.resolve('src/pages/kiosk/KlaimSelesaiPage.vue'), 'utf-8')
+assert.ok(klaimSelesaiContent.includes('kode_klaim'), 'KlaimSelesaiPage harus menampilkan kode klaim (FR-K-06)')
+assert.ok(klaimSelesaiContent.includes('Menunggu Verifikasi'), 'KlaimSelesaiPage harus menampilkan status Menunggu Verifikasi (FR-K-06)')
+assert.ok(klaimSelesaiContent.includes('petugas IT'), 'KlaimSelesaiPage harus mengingatkan menyerahkan barang fisik (FR-K-06)')
+
+// Uji aturan FR-K-07 & FR-K-08 pada PerpanjangPage / PerpanjangSelesaiPage:
+const perpanjangPageContent = fs.readFileSync(path.resolve('src/pages/kiosk/PerpanjangPage.vue'), 'utf-8')
+assert.ok(perpanjangPageContent.includes('maksHari'), 'PerpanjangPage harus membatasi tambahan hari sesuai batas')
+assert.ok(perpanjangPageContent.includes('batasBaru'), 'PerpanjangPage harus menampilkan batas kembali lama dan baru (FR-K-07)')
+
+const perpanjangSelesaiContent = fs.readFileSync(path.resolve('src/pages/kiosk/PerpanjangSelesaiPage.vue'), 'utf-8')
+assert.ok(perpanjangSelesaiContent.includes('batas_kembali'), 'PerpanjangSelesaiPage harus menampilkan batas kembali baru (FR-K-08)')
+
+// Uji aturan FR-K-12 pada BatalPage:
+const batalPageContent = fs.readFileSync(path.resolve('src/pages/kiosk/BatalPage.vue'), 'utf-8')
+assert.ok(batalPageContent.includes('ModalKonfirmasi'), 'BatalPage harus menampilkan modal konfirmasi (FR-K-12)')
+
+// Uji aturan FR-K-10 pada useIdleKiosk & LayoutKiosk:
+const idleKioskContent = fs.readFileSync(path.resolve('src/composables/useIdleKiosk.js'), 'utf-8')
+assert.ok(idleKioskContent.includes('kiosk_idle_detik'), 'useIdleKiosk harus memakai kiosk_idle_detik dari config (FR-K-10)')
+assert.ok(idleKioskContent.includes('resetSesi'), 'useIdleKiosk harus menghapus seluruh isian saat idle')
+assert.ok(layoutKioskContent.includes('useIdleKiosk'), 'LayoutKiosk harus memakai composable useIdleKiosk (FR-K-10)')
+
+// Uji T-35 (XSS): tidak ada v-html di seluruh halaman kiosk — Vue escape otomatis dipertahankan
+for (const pageName of expectedPages) {
+  const content = fs.readFileSync(path.join(pagesDir, pageName), 'utf-8')
+  assert.ok(!content.includes('v-html'), `T-35: ${pageName} tidak boleh memakai v-html`)
+}
+
+// Uji UI-03 (privasi kode): kode pinjam tidak masuk URL, riwayat browser, atau penyimpanan browser
+const routerContent = fs.readFileSync(path.resolve('src/router/index.js'), 'utf-8')
+assert.ok(!/kode/i.test(routerContent), 'UI-03: router tidak boleh membawa kode peminjaman')
+const storeKioskContent = fs.readFileSync(path.resolve('src/stores/kiosk.js'), 'utf-8')
+assert.ok(!storeKioskContent.includes('localStorage.') && !storeKioskContent.includes('sessionStorage.'), 'UI-03: kode tidak boleh disimpan di penyimpanan browser')
+const cekKodeBody = fs.readFileSync(path.resolve('src/api/kiosk.js'), 'utf-8')
+assert.ok(cekKodeBody.includes("client.post('/api/kiosk/loans/lookup', payload)"), 'UI-03: kode harus dikirim via POST body, bukan URL')
+
 // ponytail: check parse/compile SFC halaman kiosk; tambahkan vitest mount bila sudah dibutuhkan di pengujian interaktif
-console.log('Semua halaman kiosk dan aturan FR-K-01/FR-K-02/FR-K-03/FR-K-04/FR-K-09 lulus pengujian.')
+console.log('Semua halaman kiosk dan aturan FR-K-01..FR-K-12 + T-35 + UI-03 lulus pengujian.')
