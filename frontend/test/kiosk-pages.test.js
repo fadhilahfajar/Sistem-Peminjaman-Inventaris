@@ -112,5 +112,19 @@ assert.ok(idleKioskContent.includes('kiosk_idle_detik'), 'useIdleKiosk harus mem
 assert.ok(idleKioskContent.includes('resetSesi'), 'useIdleKiosk harus menghapus seluruh isian saat idle')
 assert.ok(layoutKioskContent.includes('useIdleKiosk'), 'LayoutKiosk harus memakai composable useIdleKiosk (FR-K-10)')
 
+// Uji T-35 (XSS): tidak ada v-html di seluruh halaman kiosk — Vue escape otomatis dipertahankan
+for (const pageName of expectedPages) {
+  const content = fs.readFileSync(path.join(pagesDir, pageName), 'utf-8')
+  assert.ok(!content.includes('v-html'), `T-35: ${pageName} tidak boleh memakai v-html`)
+}
+
+// Uji UI-03 (privasi kode): kode pinjam tidak masuk URL, riwayat browser, atau penyimpanan browser
+const routerContent = fs.readFileSync(path.resolve('src/router/index.js'), 'utf-8')
+assert.ok(!/kode/i.test(routerContent), 'UI-03: router tidak boleh membawa kode peminjaman')
+const storeKioskContent = fs.readFileSync(path.resolve('src/stores/kiosk.js'), 'utf-8')
+assert.ok(!storeKioskContent.includes('localStorage.') && !storeKioskContent.includes('sessionStorage.'), 'UI-03: kode tidak boleh disimpan di penyimpanan browser')
+const cekKodeBody = fs.readFileSync(path.resolve('src/api/kiosk.js'), 'utf-8')
+assert.ok(cekKodeBody.includes("client.post('/api/kiosk/loans/lookup', payload)"), 'UI-03: kode harus dikirim via POST body, bukan URL')
+
 // ponytail: check parse/compile SFC halaman kiosk; tambahkan vitest mount bila sudah dibutuhkan di pengujian interaktif
-console.log('Semua halaman kiosk dan aturan FR-K-01..FR-K-12 lulus pengujian.')
+console.log('Semua halaman kiosk dan aturan FR-K-01..FR-K-12 + T-35 + UI-03 lulus pengujian.')
