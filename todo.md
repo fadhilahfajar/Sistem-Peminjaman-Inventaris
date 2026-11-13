@@ -1,4 +1,4 @@
-# todo.md: Sistem Peminjaman & Inventaris Barang Tim IT
+﻿# todo.md: Sistem Peminjaman & Inventaris Barang Tim IT
 
 Task per fase untuk agent AI. Aturan kerja ada di `AGENTS.md`. Maksud dan kriteria lulus ada di `docs/PRD.md` (T-xx, K-x). Aturan bisnis, skema, Service, API, UI ada di `docs/DESAIN.md` (BR-xx).
 
@@ -107,11 +107,11 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - [x] **5.2** (M) [C] Layout admin: sidebar (menu geser di layar kecil), navbar, lencana antrean dan stok rusak.
 - [x] **5.3** (M) [C] `TabelData` (urutan, pagination, mode kartu di layar sempit) dan `FilterBar`.
 - [x] **5.4** (M) [C] Dasbor dengan polling 30 detik. FR-A-15, FR-A-19.
-- [ ] **5.5** (M) [C] Barang: daftar, form tambah dan ubah, hapus dengan konfirmasi, penyesuaian stok.
-- [ ] **5.6** (M) [C] Daftar peminjaman dengan semua filter, detail dan lini masa, aksi koreksi, perpanjang, batalkan.
-- [ ] **5.7** (M) [C] Antrean verifikasi dan layar verifikasi: empat kolom hasil, selisih, Simpan aktif hanya bila nol, aksi cepat "Setujui sesuai laporan", catatan wajib. FR-A-04.
-- [ ] **5.8** (M) [C] Stok rusak: tandai rusak, selesai diperbaiki, afkir.
-- [ ] **5.9** (M) [C] Kategori dan Divisi.
+- [x] **5.5** (M) [C] Barang: daftar, form tambah dan ubah, hapus dengan konfirmasi, penyesuaian stok.
+- [x] **5.6** (M) [C] Daftar peminjaman dengan semua filter, detail dan lini masa, aksi koreksi, perpanjang, batalkan.
+- [x] **5.7** (M) [C] Antrean verifikasi dan layar verifikasi: empat kolom hasil, selisih, Simpan aktif hanya bila nol, aksi cepat "Setujui sesuai laporan", catatan wajib. FR-A-04.
+- [x] **5.8** (M) [C] Stok rusak: tandai rusak, selesai diperbaiki, afkir.
+- [x] **5.9** (M) [C] Kategori dan Divisi.
 - [ ] **5.10** (S) [C] Pengaturan, Akun admin, Jejak audit.
 - [ ] **5.11** (M) [C] Halaman galat 403, 404, 419.
 - [ ] **5.12** (M) [C] Uji manual: UI-04, UI-05, UI-07, **T-13**, **T-16**, **T-40**. Badge status identik di kiosk dan admin.
@@ -254,3 +254,8 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - 2026-11-13: 5.2 selesai. Komponen `Sidebar.vue` (grup navigasi DESAIN 10.3: Dasbor, Peminjaman, Inventaris, Master Data, Laporan, Sistem) dengan lencana jumlah antrean verifikasi dan stok rusak, menu geser overlay di layar kecil yang menutup saat pindah halaman, serta `Navbar.vue` berisi nama admin, tombol Ganti Password, dan Keluar. `LayoutAdmin.vue` memuat profil dan memantau `/api/admin/summary` untuk lencana. Sepuluh layar 5.5–5.10 didaftarkan di router memakai halaman sementara `PlaceholderAdmin.vue` agar setiap menu berfungsi. Verifikasi: `npm test` (asersi `admin-fondasi.test.js`) dan `npm run build` lulus.
 - 2026-11-13: 5.3 selesai. `TabelData.vue`: urutan kolom terkendali dengan `aria-sort`, pagination dari `meta` Laravel paginator, skeleton saat memuat, keadaan kosong, dan mode kartu di layar sempit dengan label per kolom; slot per kolom (`cell-<kunci>`) untuk sel kustom. `FilterBar.vue`: wadah filter dengan slot grid dan tombol Terapkan/Atur Ulang yang dinonaktifkan saat memuat. Verifikasi: `npm test` dan `npm run build` lulus.
 - 2026-11-13: 5.4 selesai. Dasbor admin (`src/pages/admin/DasborPage.vue`) menampilkan empat kartu angka (dipinjam, terlambat, menunggu verifikasi, unit stok rusak) dan daftar peminjaman terlambat dengan badge `BadgeStatus` yang identik dengan kiosk (UI-04), klik baris menuju detail peminjaman. Seluruh angka berasal dari satu respons `/api/admin/summary` sehingga konsisten (FR-A-19); polling 30 detik di `LayoutAdmin.vue` (FR-A-15) dan ringkasan dimuat ulang saat dasbor dibuka. Verifikasi: `/api/admin/summary` dites nyata (angka dan daftar terlambat terkirim); `npm test` dan `npm run build` lulus.
+- 2026-11-13: 5.5 selesai. `BarangPage.vue` (daftar + filter q/kategori, hapus soft-delete dengan konfirmasi, penyesuaian stok tambah/kurang via `adjustStock`, tandai rusak via `markDamaged`, alasan wajib) dan `BarangFormPage.vue` (tambah dengan `jumlah_awal` / ubah via `getItem`, kategori aktif saja, penanda `boleh_diperpanjang`). `admin.js` ditambah `getItem(id)`.
+- 2026-11-13: 5.6 selesai. `PeminjamanPage.vue` (daftar dengan seluruh filter FR-A-05, chips ringkasan dari `sesi.ringkasan`, klik baris ke detail) dan `DetailPeminjamanPage.vue` (identitas, lencana, tabel unit menunggu/terverifikasi/sisa, lini masa `LiniMasa.vue`, modal Koreksi BR-16, Perpanjang BR-13, Batalkan BR-25 — semua alasan wajib, pembatalan ditutup bila sudah ada klaim).
+- 2026-11-13: 5.7 selesai. `VerifikasiPage.vue` (tab Menunggu urut terlama di atas / Riwayat `?status=diverifikasi`, jumlah antrean dari ringkasan) dan `VerifikasiDetailPage.vue` (per baris empat isian baik/rusak/hilang/ditolak min 0, indikator selisih, Simpan nonaktif bila selisih ≠ 0, aksi cepat "Setujui sesuai laporan", `catatan_admin` wajib bila hasil beda dari `kondisi_dilaporkan` atau ada ditolak — BR-06, modal konfirmasi sebelum POST `verifyReturnClaim`).
+- 2026-11-13: 5.8 selesai. `StokRusakPage.vue` daftar `getRepairs` dengan aksi Selesai Diperbaiki (`repairComplete`, catatan opsional) dan Afkir (`writeOff`, alasan wajib); tandai rusak tetap dari halaman Barang. Toast admin global `useToast.js` + `NotifikasiToast` dipasang di `LayoutAdmin`; komponen baru `LiniMasa.vue`.
+- 2026-11-13: 5.9 selesai. `KategoriPage.vue` dan `DivisiPage.vue`: daftar, tambah/ubah nama (2–100 karakter) via modal, toggle aktif nonaktif lewat konfirmasi (BR-27, BR-28, BR-33 — penolakan 409 ditampilkan sebagai toast galat). Router: 6 placeholder diganti halaman sungguhan + rute nested `barang/baru`, `barang/:id/ubah`, `peminjaman/:id`, `verifikasi/:id`; placeholder tersisa untuk laporan/pengaturan/akun/audit. Verifikasi: uji baru `test/admin-halaman.test.js` (asersi statik FR-A/BR), `npm test` dan `npm run build` lulus.
