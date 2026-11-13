@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node test/components.test.js && node test/admin-fondasi.test.js && node test/kiosk-pages.test.js && node test/tanggal.test.js"
+    "test": "node test/components.test.js && node test/admin-fondasi.test.js && node test/admin-halaman.test.js && node test/kiosk-pages.test.js && node test/tanggal.test.js"
   },
   "dependencies": {
     "axios": "^1.21.0",

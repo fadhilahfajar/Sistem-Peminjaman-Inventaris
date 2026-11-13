@@ -5,11 +5,13 @@ import Navbar from '@/components/Navbar.vue'
 import Sidebar from '@/components/Sidebar.vue'
 import { useSesiStore } from '@/stores/sesi'
 import { useUiStore } from '@/stores/ui'
+import { useToast } from '@/composables/useToast'
 
 const route = useRoute()
 const router = useRouter()
 const sesi = useSesiStore()
 const ui = useUiStore()
+const toast = useToast()
 
 // Profil dimuat oleh router guard; polling ringkasan untuk lencana (FR-A-15).
 const JEDA_POLLING = 30_000
@@ -90,5 +92,14 @@ async function keluar() {
         </main>
       </div>
     </div>
+
+    <!-- Toast sukses/galat admin (DESAIN 10.6) -->
+    <NotifikasiToast
+      :terbuka="toast.terbuka"
+      :pesan="toast.pesan"
+      :tipe="toast.tipe"
+      @update:terbuka="toast.terbuka = $event"
+      @tutup="toast.tutup"
+    />
   </div>
 </template>

@@ -13,6 +13,7 @@ const expected = [
   'InputKode.vue',
   'KartuAngka.vue',
   'KartuBarang.vue',
+  'LiniMasa.vue',
   'Memuat.vue',
   'ModalKonfirmasi.vue',
   'Navbar.vue',
