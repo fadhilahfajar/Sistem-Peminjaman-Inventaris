@@ -56,6 +56,9 @@ export const adminApi = {
   getItems(params = {}) {
     return client.get('/api/admin/items', { params })
   },
+  getItem(id) {
+    return client.get(`/api/admin/items/${id}`)
+  },
   createItem(payload) {
     return client.post('/api/admin/items', payload)
   },
