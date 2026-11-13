@@ -7,7 +7,7 @@ import client from './client'
 export const authApi = {
   /**
    * Login admin.
-   * @param {{ email: string, kata_sandi: string }} kredensial
+   * @param {{ email: string, password: string }} kredensial
    */
   login(kredensial) {
     return client.post('/api/auth/login', kredensial)
@@ -30,9 +30,9 @@ export const authApi = {
   /**
    * Ganti kata sandi sendiri.
    * @param {{
-   *   kata_sandi_lama: string,
-   *   kata_sandi_baru: string,
-   *   kata_sandi_baru_confirmation: string
+   *   password_lama: string,
+   *   password_baru: string,
+   *   password_baru_confirmation: string
    * }} payload
    */
   changePassword(payload) {

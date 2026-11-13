@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LayoutKiosk from '@/layouts/LayoutKiosk.vue'
 import LayoutLogin from '@/layouts/LayoutLogin.vue'
 import LayoutAdmin from '@/layouts/LayoutAdmin.vue'
+import { useSesiStore } from '@/stores/sesi'
 
 const routes = [
   {
@@ -93,14 +94,32 @@ const routes = [
   {
     path: '/admin',
     component: LayoutAdmin,
-    meta: { judul: 'Dasbor' },
+    meta: { judul: 'Dasbor', butuhSesi: true },
     children: [
       {
         path: '',
         name: 'admin.dasbor',
         component: () => import('@/pages/admin/DasborPage.vue'),
-        meta: { judul: 'Dasbor' },
+        meta: { judul: 'Dasbor', butuhSesi: true },
       },
+      // Layar admin 5.5–5.10 dibangun pada task masing-masing; sementara memakai placeholder.
+      ...Object.entries({
+        peminjaman: 'Daftar Peminjaman',
+        verifikasi: 'Antrean Verifikasi',
+        barang: 'Barang',
+        'stok-rusak': 'Stok Rusak',
+        laporan: 'Laporan',
+        kategori: 'Kategori',
+        divisi: 'Divisi',
+        pengaturan: 'Pengaturan',
+        akun: 'Akun Admin',
+        audit: 'Jejak Audit',
+      }).map(([path, judul]) => ({
+        path,
+        name: `admin.${path}`,
+        component: () => import('@/pages/admin/PlaceholderAdmin.vue'),
+        meta: { judul, butuhSesi: true },
+      })),
     ],
   },
 ]
@@ -111,6 +130,33 @@ const router = createRouter({
   scrollBehavior() {
     return { top: 0 }
   },
+})
+
+// Guard sesi admin (Task 5.1): seluruh /admin kecuali /admin/login menuntut sesi aktif
+// lewat /api/auth/me. Kehabisan sesi di tengah pemakaian ditangani interceptor (401/419).
+router.beforeEach(async (to) => {
+  if (!to.matched.some((r) => r.meta.butuhSesi)) {
+    return true
+  }
+
+  const sesi = useSesiStore()
+
+  if (!sesi.termuat) {
+    try {
+      await sesi.muatProfil()
+    } catch {
+      // 401/419: sesi tidak ada atau berakhir.
+    }
+  }
+
+  if (!sesi.masuk) {
+    return {
+      name: 'admin.login',
+      query: to.path === '/admin' ? {} : { redirect: to.fullPath },
+    }
+  }
+
+  return true
 })
 
 router.afterEach((to) => {
