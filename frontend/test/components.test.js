@@ -7,16 +7,21 @@ const dir = path.resolve('src/components')
 const expected = [
   'BadgeLencana.vue',
   'BadgeStatus.vue',
+  'FilterBar.vue',
   'FormField.vue',
   'InputJumlah.vue',
   'InputKode.vue',
+  'KartuAngka.vue',
   'KartuBarang.vue',
   'Memuat.vue',
   'ModalKonfirmasi.vue',
+  'Navbar.vue',
   'NotifikasiToast.vue',
   'PesanGalat.vue',
+  'Sidebar.vue',
   'StatusKosong.vue',
   'StrukCetak.vue',
+  'TabelData.vue',
   'TombolBesar.vue',
 ]
 
