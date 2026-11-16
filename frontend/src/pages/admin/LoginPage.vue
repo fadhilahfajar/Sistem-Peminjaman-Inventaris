@@ -35,6 +35,10 @@ async function masuk() {
       password: password.value,
     })
 
+    // Setelah login sukses, muat profil lewat store sebelum redirect,
+    // supaya router guard melihat sesi aktif (bug: state tidak pernah diupdate).
+    await sesi.muatProfil()
+
     const tujuan = typeof route.query.redirect === 'string' && route.query.redirect.startsWith('/admin')
       ? route.query.redirect
       : { name: 'admin.dasbor' }

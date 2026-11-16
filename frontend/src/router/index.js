@@ -162,19 +162,57 @@ const routes = [
         component: () => import('@/pages/admin/DivisiPage.vue'),
         meta: { judul: 'Divisi', butuhSesi: true },
       },
-      // Sisa layar admin (5.10–5.12) masih placeholder.
-      ...Object.entries({
-        laporan: 'Laporan',
-        pengaturan: 'Pengaturan',
-        akun: 'Akun Admin',
-        audit: 'Jejak Audit',
-      }).map(([path, judul]) => ({
-        path,
-        name: `admin.${path}`,
+      {
+        path: 'pengaturan',
+        name: 'admin.pengaturan',
+        component: () => import('@/pages/admin/PengaturanPage.vue'),
+        meta: { judul: 'Pengaturan', butuhSesi: true },
+      },
+      {
+        path: 'akun',
+        name: 'admin.akun',
+        component: () => import('@/pages/admin/AkunPage.vue'),
+        meta: { judul: 'Akun Admin', butuhSesi: true },
+      },
+      {
+        path: 'audit',
+        name: 'admin.audit',
+        component: () => import('@/pages/admin/AuditPage.vue'),
+        meta: { judul: 'Jejak Audit', butuhSesi: true },
+      },
+      // Layar laporan dibangun pada Fase 6 (Task 6.3); sementara memakai placeholder.
+      {
+        path: 'laporan',
+        name: 'admin.laporan',
         component: () => import('@/pages/admin/PlaceholderAdmin.vue'),
-        meta: { judul, butuhSesi: true },
-      })),
+        meta: { judul: 'Laporan', butuhSesi: true },
+      },
     ],
+  },
+  // Halaman galat ramah tanpa informasi internal (Task 5.11, DESAIN 10.3 / 10.6)
+  {
+    path: '/403',
+    name: 'galat.403',
+    component: () => import('@/pages/galat/GalatPage.vue'),
+    meta: { judul: 'Akses Ditolak', statusGalat: '403' },
+  },
+  {
+    path: '/404',
+    name: 'galat.404',
+    component: () => import('@/pages/galat/GalatPage.vue'),
+    meta: { judul: 'Halaman Tidak Ditemukan', statusGalat: '404' },
+  },
+  {
+    path: '/419',
+    name: 'galat.419',
+    component: () => import('@/pages/galat/GalatPage.vue'),
+    meta: { judul: 'Sesi Berakhir', statusGalat: '419' },
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'galat.catch-all',
+    component: () => import('@/pages/galat/GalatPage.vue'),
+    meta: { judul: 'Halaman Tidak Ditemukan', statusGalat: '404' },
   },
 ]
 

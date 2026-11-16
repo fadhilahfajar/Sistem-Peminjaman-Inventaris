@@ -112,9 +112,9 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - [x] **5.7** (M) [C] Antrean verifikasi dan layar verifikasi: empat kolom hasil, selisih, Simpan aktif hanya bila nol, aksi cepat "Setujui sesuai laporan", catatan wajib. FR-A-04.
 - [x] **5.8** (M) [C] Stok rusak: tandai rusak, selesai diperbaiki, afkir.
 - [x] **5.9** (M) [C] Kategori dan Divisi.
-- [ ] **5.10** (S) [C] Pengaturan, Akun admin, Jejak audit.
-- [ ] **5.11** (M) [C] Halaman galat 403, 404, 419.
-- [ ] **5.12** (M) [C] Uji manual: UI-04, UI-05, UI-07, **T-13**, **T-16**, **T-40**. Badge status identik di kiosk dan admin.
+- [x] **5.10** (S) [C] Pengaturan, Akun admin, Jejak audit.
+- [x] **5.11** (M) [C] Halaman galat 403, 404, 419.
+- [x] **5.12** (M) [C] Uji manual: UI-04, UI-05, UI-07, **T-13**, **T-16**, **T-40**. Badge status identik di kiosk dan admin.
 
 **Gerbang 5:** seluruh alur admin berjalan. T-13, T-16 lulus.
 
@@ -259,3 +259,6 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 - 2026-11-13: 5.7 selesai. `VerifikasiPage.vue` (tab Menunggu urut terlama di atas / Riwayat `?status=diverifikasi`, jumlah antrean dari ringkasan) dan `VerifikasiDetailPage.vue` (per baris empat isian baik/rusak/hilang/ditolak min 0, indikator selisih, Simpan nonaktif bila selisih ≠ 0, aksi cepat "Setujui sesuai laporan", `catatan_admin` wajib bila hasil beda dari `kondisi_dilaporkan` atau ada ditolak — BR-06, modal konfirmasi sebelum POST `verifyReturnClaim`).
 - 2026-11-13: 5.8 selesai. `StokRusakPage.vue` daftar `getRepairs` dengan aksi Selesai Diperbaiki (`repairComplete`, catatan opsional) dan Afkir (`writeOff`, alasan wajib); tandai rusak tetap dari halaman Barang. Toast admin global `useToast.js` + `NotifikasiToast` dipasang di `LayoutAdmin`; komponen baru `LiniMasa.vue`.
 - 2026-11-13: 5.9 selesai. `KategoriPage.vue` dan `DivisiPage.vue`: daftar, tambah/ubah nama (2–100 karakter) via modal, toggle aktif nonaktif lewat konfirmasi (BR-27, BR-28, BR-33 — penolakan 409 ditampilkan sebagai toast galat). Router: 6 placeholder diganti halaman sungguhan + rute nested `barang/baru`, `barang/:id/ubah`, `peminjaman/:id`, `verifikasi/:id`; placeholder tersisa untuk laporan/pengaturan/akun/audit. Verifikasi: uji baru `test/admin-halaman.test.js` (asersi statik FR-A/BR), `npm test` dan `npm run build` lulus.
+- 2026-11-16: 5.10 selesai. `PengaturanPage.vue` (delapan parameter sistem dengan rentang nilai valid, validasi batas min/maks, update langsung berlaku via `PUT /api/admin/settings`, FR-A-12), `AkunPage.vue` (daftar admin, tambah admin baru dengan password minimal 12 karakter, nonaktifkan akun via konfirmasi dengan pencegahan menonaktifkan akun sendiri, form modal ganti password sendiri via `POST /api/auth/change-password`, FR-A-02), dan `AuditPage.vue` (tabel riwayat audit append-only hanya baca dengan filter aksi, entitas, dan admin pelaku, serta modal rincian JSON rapi, FR-A-13).
+- 2026-11-16: 5.11 selesai. Komponen `GalatPage.vue` (`src/pages/galat/GalatPage.vue`) untuk rute `/403`, `/404`, `/419`, dan wildcard catch-all `/:pathMatch(.*)*`. Pesan ramah pengguna tanpa membocorkan rincian internal server; 419 menampilkan "Sesi berakhir, silakan masuk lagi" dan tombol langsung menuju `/admin/login?sesi=berakhir` (DESAIN 10.3 / 10.6).
+- 2026-11-16: 5.12 selesai. Uji manual panel admin dan verifikasi statik lulus: UI-04 (`BadgeStatus.vue` identik antara kiosk dan admin untuk 6 status peminjaman), UI-05 & T-40 (responsif di layar ponsel 360 px dan tablet 768 px, sidebar overlay geser di layar kecil, mode kartu `TabelData`), UI-07 (halaman galat 403, 404, 419 ramah pengguna), T-13 (perpanjangan batas kembali oleh admin tanpa kuota dan diizinkan untuk peminjaman terlambat), T-16 (koreksi peminjaman dengan alasan wajib), T-35 (bebas `v-html` dan zero `console.log`). Verifikasi: seluruh pengujian di `test/admin-sisa.test.js` lulus, `npm test` (6 suite) dan `npm run build` berhasil. Gerbang Fase 5 selesai penuh.
