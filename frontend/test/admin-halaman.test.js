@@ -120,8 +120,8 @@ for (const rute of [
 ]) {
   assert.ok(routerJs.includes(`'${rute}'`), `Router punya rute ${rute}`)
 }
-assert.ok(routerJs.includes('PlaceholderAdmin'), 'Placeholder tetap dipakai untuk laporan/pengaturan/akun/audit')
-assert.ok(routerJs.includes("laporan: 'Laporan'"), 'Placeholder laporan masih di daftar map')
+assert.ok(routerJs.includes('PlaceholderAdmin'), 'Placeholder tetap dipakai untuk laporan')
+assert.ok(routerJs.includes("'admin.laporan'"), 'Placeholder laporan tetap ada untuk Task 6.3')
 assert.ok(!routerJs.includes("peminjaman: 'Daftar Peminjaman'"), 'Peminjaman sudah halaman sungguhan, bukan placeholder')
 
 // T-35: tidak ada v-html, dan tidak ada kode uji di berkas halaman
