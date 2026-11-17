@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\AuditLogController;
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\DivisionController;
+use App\Http\Controllers\Api\Admin\EksporController;
 use App\Http\Controllers\Api\Admin\ItemController;
 use App\Http\Controllers\Api\Admin\ItemStockController;
 use App\Http\Controllers\Api\Admin\LaporanController;
@@ -53,6 +54,9 @@ Route::put('settings', [SettingController::class, 'perbarui']);
 Route::get('audit-logs', [AuditLogController::class, 'index']);
 
 Route::get('reports/{jenis}.pdf', [LaporanController::class, 'show']);
+
+Route::get('exports/peminjaman.csv', [EksporController::class, 'peminjaman']);
+Route::get('exports/stok.csv', [EksporController::class, 'stok']);
 
 Route::get('users', [UserController::class, 'index']);
 Route::post('users', [UserController::class, 'simpan']);

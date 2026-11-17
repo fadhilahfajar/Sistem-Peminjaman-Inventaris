@@ -256,7 +256,7 @@ class LaporanService
     }
 
     /** @param array<string, mixed> $filter */
-    private function queryStok(array $filter): Builder
+    public function queryStok(array $filter): Builder
     {
         $menungguSub = DB::table('return_claim_lines as rcl')
             ->join('return_claims as rc', 'rc.id', '=', 'rcl.claim_id')
@@ -360,7 +360,7 @@ class LaporanService
     }
 
     /** @param array<string, mixed> $filter */
-    private function ringkas(array $filter): array
+    public function ringkas(array $filter): array
     {
         $hasil = [];
         foreach (self::FILTER_REKAP as $kunci) {
