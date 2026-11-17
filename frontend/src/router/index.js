@@ -180,11 +180,10 @@ const routes = [
         component: () => import('@/pages/admin/AuditPage.vue'),
         meta: { judul: 'Jejak Audit', butuhSesi: true },
       },
-      // Layar laporan dibangun pada Fase 6 (Task 6.3); sementara memakai placeholder.
       {
         path: 'laporan',
         name: 'admin.laporan',
-        component: () => import('@/pages/admin/PlaceholderAdmin.vue'),
+        component: () => import('@/pages/admin/LaporanPage.vue'),
         meta: { judul: 'Laporan', butuhSesi: true },
       },
     ],
