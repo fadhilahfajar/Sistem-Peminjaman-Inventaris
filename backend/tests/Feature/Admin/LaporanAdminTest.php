@@ -15,13 +15,14 @@ beforeEach(function () {
 });
 
 it('rute laporan menolak 401 tanpa sesi', function () {
-    spa()->getJson('/api/admin/reports/rekap.pdf')->assertStatus(401);
-    spa()->getJson('/api/admin/reports/belum-kembali.pdf')->assertStatus(401);
+    foreach (['rekap', 'belum-kembali', 'stok', 'pengembalian'] as $jenis) {
+        spa()->getJson("/api/admin/reports/{$jenis}.pdf")->assertStatus(401);
+    }
 });
 
 it('jenis laporan tidak dikenal mengembalikan 404', function () {
     spa()->actingAs($this->admin, 'web')
-        ->get('/api/admin/reports/stok.pdf')
+        ->get('/api/admin/reports/foo.pdf')
         ->assertStatus(404);
 });
 

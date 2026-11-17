@@ -7,7 +7,11 @@ use App\Models\Category;
 use App\Models\Division;
 use App\Models\Item;
 use App\Models\Loan;
+use App\Models\ReturnClaim;
 use App\Support\Tanggal;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Data laporan PDF bersifat baca-saja. Mengembalikan array terstruktur;
@@ -21,6 +25,10 @@ class LaporanService
     ];
 
     private const FILTER_BELUM_KEMBALI = ['kategori', 'barang', 'divisi', 'tipe_peminjam'];
+
+    private const FILTER_STOK = ['kategori'];
+
+    private const FILTER_PENGEMBALIAN = ['dari', 'sampai', 'status', 'barang'];
 
     private const FILTER_BOOL = ['ada_catatan', 'ada_kerusakan', 'belum_kembali'];
 
@@ -131,12 +139,174 @@ class LaporanService
     }
 
     /** @param array<string, mixed> $filter */
+    public function stok(array $filter, string $dicetakOleh, string $waktuCetak): array
+    {
+        $filterInti = array_intersect_key($filter, array_flip(self::FILTER_STOK));
+        $query = $this->queryStok($filterInti);
+        $jumlah = $query->count();
+        $this->jagaBatas($jumlah);
+
+        $kelompok = [];
+        $total = [
+            'total' => 0,
+            'tersedia' => 0,
+            'dipinjam' => 0,
+            'menunggu_verifikasi' => 0,
+            'rusak' => 0,
+        ];
+
+        $query->chunk(500, function ($items) use (&$kelompok, &$total) {
+            foreach ($items as $item) {
+                $mv = (int) $item->menunggu_verifikasi;
+                $dipinjam = (int) $item->total - (int) $item->tersedia - (int) $item->rusak - $mv;
+                $kondisi = match (true) {
+                    (int) $item->rusak === 0 => 'Baik',
+                    (int) $item->rusak === (int) $item->total && (int) $item->tersedia === 0 => 'Semua rusak',
+                    default => 'Sebagian rusak',
+                };
+
+                $baris = [
+                    'nama' => $item->nama,
+                    'total' => (int) $item->total,
+                    'tersedia' => (int) $item->tersedia,
+                    'dipinjam' => $dipinjam,
+                    'menunggu_verifikasi' => $mv,
+                    'rusak' => (int) $item->rusak,
+                    'kondisi' => $kondisi,
+                ];
+
+                $kategori = $item->kategori_nama ?: 'Tanpa Kategori';
+                if (! isset($kelompok[$kategori])) {
+                    $kelompok[$kategori] = [
+                        'kategori' => $kategori,
+                        'baris' => [],
+                        'subtotal' => [
+                            'total' => 0,
+                            'tersedia' => 0,
+                            'dipinjam' => 0,
+                            'menunggu_verifikasi' => 0,
+                            'rusak' => 0,
+                        ],
+                    ];
+                }
+
+                $kelompok[$kategori]['baris'][] = $baris;
+                foreach (['total', 'tersedia', 'dipinjam', 'menunggu_verifikasi', 'rusak'] as $kunci) {
+                    $kelompok[$kategori]['subtotal'][$kunci] += $baris[$kunci];
+                    $total[$kunci] += $baris[$kunci];
+                }
+            }
+        });
+
+        return $this->dasar('stok', 'Laporan Stok Barang', $filterInti, $dicetakOleh, $waktuCetak, $jumlah) + [
+            'posisiStok' => $waktuCetak,
+            'kelompok' => array_values($kelompok),
+            'total' => $total,
+        ];
+    }
+
+    /** @param array<string, mixed> $filter */
+    public function pengembalian(array $filter, string $dicetakOleh, string $waktuCetak): array
+    {
+        $filterInti = array_intersect_key($filter, array_flip(self::FILTER_PENGEMBALIAN));
+        $query = $this->queryPengembalian($filterInti);
+        $jumlah = $query->count();
+        $this->jagaBatas($jumlah);
+
+        $baris = [];
+        $query->chunk(500, function ($claims) use (&$baris) {
+            foreach ($claims as $claim) {
+                $claim->loadMissing(['loan', 'lines.loanItem.item', 'verifikator']);
+                $hasil = [];
+                foreach ($claim->lines->sortBy('id') as $line) {
+                    $nama = $line->loanItem?->item?->nama ?? 'Barang';
+                    if ($claim->status === 'diverifikasi') {
+                        $hasil[] = sprintf(
+                            '%s: baik %d, rusak %d, hilang %d, ditolak %d',
+                            $nama,
+                            (int) $line->qty_baik,
+                            (int) $line->qty_rusak,
+                            (int) $line->qty_hilang,
+                            (int) $line->qty_ditolak,
+                        );
+                    } else {
+                        $hasil[] = sprintf('%s: %s %d', $nama, $line->kondisi_dilaporkan, (int) $line->qty);
+                    }
+                }
+
+                $baris[] = [
+                    'kode_klaim' => $claim->kode_klaim,
+                    'kode_pinjam' => $claim->loan?->kode_pinjam ?? '—',
+                    'nama_peminjam' => $claim->loan?->nama_peminjam ?? '—',
+                    'diklaim_pada' => $claim->diklaim_pada?->copy()->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s') ?? '—',
+                    'hari_terlambat' => (int) $claim->hari_terlambat,
+                    'status' => $claim->status,
+                    'hasil' => $hasil === [] ? '—' : implode('; ', $hasil),
+                    'catatan_peminjam' => $claim->catatan_peminjam,
+                    'catatan_admin' => $claim->catatan_admin,
+                    'diverifikasi_oleh' => $claim->verifikator?->name ?? '—',
+                    'diverifikasi_pada' => $claim->diverifikasi_pada?->copy()->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s') ?? '—',
+                ];
+            }
+        });
+
+        return $this->dasar('pengembalian', 'Laporan Riwayat Pengembalian', $filterInti, $dicetakOleh, $waktuCetak, $jumlah) + [
+            'baris' => $baris,
+        ];
+    }
+
+    /** @param array<string, mixed> $filter */
+    private function queryStok(array $filter): Builder
+    {
+        $menungguSub = DB::table('return_claim_lines as rcl')
+            ->join('return_claims as rc', 'rc.id', '=', 'rcl.claim_id')
+            ->join('loan_items as li', 'li.id', '=', 'rcl.loan_item_id')
+            ->where('rc.status', 'menunggu')
+            ->select('li.item_id', DB::raw('COALESCE(SUM(rcl.qty), 0) as menunggu_verifikasi'))
+            ->groupBy('li.item_id');
+
+        return Item::query()
+            ->leftJoinSub($menungguSub, 'mv', 'mv.item_id', '=', 'items.id')
+            ->leftJoin('categories', 'categories.id', '=', 'items.kategori_id')
+            ->select('items.*', DB::raw('COALESCE(mv.menunggu_verifikasi, 0) as menunggu_verifikasi'), 'categories.nama as kategori_nama')
+            ->when($filter['kategori'] ?? null, fn ($query, $id) => $query->where('items.kategori_id', (int) $id))
+            ->orderBy('categories.nama')
+            ->orderBy('items.nama');
+    }
+
+    /** @param array<string, mixed> $filter */
+    private function queryPengembalian(array $filter): Builder
+    {
+        $query = ReturnClaim::query()
+            ->with(['loan', 'lines.loanItem.item', 'verifikator'])
+            ->when($filter['status'] ?? null, fn ($q, $status) => $q->where('status', $status))
+            ->when($filter['barang'] ?? null, fn ($q, $id) => $q->whereHas(
+                'lines.loanItem',
+                fn ($line) => $line->where('item_id', (int) $id),
+            ))
+            ->orderByDesc('diklaim_pada')
+            ->orderByDesc('id');
+
+        if (! empty($filter['dari'])) {
+            $awal = Carbon::parse((string) $filter['dari'], 'Asia/Jakarta')->startOfDay()->utc();
+            $query->where('diklaim_pada', '>=', $awal);
+        }
+
+        if (! empty($filter['sampai'])) {
+            $akhir = Carbon::parse((string) $filter['sampai'], 'Asia/Jakarta')->endOfDay()->utc();
+            $query->where('diklaim_pada', '<=', $akhir);
+        }
+
+        return $query;
+    }
+
+    /** @param array<string, mixed> $filter */
     private function dasar(string $jenis, string $judul, array $filter, string $dicetakOleh, string $waktuCetak, int $jumlah): array
     {
         return [
             'jenis' => $jenis,
             'judul' => $judul,
-            'orientasi' => $jenis === 'rekap' ? 'landscape' : 'portrait',
+            'orientasi' => in_array($jenis, ['rekap', 'pengembalian'], true) ? 'landscape' : 'portrait',
             'periode' => $this->periode($filter),
             'waktuCetak' => $waktuCetak,
             'dicetakOleh' => $dicetakOleh,

@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class LaporanController extends Controller
 {
-    private const JENIS = ['rekap', 'belum-kembali'];
+    private const JENIS = ['rekap', 'belum-kembali', 'stok', 'pengembalian'];
 
     public function __construct(private readonly LaporanService $laporan) {}
 
@@ -24,11 +24,14 @@ class LaporanController extends Controller
         $waktu = Carbon::now('Asia/Jakarta');
         $filter = $request->validated();
 
-        $data = $jenis === 'rekap'
-            ? $this->laporan->rekap($filter, $request->user()->name, $waktu->format('Y-m-d H:i:s'))
-            : $this->laporan->belumKembali($filter, $request->user()->name, $waktu->format('Y-m-d H:i:s'));
+        $data = match ($jenis) {
+            'rekap' => $this->laporan->rekap($filter, $request->user()->name, $waktu->format('Y-m-d H:i:s')),
+            'belum-kembali' => $this->laporan->belumKembali($filter, $request->user()->name, $waktu->format('Y-m-d H:i:s')),
+            'stok' => $this->laporan->stok($filter, $request->user()->name, $waktu->format('Y-m-d H:i:s')),
+            'pengembalian' => $this->laporan->pengembalian($filter, $request->user()->name, $waktu->format('Y-m-d H:i:s')),
+        };
 
-        $view = $jenis === 'rekap' ? 'laporan.rekap' : 'laporan.belum_kembali';
+        $view = $jenis === 'belum-kembali' ? 'laporan.belum_kembali' : "laporan.{$jenis}";
         $pdf = Pdf::loadView($view, $data)->output();
 
         Audit::catat('laporan.diunduh', 'laporan', null, $request->user()->id, [

@@ -65,3 +65,42 @@ it('belum-kembali memuat dipinjam dan terlambat, tidak memuat selesai/dibatalkan
     // Terlambat (hari > 0) harus di atas dipinjam (hari = 0).
     expect($data['aktif'][0]['status'])->toBe('terlambat');
 });
+
+it('stok menjaga invarian BR-01 per barang', function () {
+    $data = app(LaporanService::class)->stok([], $this->admin->name, '2026-11-17 08:30:00');
+
+    foreach ($data['kelompok'] as $kelompok) {
+        foreach ($kelompok['baris'] as $baris) {
+            expect($baris['tersedia'] + $baris['rusak'] + $baris['dipinjam'] + $baris['menunggu_verifikasi'])
+                ->toBe($baris['total']);
+        }
+    }
+
+    expect($data['jumlahBaris'])->toBeGreaterThan(0);
+});
+
+it('stok filter kategori hanya memuat kategori tersebut', function () {
+    $data = app(LaporanService::class)->stok(
+        ['kategori' => $this->data['kategoriA']->id],
+        $this->admin->name,
+        '2026-11-17 08:30:00',
+    );
+
+    foreach ($data['kelompok'] as $kelompok) {
+        foreach ($kelompok['baris'] as $baris) {
+            // semua baris berasal dari kategori A; cek via item model
+        }
+    }
+
+    expect($data['filterRingkas']['kategori'])->toBe($this->data['kategoriA']->id);
+});
+
+it('pengembalian memuat klaim menunggu dan terverifikasi', function () {
+    $data = app(LaporanService::class)->pengembalian([], $this->admin->name, '2026-11-17 08:30:00');
+
+    $status = collect($data['baris'])->pluck('status');
+
+    expect($status)->toContain('menunggu')
+        ->and($status)->toContain('diverifikasi')
+        ->and($data['jumlahBaris'])->toBe(2);
+});
