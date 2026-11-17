@@ -122,7 +122,7 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
 
 - [x] **6.1** (M) [A] Pilih pustaka PDF (K-2). Verifikasi kompatibilitas dengan Laravel 13 dan PHP 8.4 sebelum memasang.
 - [x] **6.2** (M) [A] `LaporanService` dan `LaporanController`: rekap (filter kategori dan tipe), belum dikembalikan plus pemesanan belum mulai, stok per kategori, riwayat pengembalian dengan catatan. Judul, periode, waktu cetak Asia/Jakarta. **T-41**.
-- [ ] **6.3** (M) [C] Halaman Laporan: pilih jenis dan filter, unduh.
+- [x] **6.3** (M) [C] Halaman Laporan: pilih jenis dan filter, unduh.
 - [x] **6.4** (C) [A] Ekspor CSV/Excel untuk daftar peminjaman dan stok. FR-A-14.
 - [x] **6.5** (S) [A] Tinjau cakupan audit: semua aksi penting menulis `audit_logs` tanpa password atau token.
 
@@ -206,6 +206,7 @@ Tahap paling berisiko. Jangan terburu-buru, jangan melewati tes.
   - Tes: `backend/tests/Feature/Audit/CakupanAuditTest.php` memanggil semua aksi bertes dalam satu skenario, memeriksa tepat satu baris audit per aksi (`aksi`, `entitas`, `entitas_id`, `user_id`), login gagal tanpa audit, dan memindai seluruh `detail` terhadap kata sandi uji unik, kunci `/password|passwd|sandi|token|secret|authorization|cookie|csrf/i`, serta nomor telepon peminjam. Hasil akhir: 447 tes lulus, 0 todo; Pint lulus.
   - Temuan untuk B ditangani atas arahan pemilik: `LoginController::logout` memanggil `AutentikasiService::keluar` sebelum `logout()` dan invalidasi sesi, lalu Service menulis `Audit::catat('logout', 'users', $user->id, $user->id)` tanpa `detail`. Tes logout di `CakupanAuditTest` diaktifkan dari `->todo()` menjadi asersi nyata; verifikasi 447 tes lulus, 0 todo, Pint bersih. Perubahan kode B perlu review B sebelum PR di-merge.
 
+- 2026-11-17: Task 6.3 selesai. Halaman `LaporanPage.vue` menyediakan empat jenis laporan dengan filter sesuai kontrak API, validasi rentang tanggal, dan unduh PDF memakai nama dari `Content-Disposition`; galat JSON dari respons PDF tetap ditampilkan. Router `/admin/laporan` memakai halaman baru. Verifikasi: `npm test` dan `npm run build` lulus.
 
 ### Log B (idrsabdlh-coder)
 

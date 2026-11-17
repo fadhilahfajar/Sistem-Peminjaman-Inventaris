@@ -20,6 +20,7 @@ const SFC = [
   'src/pages/admin/StokRusakPage.vue',
   'src/pages/admin/KategoriPage.vue',
   'src/pages/admin/DivisiPage.vue',
+  'src/pages/admin/LaporanPage.vue',
   'src/components/LiniMasa.vue',
 ]
 
@@ -120,9 +121,21 @@ for (const rute of [
 ]) {
   assert.ok(routerJs.includes(`'${rute}'`), `Router punya rute ${rute}`)
 }
-assert.ok(routerJs.includes('PlaceholderAdmin'), 'Placeholder tetap dipakai untuk laporan')
-assert.ok(routerJs.includes("'admin.laporan'"), 'Placeholder laporan tetap ada untuk Task 6.3')
+assert.ok(routerJs.includes("'admin.laporan'") && routerJs.includes('@/pages/admin/LaporanPage.vue'), 'Router memakai halaman laporan untuk Task 6.3')
 assert.ok(!routerJs.includes("peminjaman: 'Daftar Peminjaman'"), 'Peminjaman sudah halaman sungguhan, bukan placeholder')
+
+// Task 6.3 — pilih laporan, kirim filter sesuai jenis, unduh PDF
+const laporan = baca('src/pages/admin/LaporanPage.vue')
+for (const jenis of ['rekap', 'belum-kembali', 'stok', 'pengembalian']) {
+  assert.ok(laporan.includes(`nilai: '${jenis}'`), `LaporanPage menyediakan jenis ${jenis}`)
+}
+for (const filter of ['barang', 'kategori', 'divisi', 'tipe_peminjam', 'status', 'dari', 'sampai', 'q', 'ada_catatan', 'ada_kerusakan', 'belum_kembali']) {
+  assert.ok(laporan.includes(`'${filter}'`), `LaporanPage mendukung filter ${filter}`)
+}
+assert.ok(laporan.includes('adminApi.getReportPdf'), 'LaporanPage meminta berkas PDF dari API')
+assert.ok(laporan.includes('URL.createObjectURL') && laporan.includes('tautan.download'), 'LaporanPage mengunduh PDF dengan nama berkas')
+assert.ok(laporan.includes("tampilkanFilter('dari') && filter.value.dari"), 'Validasi tanggal hanya berlaku saat laporan memiliki filter tanggal')
+assert.ok(laporan.includes('Tanggal awal tidak boleh melebihi tanggal akhir.'), 'LaporanPage memvalidasi rentang tanggal')
 
 // T-35: tidak ada v-html, dan tidak ada kode uji di berkas halaman
 for (const file of SFC) {
