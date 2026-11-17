@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Support\Audit;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -11,7 +12,8 @@ class AkunAdminService
     /** Bawaan sementara usulan B, belum dikonfirmasi A. */
     public const PANJANG_MIN_SANDI = 12;
 
-    public function buat(string $nama, string $email, string $sandi): User
+    /** $userId null berarti jalur artisan tanpa sesi admin; panel mencatat aktornya sendiri. */
+    public function buat(string $nama, string $email, string $sandi, ?int $userId = null): User
     {
         $nama = trim($nama);
         $email = mb_strtolower(trim($email));
@@ -30,12 +32,23 @@ class AkunAdminService
             throw new InvalidArgumentException('Email sudah dipakai.');
         }
 
-        return User::create([
-            'name' => $nama,
-            'email' => $email,
-            'password' => $sandi,
-            'aktif' => true,
-        ]);
+        return DB::transaction(function () use ($nama, $email, $sandi, $userId) {
+            $user = User::create([
+                'name' => $nama,
+                'email' => $email,
+                'password' => $sandi,
+                'aktif' => true,
+            ]);
+
+            if ($userId === null) {
+                Audit::catat('akun_admin.dibuat', 'users', $user->id, null, [
+                    'nama' => $user->name,
+                    'email' => $user->email,
+                ]);
+            }
+
+            return $user;
+        }, 3);
     }
 
     public function resetSandi(string $email, string $sandi): User
@@ -53,6 +66,10 @@ class AkunAdminService
             $user->save();
 
             DB::table('sessions')->where('user_id', $user->id)->delete();
+
+            Audit::catat('akun_admin.sandi_diganti', 'users', $user->id, null, [
+                'email' => $user->email,
+            ]);
         });
 
         return $user;
