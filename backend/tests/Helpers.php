@@ -38,3 +38,17 @@ function spa()
     ])
         ->withSession([]);
 }
+
+/** Data statis untuk smoke test templat PDF laporan. */
+function dataUjiPdfDasar(): array
+{
+    return [
+        'judul' => 'Laporan Uji Cetak',
+        'periode' => '2026-11-01 s.d. 2026-11-17',
+        'waktuCetak' => (new DateTimeImmutable('2026-11-17 08:30:00', new DateTimeZone('Asia/Jakarta')))->format('Y-m-d H:i:s'),
+        'baris' => [
+            ['nama' => 'Laptop é', 'catatan' => 'Amat & aman', 'jumlah' => 12],
+            ['nama' => 'Proyektor', 'catatan' => "<script>alert('x')</script> > 1", 'jumlah' => 3],
+        ],
+    ];
+}
