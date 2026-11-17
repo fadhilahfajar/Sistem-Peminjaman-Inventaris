@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Support\Audit;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Support\Facades\DB;
@@ -63,6 +64,11 @@ class AutentikasiService
         });
 
         return $user;
+    }
+
+    public function keluar(User $user): void
+    {
+        Audit::catat('logout', 'users', $user->id, $user->id);
     }
 
     private function hashPalsu(): string
