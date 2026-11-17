@@ -320,7 +320,7 @@ Agent tidak boleh memilih sendiri keputusan di tabel ini. Nilai bawaan dipakai s
 | ID | Pertanyaan | Bawaan sementara | Dibutuhkan sebelum |
 |---|---|---|---|
 | K-1 | Frontend memakai JavaScript atau TypeScript? | JavaScript (`<script setup>`), tanpa TypeScript **Diputuskan 26 Okt 2026: JavaScript.** | Fase 1 (walking skeleton) |
-| K-2 | Pustaka PDF di server | `barryvdh/laravel-dompdf`, kompatibilitasnya dengan Laravel 13 dan PHP 8.4 diverifikasi dulu | Fase 6 |
+| K-2 | Pustaka PDF di server | `barryvdh/laravel-dompdf`, kompatibilitasnya dengan Laravel 13 dan PHP 8.4 diverifikasi dulu **Diputuskan 17 Nov 2026: barryvdh/laravel-dompdf v3.1.2 (dompdf/dompdf v3.1.6).** | Fase 6 |
 | K-3 | Cara menjalankan aplikasi: PHP dari mana, MySQL dari mana (Laragon, Herd, `php artisan serve`) | Dev: `php artisan serve` + `npm run dev` + MySQL Laragon. Produksi ditentukan di K-4 | Fase 0 |
 | K-4 | Penyajian produksi dan layanan otomatis | Laravel menyajikan hasil build frontend lewat satu port. MySQL sebagai layanan Windows | Fase 7 |
 | K-5 | Daftar awal kategori dan divisi untuk seeder | Hanya kategori "Tanpa Kategori". Divisi dari daftar yang Anda berikan **Diputuskan 26 Okt 2026: divisi awal IT, Media, EO. Kategori awal hanya "Tanpa Kategori"; kategori lain ditambah admin lewat aplikasi.** | Fase 1 |

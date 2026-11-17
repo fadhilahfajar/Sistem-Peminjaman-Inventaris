@@ -21,11 +21,11 @@ class DivisionController extends Controller
 
     public function simpan(SimpanDivisiRequest $request): AdminDivisionResource
     {
-        return new AdminDivisionResource($this->divisi->buat($request->validated()));
+        return new AdminDivisionResource($this->divisi->buat($request->validated(), $request->user()->id));
     }
 
     public function ubah(UbahDivisiRequest $request, Division $divisi): AdminDivisionResource
     {
-        return new AdminDivisionResource($this->divisi->ubah($divisi, $request->validated()));
+        return new AdminDivisionResource($this->divisi->ubah($divisi, $request->validated(), $request->user()->id));
     }
 }

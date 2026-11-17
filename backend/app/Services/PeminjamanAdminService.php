@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Loan;
 use App\Support\Tanggal;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Baca-saja daftar dan detail peminjaman untuk panel admin (FR-A-05, FR-A-06).
@@ -22,7 +23,16 @@ class PeminjamanAdminService
      */
     public function daftar(array $filter, int $pageSize = 25): LengthAwarePaginator
     {
-        $pageSize = max(1, min($pageSize, 100));
+        return $this->queryDaftar($filter)->paginate(max(1, min($pageSize, 100)));
+    }
+
+    /**
+     * Satu-satunya sumber filter/status daftar peminjaman. Dipakai ulang oleh laporan rekap.
+     *
+     * @param  array<string, mixed>  $filter
+     */
+    public function queryDaftar(array $filter): Builder
+    {
         $hariIni = Tanggal::hariIni();
 
         // O = unit masih di tangan peminjam, P = unit menunggu verifikasi (DESAIN 4).
@@ -38,7 +48,7 @@ class PeminjamanAdminService
         $total = '(SELECT COALESCE(SUM(li.qty_dipinjam), 0) FROM loan_items li WHERE li.loan_id = loans.id)';
         $o = "({$total} - {$menunggu} - {$terverifikasi})";
 
-        $query = Loan::query()
+        return Loan::query()
             ->with(['divisi', 'items.item', 'items.claimLines.claim', 'claims', 'extensions'])
             ->when($filter['status'] ?? null, function ($query, string $status) use ($o, $menunggu, $hariIni) {
                 [$sql, $bindings] = $this->sqlStatus($status, $o, $menunggu, $hariIni);
@@ -86,8 +96,6 @@ class PeminjamanAdminService
             ))
             ->orderByDesc('dibuat_pada')
             ->orderByDesc('id');
-
-        return $query->paginate($pageSize);
     }
 
     public function detail(Loan $loan): Loan

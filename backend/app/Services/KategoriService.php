@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Exceptions\GalatBisnis;
 use App\Models\Category;
 use App\Models\Item;
+use App\Support\Audit;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /** Kelola kategori master (FR-A-18, BR-28, BR-33). Tidak ada penghapusan. */
 class KategoriService
@@ -17,30 +19,49 @@ class KategoriService
     }
 
     /** Tambah kategori baru; aktif secara bawaan (BR-28). */
-    public function buat(array $data): Category
+    public function buat(array $data, int $userId): Category
     {
-        return Category::create([
-            'nama' => $data['nama'],
-            'aktif' => true,
-        ]);
+        return DB::transaction(function () use ($data, $userId) {
+            $kategori = Category::create([
+                'nama' => $data['nama'],
+                'aktif' => true,
+            ]);
+
+            Audit::catat('kategori.dibuat', 'categories', $kategori->id, $userId, [
+                'nama' => $kategori->nama,
+                'aktif' => (bool) $kategori->aktif,
+            ]);
+
+            return $kategori;
+        }, 3);
     }
 
     /** Ubah nama dan atau status aktif. Menonaktifkan ditolak bila masih ada barang aktif (BR-33). */
-    public function ubah(Category $kategori, array $data): Category
+    public function ubah(Category $kategori, array $data, int $userId): Category
     {
-        if (array_key_exists('aktif', $data) && $data['aktif'] === false) {
-            $jumlah = Item::query()->where('kategori_id', $kategori->id)->count();
+        return DB::transaction(function () use ($kategori, $data, $userId) {
+            if (array_key_exists('aktif', $data) && $data['aktif'] === false) {
+                $jumlah = Item::query()->where('kategori_id', $kategori->id)->count();
 
-            if ($jumlah > 0) {
-                throw GalatBisnis::konflik(
-                    "Kategori ini masih dipakai oleh {$jumlah} barang aktif. Pindahkan barang ke kategori lain dulu.",
-                    'kategori_masih_dipakai',
-                );
+                if ($jumlah > 0) {
+                    throw GalatBisnis::konflik(
+                        "Kategori ini masih dipakai oleh {$jumlah} barang aktif. Pindahkan barang ke kategori lain dulu.",
+                        'kategori_masih_dipakai',
+                    );
+                }
             }
-        }
 
-        $kategori->update($data);
+            $sebelum = ['nama' => $kategori->nama, 'aktif' => (bool) $kategori->aktif];
 
-        return $kategori->refresh();
+            $kategori->update($data);
+            $kategori->refresh();
+
+            Audit::catat('kategori.diubah', 'categories', $kategori->id, $userId, [
+                'sebelum' => $sebelum,
+                'sesudah' => ['nama' => $kategori->nama, 'aktif' => (bool) $kategori->aktif],
+            ]);
+
+            return $kategori;
+        }, 3);
     }
 }

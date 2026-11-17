@@ -23,7 +23,7 @@ class PenggunaAdminService
     public function buat(string $nama, string $email, string $sandi, int $actorId): User
     {
         try {
-            $user = $this->akun->buat($nama, $email, $sandi);
+            $user = $this->akun->buat($nama, $email, $sandi, $actorId);
         } catch (\InvalidArgumentException $e) {
             if ($e->getMessage() === 'Email sudah dipakai.') {
                 throw ValidationException::withMessages([

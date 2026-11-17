@@ -21,11 +21,11 @@ class CategoryController extends Controller
 
     public function simpan(SimpanKategoriRequest $request): AdminCategoryResource
     {
-        return new AdminCategoryResource($this->kategori->buat($request->validated()));
+        return new AdminCategoryResource($this->kategori->buat($request->validated(), $request->user()->id));
     }
 
     public function ubah(UbahKategoriRequest $request, Category $kategori): AdminCategoryResource
     {
-        return new AdminCategoryResource($this->kategori->ubah($kategori, $request->validated()));
+        return new AdminCategoryResource($this->kategori->ubah($kategori, $request->validated(), $request->user()->id));
     }
 }
