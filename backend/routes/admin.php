@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\DivisionController;
 use App\Http\Controllers\Api\Admin\ItemController;
 use App\Http\Controllers\Api\Admin\ItemStockController;
+use App\Http\Controllers\Api\Admin\LaporanController;
 use App\Http\Controllers\Api\Admin\LoanController;
 use App\Http\Controllers\Api\Admin\RepairController;
 use App\Http\Controllers\Api\Admin\ReturnClaimController;
@@ -50,6 +51,8 @@ Route::get('settings', [SettingController::class, 'index']);
 Route::put('settings', [SettingController::class, 'perbarui']);
 
 Route::get('audit-logs', [AuditLogController::class, 'index']);
+
+Route::get('reports/{jenis}.pdf', [LaporanController::class, 'show']);
 
 Route::get('users', [UserController::class, 'index']);
 Route::post('users', [UserController::class, 'simpan']);

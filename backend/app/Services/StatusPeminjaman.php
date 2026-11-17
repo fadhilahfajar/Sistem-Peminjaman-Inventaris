@@ -101,12 +101,16 @@ class StatusPeminjaman
         ];
     }
 
-    /** Membangun data dari model. Memuat relasi yang belum dimuat. */
-    public function dariModel(Loan $loan, string $hariIni): array
+    /**
+     * Rincian O per barang. Satu-satunya tempat sisa unit dihitung, dipakai ulang oleh laporan.
+     *
+     * @return array<int, array{qty_dipinjam: int, menunggu: int, terverifikasi: int, sisa: int}>
+     */
+    public function rincianItem(Loan $loan): array
     {
-        $loan->loadMissing('items.claimLines.claim', 'claims', 'extensions');
+        $loan->loadMissing('items.claimLines.claim');
 
-        $items = [];
+        $rincian = [];
         foreach ($loan->items as $loanItem) {
             $menunggu = 0;
             $terverifikasi = 0;
@@ -120,10 +124,28 @@ class StatusPeminjaman
                 }
             }
 
-            $items[] = [
+            $rincian[$loanItem->id] = [
                 'qty_dipinjam' => $loanItem->qty_dipinjam,
                 'menunggu' => $menunggu,
                 'terverifikasi' => $terverifikasi,
+                'sisa' => $loanItem->qty_dipinjam - $menunggu - $terverifikasi,
+            ];
+        }
+
+        return $rincian;
+    }
+
+    /** Membangun data dari model. Memuat relasi yang belum dimuat. */
+    public function dariModel(Loan $loan, string $hariIni): array
+    {
+        $loan->loadMissing('claims', 'extensions');
+
+        $items = [];
+        foreach ($this->rincianItem($loan) as $rincian) {
+            $items[] = [
+                'qty_dipinjam' => $rincian['qty_dipinjam'],
+                'menunggu' => $rincian['menunggu'],
+                'terverifikasi' => $rincian['terverifikasi'],
             ];
         }
 
