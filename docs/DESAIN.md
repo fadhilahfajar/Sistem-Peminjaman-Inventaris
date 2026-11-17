@@ -1191,6 +1191,8 @@ AGENTS.md  todo.md
 
 Nama berkas di atas adalah rancangan awal dan disesuaikan saat scaffold dibuat.
 
+Templat Blade di `backend/resources/views/laporan` HANYA dipakai untuk PDF; ini pengecualian dari aturan bahwa backend tidak menghasilkan HTML tampilan.
+
 ## 10. UI
 
 ### 10.1 Prinsip
