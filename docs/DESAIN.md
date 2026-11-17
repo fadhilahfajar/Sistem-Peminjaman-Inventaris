@@ -659,13 +659,13 @@ Respons terkunci pembatas percobaan (429 Too Many Requests, header `Retry-After:
 | GET | `/api/admin/return-claims?status=menunggu` | Antrean verifikasi | A-04 |
 | GET | `/api/admin/return-claims/{id}` | Detail klaim | A-04 |
 | POST | `/api/admin/return-claims/{id}/verify` | Verifikasi `{ lines[], catatan_admin }` | A-04 |
-| GET | `/api/admin/reports/{jenis}.pdf` | `rekap`, `belum-kembali` (stok dan pengembalian menyusul) | A-11 |
+| GET | `/api/admin/reports/{jenis}.pdf` | `rekap`, `belum-kembali`, `stok`, `pengembalian` | A-11 |
 | GET, PUT | `/api/admin/settings` | Parameter | A-12 |
 | GET | `/api/admin/audit-logs` | Jejak audit | A-13 |
 
 Filter `GET /api/admin/loans`: `status`, `barang`, `kategori`, `tipe_peminjam`, `divisi`, `dari`, `sampai`, `q`, `ada_catatan`, `ada_kerusakan`, `belum_kembali`, `page`, `page_size`.
 
-Laporan PDF (`GET /api/admin/reports/{jenis}.pdf`): `jenis` hanya `rekap` dan `belum-kembali` (jenis lain 404). Filter `rekap` mengikuti `GET /api/admin/loans`; `belum-kembali` memakai `kategori`, `barang`, `divisi`, `tipe_peminjam`. Query dengan `dari > sampai` ditolak 422. Batas baris memakai `config/laporan.php` (`maks_baris`, bawaan 2000); bila jumlah baris melebihi batas, respons 422 dengan kode `laporan_terlalu_besar` dan pesan `Laporan memuat N baris, melebihi batas 2000. Persempit periode atau filter.` Respons sukses 200 dengan `Content-Type: application/pdf`, `Content-Disposition: attachment; filename="laporan-<jenis>-<YYYYMMDD-HHmm>.pdf"`, dan `Cache-Control: no-store`. PDF tidak mencantumkan nomor telepon atau data pribadi.
+Laporan PDF (`GET /api/admin/reports/{jenis}.pdf`): `jenis` adalah `rekap`, `belum-kembali`, `stok`, `pengembalian` (jenis lain 404). Filter `rekap` mengikuti `GET /api/admin/loans`; `belum-kembali` memakai `kategori`, `barang`, `divisi`, `tipe_peminjam`; `stok` memakai `kategori`; `pengembalian` memakai `dari`, `sampai` (tanggal klaim Asia/Jakarta inklusif), `status` (`menunggu` atau `diverifikasi`), dan `barang`. Query dengan `dari > sampai` ditolak 422. Batas baris memakai `config/laporan.php` (`maks_baris`, bawaan 2000); bila jumlah baris melebihi batas, respons 422 dengan kode `laporan_terlalu_besar` dan pesan `Laporan memuat N baris, melebihi batas 2000. Persempit periode atau filter.` Respons sukses 200 dengan `Content-Type: application/pdf`, `Content-Disposition: attachment; filename="laporan-<jenis>-<YYYYMMDD-HHmm>.pdf"`, dan `Cache-Control: no-store`. PDF tidak mencantumkan nomor telepon atau data pribadi. Laporan stok dikelompokkan per kategori dengan subtotal dan total; laporan pengembalian memuat hasil verifikasi per barang dan catatan utuh (ter-escape).
 
 Bentuk JSON yang sebenarnya dicatat di bagian ini oleh agent saat tiap endpoint selesai (todo 3.11).
 
