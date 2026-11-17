@@ -11,9 +11,8 @@ use App\Services\StatusPeminjaman;
 use App\Support\Audit;
 use App\Support\Tanggal;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EksporController extends Controller
 {

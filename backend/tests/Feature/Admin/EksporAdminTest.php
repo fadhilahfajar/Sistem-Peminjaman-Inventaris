@@ -74,7 +74,7 @@ it('filter peminjaman menghasilkan himpunan yang sama dengan daftar', function (
 });
 
 it('neutralisasi CSV injection pada nama peminjam', function () {
-    $namaJahat = ['=HYPERLINK("http://x","y")', '+1+1', '-2', "@SUM(A1)", "\tfoo"];
+    $namaJahat = ['=HYPERLINK("http://x","y")', '+1+1', '-2', '@SUM(A1)', "\tfoo"];
     foreach ($namaJahat as $nama) {
         Loan::where('id', $this->data['dipinjam']->id)->update(['nama_peminjam' => $nama]);
 

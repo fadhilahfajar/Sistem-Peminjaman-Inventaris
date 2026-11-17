@@ -400,6 +400,25 @@ it('setiap aksi admin, kiosk, dan artisan menulis tepat satu audit tanpa rahasia
     }
 });
 
-it('logout wajib menulis audit logout (temuan untuk B)', function () {
-    // TODO(B): AutentikasiService/LogoutController perlu Audit::catat('logout', 'users', ...).
-})->todo();
+it('logout wajib menulis satu audit logout tanpa rahasia', function () {
+    $user = adminUji();
+
+    spa()->postJson('/api/auth/logout')->assertStatus(401);
+    expect(AuditLog::count())->toBe(0);
+
+    $idSebelum = (int) AuditLog::max('id');
+
+    spa()->actingAs($user, 'web')->postJson('/api/auth/logout')
+        ->assertOk()
+        ->assertJsonPath('pesan', 'Berhasil keluar.');
+
+    $baru = AuditLog::where('id', '>', $idSebelum)->get();
+    expect($baru)->toHaveCount(1);
+
+    $log = $baru->first();
+    expect($log->aksi)->toBe('logout')
+        ->and($log->entitas)->toBe('users')
+        ->and($log->entitas_id)->toBe($user->id)
+        ->and($log->user_id)->toBe($user->id)
+        ->and($log->detail)->toBeNull();
+});
