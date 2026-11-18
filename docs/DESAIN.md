@@ -1166,6 +1166,24 @@ Contoh bentuk JSON yang sudah selesai (agent A, Task 3.10, FR-A-02, FR-A-12, FR-
 { "kode": "tidak_dapat_menonaktifkan_diri", "pesan": "Akun sendiri tidak dapat dinonaktifkan." }
 ```
 
+#### Perilaku autentikasi SPA
+
+Hasil nyata pengujian `tests/Feature/Auth/AlurSpaTest.php` (S2–S10, `SESSION_DRIVER=database`, Origin `http://localhost:5173`, cookie sesi dibawa apa adanya lewat `withUnencryptedCookie`). Sumber kebenaran untuk frontend Sesi 2.
+
+| Skenario | Status | Kode | Pesan |
+|---|---:|---|---|
+| S2: `POST /api/auth/login` kredensial benar, `X-XSRF-TOKEN` valid + cookie sesi | 200 | - | - (respons sukses: `id`, `name`, `email`) |
+| S3: `GET /api/auth/me` dan `GET /api/admin/summary` segera setelah login, cookie sama | 200 | - | - (data profil / ringkasan) |
+| S4: login lalu `GET /api/auth/me` saat baris `settings.sesi_idle_menit` tidak ada | 200 | - | - (bawaan 15 menit berlaku) |
+| S5a: `GET /api/auth/me` setelah idle 14 menit | 200 | - | - |
+| S5b: `GET /api/auth/me` setelah idle > 15 menit sejak aktivitas terakhir | 401 | `sesi_berakhir` | Sesi berakhir karena tidak ada aktivitas. Silakan masuk lagi. |
+| S5c: aktivitas di menit ke-10 lalu permintaan di menit ke-20 (batas disegarkan) | 200 | - | - |
+| S6: login dekat tengah malam Asia/Jakarta (UTC 16:55) lalu `GET /api/auth/me` (UTC 17:05) | 200 | - | - (idle dihitung dari stempel UTC) |
+| S7: `POST /api/auth/login` kredensial salah | 422 | `validasi_gagal` | Data yang dikirim tidak valid. (`errors.email`: "Email atau kata sandi salah.") |
+| S8: `POST /api/auth/login` tanpa header `X-XSRF-TOKEN` | 419 | `sesi_kedaluwarsa` | Sesi berakhir, silakan masuk lagi. |
+| S9: `GET /api/auth/me` dari Origin tidak terdaftar (`http://localhost:3000`) dengan cookie sesi | 401 | `sesi_berakhir` | Sesi berakhir karena tidak ada aktivitas. Silakan masuk lagi. (tidak 500; origin non-stateful sehingga sesi tidak dimulai) |
+| S10: `GET /api/auth/me` tanpa cookie sesi | 401 | `tidak_terautentikasi` | Anda belum masuk atau sesi berakhir. |
+
 ## 9. Struktur folder
 
 ```
