@@ -13,7 +13,7 @@ const router = useRouter()
 const sesi = useSesiStore()
 const { errors, pesanGalat, memuat: sedangMasuk, tanganiGalat, bersihkan } = useGalat()
 
-const email = ref('')
+const username = ref('')
 const password = ref('')
 
 // UI-08: diarahkan dari sesi yang berakhir (401 interceptor/guard, pernah masuk).
@@ -40,7 +40,7 @@ async function masuk() {
     await initCsrf().catch(() => {})
 
     await authApi.login({
-      email: email.value.trim(),
+      username: username.value.trim(),
       password: password.value,
     })
 
@@ -81,17 +81,19 @@ async function masuk() {
 
     <form class="space-y-4" @submit.prevent="masuk">
       <FormField
-        id="email"
-        label="Email"
+        id="username"
+        label="Username"
         wajib
-        :galat="errors.email?.[0]"
+        :galat="errors.username?.[0]"
       >
         <input
-          id="email"
-          v-model="email"
-          type="email"
-          name="email"
+          id="username"
+          v-model="username"
+          type="text"
+          name="username"
           autocomplete="username"
+          autocapitalize="off"
+          spellcheck="false"
           required
           :disabled="sedangMasuk"
           class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors"

@@ -7,7 +7,7 @@ import client from './client'
 export const authApi = {
   /**
    * Login admin.
-   * @param {{ email: string, password: string }} kredensial
+   * @param {{ username: string, password: string }} kredensial
    */
   login(kredensial) {
     return client.post('/api/auth/login', kredensial)
