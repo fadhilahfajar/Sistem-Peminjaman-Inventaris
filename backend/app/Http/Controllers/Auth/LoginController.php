@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\SesiIdle;
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use App\Services\AutentikasiService;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,8 +20,9 @@ class LoginController extends Controller
 
         $user = $auth->masuk($data['email'], $data['password'], (string) $request->ip());
 
+        // Session guard login sudah menyimpan identitas, hash sandi, dan regenerasi sesi.
         Auth::guard('web')->login($user);
-        $request->session()->regenerate();
+        $request->session()->put(SesiIdle::KUNCI, CarbonImmutable::now('UTC')->timestamp);
 
         return response()->json([
             'id' => $user->id,
