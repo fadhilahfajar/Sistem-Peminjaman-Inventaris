@@ -64,9 +64,12 @@ function buatPeminjamanUji(int $qty = 3, int $stokTersedia = 10): array
 
 function buatAdminUji(): User
 {
+    $u = Str::lower(Str::random(8));
+
     return User::create([
         'name' => 'Admin Koreksi',
-        'email' => 'admin-koreksi-'.Str::uuid().'@example.test',
+        'username' => 'adminkoreksi'.$u,
+        'email' => 'admin-koreksi-'.$u.'@example.test',
         'password' => 'sandi-rahasia-admin-123',
         'aktif' => true,
     ]);

@@ -28,6 +28,7 @@ it('setiap aksi admin, kiosk, dan artisan menulis tepat satu audit tanpa rahasia
 
     $admin = User::create([
         'name' => 'Admin Audit',
+        'username' => 'adminaudit',
         'email' => 'audit@uji.test',
         'password' => $rahasia,
         'aktif' => true,
@@ -57,14 +58,14 @@ it('setiap aksi admin, kiosk, dan artisan menulis tepat satu audit tanpa rahasia
     // Login gagal tidak boleh menulis audit kata sandi yang dicoba.
     $idSebelum = (int) AuditLog::max('id');
     spa()->postJson('/api/auth/login', [
-        'email' => 'tidak-ada@uji.test',
+        'username' => 'tidakada',
         'password' => $rahasia,
     ])->assertStatus(422);
     expect(AuditLog::where('id', '>', $idSebelum)->count())->toBe(0);
 
     $catat('login', 'users', $admin->id, function () use ($admin, $rahasia) {
         spa()->postJson('/api/auth/login', [
-            'email' => $admin->email,
+            'username' => $admin->username,
             'password' => $rahasia,
         ])->assertOk();
 
@@ -84,6 +85,7 @@ it('setiap aksi admin, kiosk, dan artisan menulis tepat satu audit tanpa rahasia
     $adminBaruId = $catat('akun_admin.dibuat', 'users', $admin->id, function () use ($admin, $rahasia) {
         $res = spa()->actingAs($admin, 'web')->postJson('/api/admin/users', [
             'name' => 'Admin Baru',
+            'username' => 'baruaudit',
             'email' => 'baru-audit@uji.test',
             'password' => $rahasia,
         ])->assertCreated();
@@ -102,23 +104,23 @@ it('setiap aksi admin, kiosk, dan artisan menulis tepat satu audit tanpa rahasia
     });
 
     $adminArtisan = $catat('akun_admin.dibuat', 'users', null, function () use ($rahasia) {
-        $email = 'artisan-'.uniqid().'@uji.test';
+        $username = 'artisan'.uniqid();
 
         $this->artisan('inventaris:buat-admin', [
-            'email' => $email,
-            'nama' => 'Admin Artisan',
+            'username' => $username,
         ])
+            ->expectsQuestion('Nama admin', 'Admin Artisan')
             ->expectsQuestion('Kata sandi', $rahasia)
             ->expectsQuestion('Ulangi kata sandi', $rahasia)
             ->assertSuccessful();
 
-        $user = User::where('email', $email)->firstOrFail();
+        $user = User::where('username', mb_strtolower($username))->firstOrFail();
 
         return [$user->id, $user];
     });
 
     $catat('akun_admin.sandi_diganti', 'users', null, function () use ($adminArtisan, $rahasia) {
-        $this->artisan('inventaris:reset-password-admin', ['email' => $adminArtisan->email])
+        $this->artisan('inventaris:reset-password-admin', ['username' => $adminArtisan->username])
             ->expectsQuestion('Kata sandi baru', $rahasia)
             ->expectsQuestion('Ulangi kata sandi baru', $rahasia)
             ->assertSuccessful();

@@ -20,8 +20,9 @@ it('logout menolak 401 tanpa sesi (T-01)', function () {
 it('me mengembalikan data akun tanpa kata sandi', function () {
     $r = spa()->actingAs(adminUji(), 'web')->getJson('/api/auth/me');
 
-    $r->assertOk()->assertJsonStructure(['data' => ['id', 'name', 'email']]);
+    $r->assertOk()->assertJsonStructure(['data' => ['id', 'name', 'username', 'email', 'aktif']]);
     expect($r->json('data'))->not->toHaveKey('password');
+    expect($r->json('data.username'))->not->toBeNull();
 });
 
 it('logout berhasil untuk akun yang login', function () {

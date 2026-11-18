@@ -20,8 +20,10 @@ function adminStok(): User
 {
     return User::create([
         'name' => 'Admin Stok',
+        'username' => 'adminstok',
         'email' => 'stok@example.test',
         'password' => 'sandi-uji-panjang-123',
+        'aktif' => true,
     ]);
 }
 

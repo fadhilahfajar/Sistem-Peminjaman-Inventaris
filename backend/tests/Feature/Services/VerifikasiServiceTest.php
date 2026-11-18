@@ -24,9 +24,13 @@ afterEach(function () {
 });
 
 beforeEach(function () {
+    $u = str_replace('.', '', uniqid());
     $this->admin = User::create([
-        'name' => 'Admin', 'email' => 'v28-'.uniqid().'@uji.test',
-        'password' => 'rahasia-panjang-123', 'aktif' => true,
+        'name' => 'Admin',
+        'username' => 'v28'.$u,
+        'email' => 'v28-'.$u.'@uji.test',
+        'password' => 'rahasia-panjang-123',
+        'aktif' => true,
     ]);
     $this->layanan = app(VerifikasiService::class);
 });

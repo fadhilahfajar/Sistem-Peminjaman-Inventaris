@@ -13,12 +13,15 @@ use App\Services\VerifikasiService;
 use App\Support\Tanggal;
 use Illuminate\Support\Str;
 
-/** Buat akun admin uji (role web) dengan email unik. */
+/** Buat akun admin uji (role web) dengan username unik. */
 function adminUji(bool $aktif = true): User
 {
+    $unik = bin2hex(random_bytes(4));
+
     return User::create([
         'name' => 'Admin',
-        'email' => uniqid().'@uji.test',
+        'username' => 'admin'.$unik,
+        'email' => $unik.'@uji.test',
         'password' => 'rahasia-panjang-123',
         'aktif' => $aktif,
     ]);

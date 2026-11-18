@@ -22,9 +22,10 @@ class UserController extends Controller
     {
         $user = $this->pengguna->buat(
             $request->validated('name'),
-            $request->validated('email'),
+            $request->validated('username'),
             $request->validated('password'),
             $request->user()->id,
+            $request->validated('email'),
         );
 
         return new AdminUserResource($user);

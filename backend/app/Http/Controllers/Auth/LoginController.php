@@ -18,7 +18,7 @@ class LoginController extends Controller
     {
         $data = $request->validated();
 
-        $user = $auth->masuk($data['email'], $data['password'], (string) $request->ip());
+        $user = $auth->masuk($data['username'], $data['password'], (string) $request->ip());
 
         // Session guard login sudah menyimpan identitas, hash sandi, dan regenerasi sesi.
         Auth::guard('web')->login($user);
@@ -27,7 +27,9 @@ class LoginController extends Controller
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
+            'username' => $user->username,
             'email' => $user->email,
+            'aktif' => (bool) $user->aktif,
         ]);
     }
 
@@ -36,7 +38,13 @@ class LoginController extends Controller
         $user = $request->user();
 
         return response()->json([
-            'data' => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'username' => $user->username,
+                'email' => $user->email,
+                'aktif' => (bool) $user->aktif,
+            ],
         ]);
     }
 

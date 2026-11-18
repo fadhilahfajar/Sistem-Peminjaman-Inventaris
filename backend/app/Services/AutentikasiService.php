@@ -21,10 +21,10 @@ class AutentikasiService
 
     private static ?string $hashPalsu = null;
 
-    public function masuk(string $email, string $sandi, string $ip): User
+    public function masuk(string $username, string $sandi, string $ip): User
     {
-        $email = Str::lower(trim($email));
-        $kunci = Str::transliterate($email.'|'.$ip);
+        $username = Str::lower(trim($username));
+        $kunci = Str::transliterate($username.'|'.$ip);
 
         if (RateLimiter::tooManyAttempts($kunci, self::MAKS_GAGAL)) {
             throw new ThrottleRequestsException(
@@ -34,14 +34,15 @@ class AutentikasiService
             );
         }
 
-        $user = User::where('email', $email)->first();
+        $user = User::where('username', $username)->first();
         $cocok = Hash::check($sandi, $user?->password ?? $this->hashPalsu());
 
         if ($user === null || ! $cocok) {
             RateLimiter::hit($kunci, self::JENDELA_DETIK);
 
+            // Pesan sama untuk username tak ada dan sandi salah (anti enumerasi).
             throw ValidationException::withMessages([
-                'email' => 'Email atau kata sandi salah.',
+                'username' => 'Username atau kata sandi salah.',
             ]);
         }
 

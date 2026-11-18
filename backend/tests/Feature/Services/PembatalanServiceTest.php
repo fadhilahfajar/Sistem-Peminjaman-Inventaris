@@ -69,8 +69,10 @@ function pembatalanAdmin(): User
 {
     return User::create([
         'name' => 'Admin Uji',
+        'username' => 'adminpembatalan',
         'email' => 'admin-pembatalan@example.test',
         'password' => 'sandi-uji-panjang-123',
+        'aktif' => true,
     ]);
 }
 

@@ -39,6 +39,7 @@ it('1.000 operasi acak dengan seed tetap menjaga invarian 0 pelanggaran (T-10)',
     // Siapkan admin
     $admin = User::create([
         'name' => 'Admin Acak',
+        'username' => 'adminacak',
         'email' => 'admin-acak@example.test',
         'password' => 'password-aman-12345',
         'aktif' => true,

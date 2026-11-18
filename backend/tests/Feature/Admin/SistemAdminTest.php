@@ -64,32 +64,61 @@ it('GET audit-logs memuat entri dan mendukung filter aksi', function () {
         ->and($filtered->json('data.0.aksi'))->toBe('uji.aksi');
 });
 
-it('POST users membuat admin, menolak email ganda dan kata sandi pendek', function () {
+it('POST users membuat admin, menolak username ganda (case-insensitive) dan kata sandi pendek', function () {
     $res = spa()->actingAs($this->admin, 'web')->postJson('/api/admin/users', [
         'name' => 'Admin Baru',
+        'username' => 'BaruAdmin',
         'email' => 'baru@uji.test',
         'password' => 'rahasia-panjang-123',
     ])->assertStatus(201);
 
-    expect($res->json('data.email'))->toBe('baru@uji.test')
+    expect($res->json('data.username'))->toBe('baruadmin')
+        ->and($res->json('data.email'))->toBe('baru@uji.test')
         ->and($res->json('data.aktif'))->toBeTrue();
 
     spa()->actingAs($this->admin, 'web')->postJson('/api/admin/users', [
         'name' => 'Duplikat',
-        'email' => 'baru@uji.test',
+        'username' => 'baruadmin',
         'password' => 'rahasia-panjang-123',
-    ])->assertStatus(422)->assertJsonValidationErrors('email');
+    ])->assertStatus(422)->assertJsonValidationErrors('username');
+
+    spa()->actingAs($this->admin, 'web')->postJson('/api/admin/users', [
+        'name' => 'Duplikat Beda Huruf',
+        'username' => 'BARUADMIN',
+        'password' => 'rahasia-panjang-123',
+    ])->assertStatus(422)->assertJsonValidationErrors('username');
 
     spa()->actingAs($this->admin, 'web')->postJson('/api/admin/users', [
         'name' => 'Pendek',
-        'email' => 'pendek@uji.test',
+        'username' => 'pendekadmin',
         'password' => 'pendek',
     ])->assertStatus(422)->assertJsonValidationErrors('password');
+});
+
+it('aturan username: terlalu pendek dan karakter terlarang ditolak', function () {
+    spa()->actingAs($this->admin, 'web')->postJson('/api/admin/users', [
+        'name' => 'X',
+        'username' => 'ab',
+        'password' => 'rahasia-panjang-123',
+    ])->assertStatus(422)->assertJsonValidationErrors('username');
+
+    spa()->actingAs($this->admin, 'web')->postJson('/api/admin/users', [
+        'name' => 'X',
+        'username' => 'bad name',
+        'password' => 'rahasia-panjang-123',
+    ])->assertStatus(422)->assertJsonValidationErrors('username');
+
+    spa()->actingAs($this->admin, 'web')->postJson('/api/admin/users', [
+        'name' => 'X',
+        'username' => '_awal',
+        'password' => 'rahasia-panjang-123',
+    ])->assertStatus(422)->assertJsonValidationErrors('username');
 });
 
 it('PATCH users menonaktifkan admin lain dan menolak menonaktifkan diri sendiri', function () {
     $lain = User::create([
         'name' => 'Admin Lain',
+        'username' => 'adminlain',
         'email' => 'lain@uji.test',
         'password' => 'rahasia-panjang-123',
         'aktif' => true,

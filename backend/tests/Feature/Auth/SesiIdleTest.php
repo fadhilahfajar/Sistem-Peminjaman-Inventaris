@@ -13,8 +13,11 @@ beforeEach(function () {
     $this->seed(SettingSeeder::class);
     CarbonImmutable::setTestNow('2026-10-30 03:00:00');
     $this->admin = User::create([
-        'name' => 'Admin', 'email' => 'idle@uji.test',
-        'password' => 'rahasia-panjang-123', 'aktif' => true,
+        'name' => 'Admin',
+        'username' => 'idleadmin',
+        'email' => 'idle@uji.test',
+        'password' => 'rahasia-panjang-123',
+        'aktif' => true,
     ]);
 });
 

@@ -9,6 +9,7 @@ uses(RefreshDatabase::class);
 it('membuat user tanpa kolom timestamp bawaan Laravel', function () {
     $user = User::create([
         'name' => 'Admin Uji',
+        'username' => 'adminuji',
         'email' => 'admin@example.test',
         'password' => 'sandi-uji-panjang-123',
         'aktif' => true,
@@ -25,6 +26,7 @@ it('membuat user tanpa kolom timestamp bawaan Laravel', function () {
 it('tidak membocorkan password saat diubah ke array', function () {
     $user = User::create([
         'name' => 'Admin Uji',
+        'username' => 'adminuji2',
         'email' => 'admin2@example.test',
         'password' => 'sandi-uji-panjang-123',
     ]);
