@@ -40,14 +40,17 @@ function kunciJsonRekursif(array $data): array
     return $hasil;
 }
 
-/** Klien SPA: header Origin/Referer frontend dev + sesi kosong. */
+/** Klien SPA: header Origin/Referer frontend dev + sesi bersih. */
 function spa()
 {
-    return test()->withHeaders([
+    // Hapus sesi/cookie dari permintaan sebelumnya agar actingAs dan stateful flow tidak tercampur.
+    test()->flushSession();
+    test()->flushHeaders();
+
+    return test()->withCredentials()->withHeaders([
         'Origin' => 'http://localhost:5173',
         'Referer' => 'http://localhost:5173/',
-    ])
-        ->withSession([]);
+    ]);
 }
 
 /** Data statis untuk smoke test templat PDF laporan. */
