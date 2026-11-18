@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { authApi } from '@/api'
+import { authApi, initCsrf } from '@/api'
 import FormField from '@/components/FormField.vue'
 import PesanGalat from '@/components/PesanGalat.vue'
 import TombolBesar from '@/components/TombolBesar.vue'
@@ -16,11 +16,17 @@ const { errors, pesanGalat, memuat: sedangMasuk, tanganiGalat, bersihkan } = use
 const email = ref('')
 const password = ref('')
 
-// UI-08: diarahkan dari sesi yang berakhir (401/419 interceptor atau guard).
+// UI-08: diarahkan dari sesi yang berakhir (401 interceptor/guard, pernah masuk).
 const sesiBerakhir = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
   sesiBerakhir.value = route.query.sesi === 'berakhir'
+
+  // Hapus parameter setelah dibaca agar muat ulang tidak menampilkannya lagi.
+  if ('sesi' in route.query) {
+    const { sesi: _sesi, ...sisa } = route.query
+    await router.replace({ query: sisa })
+  }
 })
 
 async function masuk() {
@@ -30,17 +36,20 @@ async function masuk() {
   sedangMasuk.value = true
 
   try {
+    // Pastikan cookie CSRF tersedia sebelum POST login.
+    await initCsrf().catch(() => {})
+
     await authApi.login({
       email: email.value.trim(),
       password: password.value,
     })
 
-    // Setelah login sukses, muat profil lewat store sebelum redirect,
-    // supaya router guard melihat sesi aktif (bug: state tidak pernah diupdate).
-    await sesi.muatProfil()
+    // Muat profil (paksa) agar guard melihat sesi aktif dan penanda "pernah masuk" terset.
+    await sesi.muatProfil({ paksa: true })
 
-    const tujuan = typeof route.query.redirect === 'string' && route.query.redirect.startsWith('/admin')
-      ? route.query.redirect
+    const redirect = route.query.redirect
+    const tujuan = typeof redirect === 'string' && redirect.startsWith('/admin')
+      ? redirect
       : { name: 'admin.dasbor' }
 
     await router.replace(tujuan)

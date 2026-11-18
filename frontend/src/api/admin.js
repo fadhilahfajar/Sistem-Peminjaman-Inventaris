@@ -22,9 +22,10 @@ export const authApi = {
 
   /**
    * Info pengguna yang sedang login.
+   * @param {object} [config] Opsi Axios (mis. _lewatiArahUlangAuth untuk probe internal).
    */
-  me() {
-    return client.get('/api/auth/me')
+  me(config = {}) {
+    return client.get('/api/auth/me', config)
   },
 
   /**
