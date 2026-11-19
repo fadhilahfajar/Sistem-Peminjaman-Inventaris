@@ -18,9 +18,21 @@ class SesiIdle
 
     public function handle(Request $request, Closure $next): Response
     {
+        if (! $request->hasSession()) {
+            return response()->json([
+                'kode' => 'sesi_berakhir',
+                'pesan' => 'Sesi berakhir karena tidak ada aktivitas. Silakan masuk lagi.',
+            ], 401);
+        }
+
         $sekarang = CarbonImmutable::now('UTC')->timestamp;
         $terakhir = $request->session()->get(self::KUNCI);
-        $batasDetik = $this->pengaturan->angka('sesi_idle_menit') * 60;
+        try {
+            $menit = $this->pengaturan->angka('sesi_idle_menit');
+        } catch (\Throwable) {
+            $menit = 15;
+        }
+        $batasDetik = $menit * 60;
 
         if ($terakhir !== null && $sekarang - (int) $terakhir > $batasDetik) {
             Auth::guard('web')->logout();

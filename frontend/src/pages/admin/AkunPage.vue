@@ -36,11 +36,11 @@ onMounted(muat)
 
 // --- Modal Tambah Admin ---
 const modalTambah = ref(false)
-const formTambah = ref({ name: '', email: '', password: '' })
+const formTambah = ref({ name: '', username: '', email: '', password: '' })
 
 function bukaTambah() {
   bersihkan()
-  formTambah.value = { name: '', email: '', password: '' }
+  formTambah.value = { name: '', username: '', email: '', password: '' }
   modalTambah.value = true
 }
 
@@ -50,8 +50,8 @@ async function simpanTambah() {
   if (!formTambah.value.name.trim()) {
     galatKlien.name = ['Nama admin wajib diisi.']
   }
-  if (!formTambah.value.email.trim()) {
-    galatKlien.email = ['Email wajib diisi.']
+  if (!formTambah.value.username.trim()) {
+    galatKlien.username = ['Username wajib diisi.']
   }
   if (!formTambah.value.password || formTambah.value.password.length < 12) {
     galatKlien.password = ['Password minimal 12 karakter.']
@@ -64,10 +64,12 @@ async function simpanTambah() {
 
   sedangKirim.value = true
   try {
+    const email = formTambah.value.email.trim()
     await adminApi.createUser({
       name: formTambah.value.name.trim(),
-      email: formTambah.value.email.trim(),
+      username: formTambah.value.username.trim(),
       password: formTambah.value.password,
+      ...(email ? { email } : {}),
     })
     toast(`Akun admin "${formTambah.value.name}" berhasil dibuat.`)
     modalTambah.value = false
@@ -194,7 +196,8 @@ async function simpanGantiPassword() {
               Akun Anda
             </span>
           </div>
-          <p class="text-sm text-slate-600 font-mono">{{ u.email }}</p>
+          <p class="text-sm font-mono text-slate-800">{{ u.username }}</p>
+          <p v-if="u.email" class="text-xs text-slate-500">{{ u.email }}</p>
           <p class="text-xs text-slate-400 mt-0.5">
             Login terakhir: {{ u.login_terakhir ? formatWaktuIndo(u.login_terakhir) : 'Belum pernah' }}
           </p>
@@ -244,18 +247,34 @@ async function simpanGantiPassword() {
           >
         </FormField>
 
-        <FormField id="u-email" label="Email" wajib :galat="errors.email?.[0]">
+        <FormField id="u-username" label="Username" wajib :galat="errors.username?.[0]">
+          <input
+            id="u-username"
+            v-model="formTambah.username"
+            type="text"
+            name="username"
+            maxlength="50"
+            autocomplete="username"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="Contoh: budi.santoso"
+            class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
+          >
+        </FormField>
+
+        <FormField id="u-email" label="Email (opsional)" :galat="errors.email?.[0]">
           <input
             id="u-email"
             v-model="formTambah.email"
             type="email"
-            maxlength="150"
+            name="email"
+            maxlength="190"
             placeholder="admin@perusahaan.com"
             class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
           >
         </FormField>
 
-        <FormField id="u-pass" label="Password Awal" wajib bantuan="Minimal 12 karakter." :galat="errors.password?.[0]">
+        <FormField id="u-pass" label="Kata sandi" wajib bantuan="Minimal 12 karakter." :galat="errors.password?.[0]">
           <input
             id="u-pass"
             v-model="formTambah.password"

@@ -211,9 +211,11 @@ it('dua peminjaman bersamaan dari proses terpisah untuk stok 1: tepat satu berha
 it('dua verifikasi paralel pada satu klaim: satu berhasil dan satu 409 (T-22)', function () {
     $this->seed(SettingSeeder::class);
 
+    $u = Str::lower(Str::random(8));
     $admin = User::create([
         'name' => 'Admin Verifikasi',
-        'email' => 'admin-verif-'.Str::uuid().'@example.test',
+        'username' => 'adminverif'.$u,
+        'email' => 'admin-verif-'.$u.'@example.test',
         'password' => 'password-aman-12345',
         'aktif' => true,
     ]);

@@ -19,8 +19,10 @@ function adminRusak(): User
 {
     return User::create([
         'name' => 'Admin Rusak',
+        'username' => 'adminrusak',
         'email' => 'rusak@example.test',
         'password' => 'sandi-uji-panjang-123',
+        'aktif' => true,
     ]);
 }
 

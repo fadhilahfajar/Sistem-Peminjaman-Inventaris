@@ -13,6 +13,7 @@ class AdminUserResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'username' => $this->username,
             'email' => $this->email,
             'aktif' => (bool) $this->aktif,
             'login_terakhir' => $this->login_terakhir?->toISOString(),

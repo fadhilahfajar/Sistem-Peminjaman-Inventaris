@@ -11,8 +11,11 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->seed(SettingSeeder::class);
     $this->admin = User::create([
-        'name' => 'Admin', 'email' => 'ganti@uji.test',
-        'password' => 'sandi-lama-12345', 'aktif' => true,
+        'name' => 'Admin',
+        'username' => 'gantiadmin',
+        'email' => 'ganti@uji.test',
+        'password' => 'sandi-lama-12345',
+        'aktif' => true,
     ]);
 });
 

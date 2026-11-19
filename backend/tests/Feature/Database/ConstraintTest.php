@@ -81,8 +81,13 @@ function bBaris(int $klaim, int $loanItem, array $o = []): array
 
 function bUser(): int
 {
+    $u = uniqid();
+
     return DB::table('users')->insertGetId([
-        'name' => 'Admin', 'email' => uniqid().'@uji.test', 'password' => 'x',
+        'name' => 'Admin',
+        'username' => 'u'.str_replace('.', '', $u),
+        'email' => $u.'@uji.test',
+        'password' => 'x',
     ]);
 }
 
@@ -110,7 +115,7 @@ it('menolak aktif selain 0 atau 1', function () {
     ditolak(fn () => DB::table('divisions')->insert(['nama' => 'X', 'aktif' => 2]), E_CHECK);
     ditolak(fn () => DB::table('categories')->insert(['nama' => 'X', 'aktif' => 2]), E_CHECK);
     ditolak(fn () => DB::table('users')->insert([
-        'name' => 'A', 'email' => 'a@uji.test', 'password' => 'x', 'aktif' => 2,
+        'name' => 'A', 'username' => 'usera', 'email' => 'a@uji.test', 'password' => 'x', 'aktif' => 2,
     ]), E_CHECK);
 });
 
@@ -119,8 +124,8 @@ it('menolak nama divisi, nama kategori, dan email ganda', function () {
     ditolak(fn () => DB::table('divisions')->insert(['nama' => 'IT']), E_UNIK);
     DB::table('categories')->insert(['nama' => 'Kabel']);
     ditolak(fn () => DB::table('categories')->insert(['nama' => 'Kabel']), E_UNIK);
-    DB::table('users')->insert(['name' => 'A', 'email' => 'a@uji.test', 'password' => 'x']);
-    ditolak(fn () => DB::table('users')->insert(['name' => 'B', 'email' => 'a@uji.test', 'password' => 'x']), E_UNIK);
+    DB::table('users')->insert(['name' => 'A', 'username' => 'usera', 'email' => 'a@uji.test', 'password' => 'x']);
+    ditolak(fn () => DB::table('users')->insert(['name' => 'B', 'username' => 'userb', 'email' => 'a@uji.test', 'password' => 'x']), E_UNIK);
 });
 
 // ---- items ----

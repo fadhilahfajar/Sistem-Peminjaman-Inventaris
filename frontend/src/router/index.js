@@ -223,8 +223,8 @@ const router = createRouter({
   },
 })
 
-// Guard sesi admin (Task 5.1): seluruh /admin kecuali /admin/login menuntut sesi aktif
-// lewat /api/auth/me. Kehabisan sesi di tengah pemakaian ditangani interceptor (401/419).
+// Guard sesi admin: tentukan status masuk dari /api/auth/me (sekali, disimpan) SEBELUM
+// menampilkan rute admin, agar LayoutAdmin tidak tampil lalu dibuang.
 router.beforeEach(async (to) => {
   if (!to.matched.some((r) => r.meta.butuhSesi)) {
     return true
@@ -233,18 +233,19 @@ router.beforeEach(async (to) => {
   const sesi = useSesiStore()
 
   if (!sesi.termuat) {
-    try {
-      await sesi.muatProfil()
-    } catch {
-      // 401/419: sesi tidak ada atau berakhir.
-    }
+    await sesi.muatProfil({ diamkanGalat: true, lewatiArahUlangAuth: true })
   }
 
   if (!sesi.masuk) {
-    return {
-      name: 'admin.login',
-      query: to.path === '/admin' ? {} : { redirect: to.fullPath },
+    const query = {}
+    // Sesi habis (pernah masuk) -> tampilkan pesan sekali. Belum pernah masuk -> tanpa pesan.
+    if (sesi.pernahMasukSesiIni()) {
+      query.sesi = 'berakhir'
     }
+    if (to.fullPath && to.fullPath !== '/admin' && to.fullPath !== '/admin/') {
+      query.redirect = to.fullPath
+    }
+    return { name: 'admin.login', query }
   }
 
   return true

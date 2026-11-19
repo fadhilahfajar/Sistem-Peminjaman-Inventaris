@@ -20,11 +20,17 @@ class PenggunaAdminService
         return User::query()->orderBy('name')->orderBy('id')->get();
     }
 
-    public function buat(string $nama, string $email, string $sandi, int $actorId): User
+    public function buat(string $nama, string $username, string $sandi, int $actorId, ?string $email = null): User
     {
         try {
-            $user = $this->akun->buat($nama, $email, $sandi, $actorId);
+            $user = $this->akun->buat($nama, $username, $sandi, $actorId, $email);
         } catch (\InvalidArgumentException $e) {
+            if ($e->getMessage() === 'Username sudah dipakai.') {
+                throw ValidationException::withMessages([
+                    'username' => [$e->getMessage()],
+                ]);
+            }
+
             if ($e->getMessage() === 'Email sudah dipakai.') {
                 throw ValidationException::withMessages([
                     'email' => [$e->getMessage()],
@@ -39,7 +45,7 @@ class PenggunaAdminService
             entitas: 'users',
             entitasId: $user->id,
             userId: $actorId,
-            detail: ['nama' => $user->name, 'email' => $user->email],
+            detail: ['nama' => $user->name, 'username' => $user->username],
         );
 
         return $user;

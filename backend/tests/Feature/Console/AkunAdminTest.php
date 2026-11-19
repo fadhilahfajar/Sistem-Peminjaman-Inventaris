@@ -17,21 +17,24 @@ function sisipSesi(string $id, int $userId): void
     ]);
 }
 
-it('membuat admin aktif dengan kata sandi ter-hash', function () {
-    $this->artisan('inventaris:buat-admin', ['email' => 'Admin@Example.test', 'nama' => 'Admin Uji'])
+it('membuat admin aktif dengan kata sandi ter-hash (T-29)', function () {
+    $this->artisan('inventaris:buat-admin', ['username' => 'AdminBaru'])
+        ->expectsQuestion('Nama admin', 'Admin Uji')
         ->expectsQuestion('Kata sandi', 'sandi-uji-panjang-123')
         ->expectsQuestion('Ulangi kata sandi', 'sandi-uji-panjang-123')
         ->assertSuccessful();
 
-    $user = User::where('email', 'admin@example.test')->firstOrFail();
+    $user = User::where('username', 'adminbaru')->firstOrFail();
 
     expect($user->aktif)->toBeTrue();
+    expect($user->name)->toBe('Admin Uji');
     expect($user->password)->not->toBe('sandi-uji-panjang-123');
     expect(Hash::check('sandi-uji-panjang-123', $user->password))->toBeTrue();
 });
 
 it('menolak kata sandi kurang dari 12 karakter', function () {
-    $this->artisan('inventaris:buat-admin', ['email' => 'a@example.test', 'nama' => 'A'])
+    $this->artisan('inventaris:buat-admin', ['username' => 'adminpendek'])
+        ->expectsQuestion('Nama admin', 'A')
         ->expectsQuestion('Kata sandi', 'pendek')
         ->expectsQuestion('Ulangi kata sandi', 'pendek')
         ->assertFailed();
@@ -40,48 +43,59 @@ it('menolak kata sandi kurang dari 12 karakter', function () {
 });
 
 it('menolak konfirmasi kata sandi yang tidak sama', function () {
-    $this->artisan('inventaris:buat-admin', ['email' => 'a@example.test', 'nama' => 'A'])
+    $this->artisan('inventaris:buat-admin', ['username' => 'adminbeda'])
+        ->expectsQuestion('Nama admin', 'A')
         ->expectsQuestion('Kata sandi', 'sandi-uji-panjang-123')
-        ->expectsQuestion('Ulangi kata sandi', 'sandi-uji-panjang-124')
+        ->expectsQuestion('Ulangi kata sandi', 'sandi-beda-panjang-123')
         ->assertFailed();
 
     expect(User::count())->toBe(0);
 });
 
-it('menolak email yang sudah dipakai', function () {
-    User::create(['name' => 'Lama', 'email' => 'a@example.test', 'password' => 'sandi-lama-panjang-1']);
+it('menolak username yang sudah dipakai', function () {
+    User::create([
+        'name' => 'Lama',
+        'username' => 'sama',
+        'email' => 'a@example.test',
+        'password' => 'sandi-lama-panjang-1',
+        'aktif' => true,
+    ]);
 
-    $this->artisan('inventaris:buat-admin', ['email' => 'a@example.test', 'nama' => 'Baru'])
-        ->expectsQuestion('Kata sandi', 'sandi-uji-panjang-123')
-        ->expectsQuestion('Ulangi kata sandi', 'sandi-uji-panjang-123')
+    $this->artisan('inventaris:buat-admin', ['username' => 'sama'])
+        ->expectsQuestion('Nama admin', 'Baru')
+        ->expectsQuestion('Kata sandi', 'sandi-baru-panjang-123')
+        ->expectsQuestion('Ulangi kata sandi', 'sandi-baru-panjang-123')
         ->assertFailed();
 
-    expect(User::count())->toBe(1);
+    expect(User::where('username', 'sama')->count())->toBe(1);
 });
 
-it('reset mengganti hash dan hanya mengakhiri sesi akun itu (T-29)', function () {
-    $admin = User::create(['name' => 'A', 'email' => 'a@example.test', 'password' => 'sandi-lama-panjang-1']);
-    $lain = User::create(['name' => 'B', 'email' => 'b@example.test', 'password' => 'sandi-lain-panjang-1']);
-    sisipSesi('s1', $admin->id);
-    sisipSesi('s2', $admin->id);
-    sisipSesi('s3', $lain->id);
+it('mereset kata sandi, mengganti hash, dan mengakhiri semua sesi akun itu saja (T-29)', function () {
+    $admin = User::create([
+        'name' => 'A',
+        'username' => 'resetadmin',
+        'email' => 'a@example.test',
+        'password' => 'sandi-lama-panjang-1',
+        'aktif' => true,
+    ]);
+    $lain = User::create([
+        'name' => 'B',
+        'username' => 'lainadmin',
+        'email' => 'b@example.test',
+        'password' => 'sandi-lain-panjang-1',
+        'aktif' => true,
+    ]);
 
-    $this->artisan('inventaris:reset-password-admin', ['email' => 'a@example.test'])
-        ->expectsQuestion('Kata sandi baru', 'sandi-baru-panjang-2')
-        ->expectsQuestion('Ulangi kata sandi baru', 'sandi-baru-panjang-2')
+    sisipSesi('sesi-admin-1', $admin->id);
+    sisipSesi('sesi-admin-2', $admin->id);
+    sisipSesi('sesi-lain', $lain->id);
+
+    $this->artisan('inventaris:reset-password-admin', ['username' => 'resetadmin'])
+        ->expectsQuestion('Kata sandi baru', 'sandi-baru-panjang-123')
+        ->expectsQuestion('Ulangi kata sandi baru', 'sandi-baru-panjang-123')
         ->assertSuccessful();
 
-    $admin->refresh();
-
-    expect(Hash::check('sandi-baru-panjang-2', $admin->password))->toBeTrue();
-    expect(Hash::check('sandi-lama-panjang-1', $admin->password))->toBeFalse();
+    expect(Hash::check('sandi-baru-panjang-123', $admin->fresh()->password))->toBeTrue();
     expect(DB::table('sessions')->where('user_id', $admin->id)->count())->toBe(0);
     expect(DB::table('sessions')->where('user_id', $lain->id)->count())->toBe(1);
-});
-
-it('reset menolak email yang tidak ada', function () {
-    $this->artisan('inventaris:reset-password-admin', ['email' => 'tidak-ada@example.test'])
-        ->expectsQuestion('Kata sandi baru', 'sandi-baru-panjang-2')
-        ->expectsQuestion('Ulangi kata sandi baru', 'sandi-baru-panjang-2')
-        ->assertFailed();
 });

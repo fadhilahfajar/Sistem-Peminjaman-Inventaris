@@ -7,7 +7,7 @@ import client from './client'
 export const authApi = {
   /**
    * Login admin.
-   * @param {{ email: string, password: string }} kredensial
+   * @param {{ username: string, password: string }} kredensial
    */
   login(kredensial) {
     return client.post('/api/auth/login', kredensial)
@@ -22,9 +22,10 @@ export const authApi = {
 
   /**
    * Info pengguna yang sedang login.
+   * @param {object} [config] Opsi Axios (mis. _lewatiArahUlangAuth untuk probe internal).
    */
-  me() {
-    return client.get('/api/auth/me')
+  me(config = {}) {
+    return client.get('/api/auth/me', config)
   },
 
   /**

@@ -70,8 +70,10 @@ function perpanjanganAdmin(): User
 {
     return User::create([
         'name' => 'Admin Perpanjangan',
+        'username' => 'adminperpanjangan',
         'email' => 'admin-perpanjangan@example.test',
         'password' => 'sandi-uji-panjang-123',
+        'aktif' => true,
     ]);
 }
 

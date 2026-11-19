@@ -15,8 +15,10 @@ class AkunAktif
         $user = $request->user();
 
         if ($user !== null && ! $user->aktif) {
-            Auth::guard('web')->logout();
-            $request->session()->invalidate();
+            if ($request->hasSession()) {
+                Auth::guard('web')->logout();
+                $request->session()->invalidate();
+            }
 
             return response()->json([
                 'kode' => 'akun_nonaktif',

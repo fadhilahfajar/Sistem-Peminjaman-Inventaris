@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 class ResetPasswordAdmin extends Command
 {
-    protected $signature = 'inventaris:reset-password-admin {email : Email admin}';
+    protected $signature = 'inventaris:reset-password-admin {username : Username admin}';
 
     protected $description = 'Mengganti kata sandi admin dan mengakhiri semua sesinya';
 
@@ -23,14 +23,14 @@ class ResetPasswordAdmin extends Command
         }
 
         try {
-            $user = $akun->resetSandi($this->argument('email'), $sandi);
+            $user = $akun->resetSandi((string) $this->argument('username'), $sandi);
         } catch (InvalidArgumentException $e) {
             $this->error($e->getMessage());
 
             return self::FAILURE;
         }
 
-        $this->info("Kata sandi {$user->email} diganti dan semua sesinya diakhiri.");
+        $this->info("Kata sandi {$user->username} diganti dan semua sesinya diakhiri.");
 
         return self::SUCCESS;
     }

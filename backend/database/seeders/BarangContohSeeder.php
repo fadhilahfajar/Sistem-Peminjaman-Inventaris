@@ -22,11 +22,13 @@ class BarangContohSeeder extends Seeder
     public function run(): void
     {
         $petugas = User::firstOrCreate(
-            ['email' => 'petugas-seeder@example.com'],
+            ['username' => 'petugas-seeder'],
             [
                 'name' => 'Petugas IT (Seeder)',
+                'email' => 'petugas-seeder@example.com',
                 // Password acak, tidak diketahui siapa pun (aturan AGENTS.md no. 12).
                 'password' => Str::password(16),
+                'aktif' => true,
             ],
         );
 
