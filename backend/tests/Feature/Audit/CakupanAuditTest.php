@@ -265,6 +265,7 @@ it('setiap aksi admin, kiosk, dan artisan menulis tepat satu audit tanpa rahasia
             'division_id' => $divisiId,
             'tipe_peminjam' => 'karyawan',
             'telepon' => '081234567890',
+            'keperluan' => 'Keperluan uji audit',
             'tanggal_pinjam' => $tanggal(),
             'batas_kembali' => $tanggal(3),
             'idempotency_key' => (string) Str::uuid(),

@@ -62,6 +62,7 @@ function lookupBuatPeminjaman(array $override = []): Loan
         'division_id' => $divisi->id,
         'tipe_peminjam' => $override['tipe_peminjam'] ?? 'karyawan',
         'telepon' => $override['telepon'] ?? '081234567890',
+        'keperluan' => $override['keperluan'] ?? 'Keperluan uji',
         'tanggal_pinjam' => $tanggalPinjam,
         'batas_kembali' => $batasKembali,
         'idempotency_key' => (string) Str::uuid(),
@@ -648,5 +649,18 @@ it('konsistensi aksi perpanjang dan batal bila peminjaman sudah dibatalkan', fun
     expect(collect($data['items'])->sum('sisa'))->toBe($statusInfo['o'])
         ->and(collect($data['items'])->sum('menunggu'))->toBe($statusInfo['p']);
 
+    assertInvarian(false);
+});
+
+it('kartu lookup memuat keperluan milik peminjam dan tidak memuat telepon', function () {
+    $loan = lookupBuatPeminjaman(['keperluan' => 'Keperluan kartu']);
+
+    $res = spa()->postJson('/api/kiosk/loans/lookup', ['kode' => $loan->kode_pinjam])->assertOk();
+
+    $res->assertJsonPath('data.keperluan', 'Keperluan kartu');
+    expect($res->json('data'))->not->toHaveKey('telepon')
+        ->and($res->getContent())->not->toContain('081234567890');
+
+    lookupPeriksaRekursifBebasKataTerlarang($res->json());
     assertInvarian(false);
 });

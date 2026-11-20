@@ -46,6 +46,7 @@ function payloadPeminjaman(array $override = []): array
         'division_id' => $divisi->id,
         'tipe_peminjam' => 'karyawan',
         'telepon' => '081234567890',
+        'keperluan' => 'Keperluan uji kiosk',
         'tanggal_pinjam' => $hariIni,
         'batas_kembali' => tglOffset(3, $hariIni),
         'idempotency_key' => (string) Str::uuid(),
@@ -302,4 +303,126 @@ it('pemanggilan ke-31 dalam satu menit mendapat 429', function () {
             'pesan' => 'Terlalu banyak percobaan. Coba lagi beberapa saat lagi.',
         ])
         ->assertHeader('Retry-After');
+});
+
+it('telepon kosong atau tidak dikirim ditolak 422 pada errors.telepon', function () {
+    $kosong = payloadPeminjaman(['telepon' => '']);
+    spa()->postJson('/api/kiosk/loans', $kosong)
+        ->assertStatus(422)
+        ->assertJson(['kode' => 'validasi_gagal'])
+        ->assertJsonValidationErrors('telepon')
+        ->assertJsonPath('errors.telepon.0', 'Nomor WhatsApp wajib diisi.');
+
+    $tanpaTelepon = payloadPeminjaman();
+    unset($tanpaTelepon['telepon']);
+    spa()->postJson('/api/kiosk/loans', $tanpaTelepon)
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('telepon')
+        ->assertJsonPath('errors.telepon.0', 'Nomor WhatsApp wajib diisi.');
+});
+
+it('telepon 7 digit, 16 digit, atau berhuruf ditolak 422', function () {
+    foreach (['1234567', '1234567890123456', '0812abcd7890'] as $telepon) {
+        spa()->postJson('/api/kiosk/loans', payloadPeminjaman(['telepon' => $telepon]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('telepon')
+            ->assertJsonPath('errors.telepon.0', 'Nomor WhatsApp hanya berisi angka, 8 sampai 15 digit.');
+    }
+});
+
+it('telepon dinormalkan menjadi digit saja sebelum disimpan', function () {
+    $pertama = spa()->postJson('/api/kiosk/loans', payloadPeminjaman(['telepon' => '+62 812-3456-7890']));
+    $pertama->assertStatus(201);
+    expect(Loan::orderByDesc('id')->first()->telepon)->toBe('6281234567890')
+        ->and($pertama->getContent())->not->toContain('6281234567890');
+
+    $kedua = spa()->postJson('/api/kiosk/loans', payloadPeminjaman(['telepon' => '0812 3456 7890']));
+    $kedua->assertStatus(201);
+    expect(Loan::orderByDesc('id')->first()->telepon)->toBe('081234567890')
+        ->and($kedua->json('data'))->not->toHaveKey('telepon');
+});
+
+it('keperluan kosong, spasi saja, 2 karakter, dan 256 karakter ditolak 422', function () {
+    $kasus = [
+        '' => 'Keperluan wajib diisi.',
+        '   ' => 'Keperluan wajib diisi.',
+        'ab' => 'Keperluan minimal 3 karakter.',
+        str_repeat('a', 256) => 'Keperluan maksimal 255 karakter.',
+    ];
+
+    foreach ($kasus as $keperluan => $pesan) {
+        spa()->postJson('/api/kiosk/loans', payloadPeminjaman(['keperluan' => $keperluan]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('keperluan')
+            ->assertJsonPath('errors.keperluan.0', $pesan);
+    }
+});
+
+it('keperluan 255 karakter diterima dan 256 karakter ditolak', function () {
+    spa()->postJson('/api/kiosk/loans', payloadPeminjaman(['keperluan' => str_repeat('a', 255)]))
+        ->assertStatus(201)
+        ->assertJsonPath('data.keperluan', str_repeat('a', 255));
+
+    expect(mb_strlen(Loan::orderByDesc('id')->first()->keperluan))->toBe(255);
+
+    spa()->postJson('/api/kiosk/loans', payloadPeminjaman(['keperluan' => str_repeat('a', 256)]))
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('keperluan');
+});
+
+it('panjang keperluan dihitung per karakter multibyte dengan mb_strlen', function () {
+    spa()->postJson('/api/kiosk/loans', payloadPeminjaman(['keperluan' => str_repeat('é', 3)]))
+        ->assertStatus(201)
+        ->assertJsonPath('data.keperluan', str_repeat('é', 3));
+
+    expect(Loan::orderByDesc('id')->first()->keperluan)->toBe(str_repeat('é', 3));
+
+    spa()->postJson('/api/kiosk/loans', payloadPeminjaman(['keperluan' => str_repeat('é', 256)]))
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('keperluan');
+});
+
+it('keperluan dengan tanda < dan > disimpan dan dikembalikan apa adanya (T-35)', function () {
+    $teks = '<script>alert(1)</script>';
+
+    $response = spa()->postJson('/api/kiosk/loans', payloadPeminjaman(['keperluan' => $teks]))
+        ->assertStatus(201)
+        ->assertJsonPath('data.keperluan', $teks);
+
+    expect(Loan::orderByDesc('id')->first()->keperluan)->toBe($teks)
+        ->and($response->getContent())->toContain('<script>alert(1)');
+});
+
+it('bukti peminjaman memuat keperluan dan tidak pernah memuat telepon (BR-18)', function () {
+    $response = spa()->postJson('/api/kiosk/loans', payloadPeminjaman([
+        'telepon' => '081234567890',
+        'keperluan' => 'Membawa laptop ke rapat',
+    ]))->assertStatus(201);
+
+    $response->assertJsonPath('data.keperluan', 'Membawa laptop ke rapat');
+    expect($response->json('data'))->not->toHaveKey('telepon')
+        ->and($response->getContent())->not->toContain('081234567890');
+});
+
+it('replay kunci idempotensi sama dengan isi sama mengembalikan 200 badan identik', function () {
+    $payload = payloadPeminjaman(['keperluan' => 'Keperluan sama']);
+
+    $pertama = spa()->postJson('/api/kiosk/loans', $payload)->assertStatus(201);
+    $kedua = spa()->postJson('/api/kiosk/loans', $payload)->assertStatus(200);
+
+    expect($kedua->json())->toBe($pertama->json())
+        ->and($kedua->json('data.keperluan'))->toBe('Keperluan sama')
+        ->and(Loan::count())->toBe(1);
+});
+
+it('replay kunci idempotensi sama dengan keperluan berbeda ditolak 409 kunci_idempotensi_bentrok', function () {
+    $payload = payloadPeminjaman(['keperluan' => 'Keperluan awal']);
+
+    spa()->postJson('/api/kiosk/loans', $payload)->assertStatus(201);
+
+    spa()->postJson('/api/kiosk/loans', array_merge($payload, ['keperluan' => 'Keperluan berbeda']))
+        ->assertStatus(409)
+        ->assertJson(['kode' => 'kunci_idempotensi_bentrok']);
+
+    expect(Loan::count())->toBe(1);
 });
