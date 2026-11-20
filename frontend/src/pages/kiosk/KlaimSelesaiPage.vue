@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useKioskStore } from '@/stores/kiosk'
 import StrukCetak from '@/components/StrukCetak.vue'
@@ -10,21 +10,43 @@ const router = useRouter()
 const kioskStore = useKioskStore()
 
 const dataKlaim = computed(() => kioskStore.klaimSelesai)
-const waktuCetakSekarang = ref('')
+const waktuCetakSekarang = ref(formatWaktuCetak())
 
-onMounted(() => {
-  // Bila tidak ada data klaim di memori (mis. reload), kembali ke layar Cek (DESAIN 10.1)
-  if (!dataKlaim.value || !dataKlaim.value.kode_klaim) {
-    router.replace('/cek')
-    return
+// Akses langsung / reload / Back: bukti klaim hanya ada di memori (DESAIN 10.1).
+if (!dataKlaim.value || !dataKlaim.value.kode_klaim) {
+  router.replace({ path: '/cek', query: { perlu_kode: '1' } })
+}
+
+const LABEL_KONDISI = { baik: 'Baik', rusak: 'Rusak', hilang: 'Hilang' }
+
+// Respons backend: lines[{ nama, kondisi_dilaporkan, qty }].
+const ringkasanBarang = computed(() =>
+  (dataKlaim.value?.lines || []).map((line) => ({
+    ...line,
+    nama: `${line.nama} — ${LABEL_KONDISI[line.kondisi_dilaporkan] || line.kondisi_dilaporkan}`,
+  })),
+)
+
+const barisTambahan = computed(() => {
+  const baris = [
+    { label: 'Kode Peminjaman', nilai: dataKlaim.value?.kode_pinjam },
+    { label: 'Diajukan', nilai: formatWaktuIndo(dataKlaim.value?.diklaim_pada) },
+    {
+      label: 'Status',
+      nilai: dataKlaim.value?.status === 'diverifikasi' ? 'Diverifikasi' : 'Menunggu Verifikasi',
+    },
+  ]
+
+  if (Number(dataKlaim.value?.hari_terlambat) > 0) {
+    baris.push({ label: 'Hari Terlambat', nilai: `${dataKlaim.value.hari_terlambat} hari` })
   }
 
-  waktuCetakSekarang.value = formatWaktuCetak()
+  return baris
 })
 
 function selesai() {
-  kioskStore.hapusKode()
-  router.push('/')
+  kioskStore.resetSesi()
+  router.replace('/')
 }
 </script>
 
@@ -44,11 +66,14 @@ function selesai() {
       <p class="text-slate-600 text-base">
         Ajukan pada {{ formatWaktuIndo(dataKlaim.diklaim_pada) }}.
       </p>
+      <p class="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-sm font-bold">
+        Menunggu Verifikasi
+      </p>
     </div>
 
     <!-- Pengingat Menyerahkan Barang Fisik (FR-K-06) -->
     <div class="print:hidden p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm text-center">
-      <strong>PENTING:</strong> Segera serahkan barang fisik yang dilaporkan ke petugas IT.
+      <strong>PENTING:</strong> Serahkan barang fisik ke petugas IT untuk diverifikasi.
       Status klaim masih <strong>Menunggu Verifikasi</strong> sampai petugas memeriksa barang.
     </div>
 
@@ -60,17 +85,13 @@ function selesai() {
       :nama-peminjam="''"
       :tanggal-pinjam="''"
       :batas-kembali="''"
-      :items="dataKlaim.lines"
-      :baris-tambahan="[
-        { label: 'Kode Peminjaman', nilai: dataKlaim.kode_pinjam },
-        { label: 'Diajukan', nilai: formatWaktuIndo(dataKlaim.diklaim_pada) },
-        { label: 'Status', nilai: dataKlaim.status === 'diverifikasi' ? 'Diverifikasi' : 'Menunggu Verifikasi' },
-      ]"
+      :items="ringkasanBarang"
+      :baris-tambahan="barisTambahan"
       :catatan="`Barang fisik harus diserahkan ke petugas IT untuk diverifikasi. Status saat ini: Menunggu Verifikasi.`"
       :waktu-cetak="waktuCetakSekarang"
     />
 
-    <!-- Aksi -->
+    <!-- Aksi: hanya Selesai, tanpa kembali ke form / kartu -->
     <div class="print:hidden pt-2 flex justify-center">
       <TombolBesar
         varian="primer"
@@ -78,7 +99,7 @@ function selesai() {
         class="w-full sm:w-auto sm:min-w-[240px]"
         @click="selesai"
       >
-        Selesai & Kembali ke Beranda
+        Selesai
       </TombolBesar>
     </div>
   </div>

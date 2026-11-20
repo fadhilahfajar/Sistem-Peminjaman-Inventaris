@@ -1,10 +1,34 @@
 <script setup>
-import { useRoute } from 'vue-router'
-import { useIdleKiosk } from '@/composables/useIdleKiosk'
+import { onErrorCaptured, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import NotifikasiToast from '@/components/NotifikasiToast.vue'
 import TombolBesar from '@/components/TombolBesar.vue'
+import { useIdleKiosk } from '@/composables/useIdleKiosk'
+import { useKioskStore } from '@/stores/kiosk'
+import { useNotifikasiStore } from '@/stores/notifikasi'
 
 const route = useRoute()
+const router = useRouter()
+const kioskStore = useKioskStore()
+const notifikasi = useNotifikasiStore()
 const { hitungMundur, aturUlang, batalkanMundur } = useIdleKiosk()
+
+const galatTampilan = ref(false)
+
+// Galat render apa pun ditampilkan sebagai pesan, bukan layar putih.
+onErrorCaptured((err) => {
+  console.error('[kiosk] galat tampilan:', err)
+  kioskStore.resetSesi()
+  notifikasi.tutup()
+  galatTampilan.value = true
+  return false
+})
+
+function pulihkan() {
+  kioskStore.resetSesi()
+  galatTampilan.value = false
+  router.replace('/')
+}
 </script>
 
 <template>
@@ -35,8 +59,23 @@ const { hitungMundur, aturUlang, batalkanMundur } = useIdleKiosk()
 
     <!-- Konten Utama Kiosk -->
     <main class="mx-auto w-full max-w-5xl flex-1 p-4 md:p-6 print:p-0 print:max-w-none">
-      <RouterView />
+      <div v-if="galatTampilan" class="max-w-lg mx-auto py-12 text-center space-y-5">
+        <p class="text-lg md:text-xl font-bold text-slate-900">
+          Terjadi kesalahan. Kembali ke beranda.
+        </p>
+        <TombolBesar varian="primer" ukuran="besar" @click="pulihkan">
+          Kembali ke Beranda
+        </TombolBesar>
+      </div>
+      <RouterView v-else />
     </main>
+
+    <!-- Satu toast global kiosk -->
+    <NotifikasiToast
+      v-model:terbuka="notifikasi.terbuka"
+      :pesan="notifikasi.pesan"
+      :tipe="notifikasi.tipe"
+    />
 
     <!-- Overlay Hitung Mundur Auto-Reset (FR-K-10) -->
     <Teleport to="body">
