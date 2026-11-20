@@ -226,7 +226,7 @@ items            id PK · nama V150 · deskripsi TEXT null · kategori_id FK→c
                  · nama_aktif V150 GENERATED STORED = IF(dihapus_pada IS NULL, nama, NULL) UNIQUE
                  · CHECK (tersedia + rusak <= total)    -- selisihnya = dipinjam + menunggu
 loans            id PK · kode_pinjam V12 UNIQUE · nama_peminjam V100 · division_id FK→divisions
-                 · tipe_peminjam ENUM('karyawan','magang') · telepon V20 null
+                 · tipe_peminjam ENUM('karyawan','magang') · telepon V20 null · keperluan V255 null
                  · tanggal_pinjam DATE · batas_kembali_awal DATE · batas_kembali DATE
                  · idempotency_key CHAR(36) null UNIQUE · dibuat_pada
                  · dibatalkan_pada DT null · alasan_batal V500 null · dibatalkan_oleh FK→users null
@@ -443,6 +443,7 @@ Permintaan:
   "division_id": 1,
   "tipe_peminjam": "karyawan",
   "telepon": "081234567890",
+  "keperluan": "Membawa laptop ke rapat",
   "tanggal_pinjam": "2026-11-07",
   "batas_kembali": "2026-11-10",
   "idempotency_key": "c3f8e6b1-42ab-4d2c-9a1b-782f9d8e4c10",
@@ -466,6 +467,7 @@ Respons sukses (201 Created):
       "nama": "IT"
     },
     "tipe_peminjam": "karyawan",
+    "keperluan": "Membawa laptop ke rapat",
     "tanggal_pinjam": "2026-11-07",
     "batas_kembali": "2026-11-10",
     "status": "dipinjam",
@@ -488,6 +490,18 @@ Respons stok tidak cukup (409 Conflict):
 }
 ```
 
+Respons validasi gagal (422 Unprocessable Content), telepon dan keperluan wajib diisi:
+```json
+{
+  "kode": "validasi_gagal",
+  "pesan": "Data yang dikirim tidak valid.",
+  "errors": {
+    "telepon": ["Nomor WhatsApp wajib diisi."],
+    "keperluan": ["Keperluan wajib diisi."]
+  }
+}
+```
+
 - `POST /api/kiosk/loans/lookup` (200 OK, 404 Not Found, 429 Too Many Requests): contoh permintaan dan respons lookup peminjaman kiosk. Seluruh respons sukses mempertahankan pembungkus bawaan `data`. Kartu peminjaman tidak pernah memuat nomor telepon peminjam dan angka stok barang internal (`total`, `tersedia`, `rusak`). Pembatas percobaan kode berbasis IP berlaku untuk semua endpoint kiosk yang menerima kode peminjaman.
 
 Permintaan:
@@ -507,6 +521,7 @@ Respons sukses (200 OK):
       "nama": "IT"
     },
     "tipe_peminjam": "karyawan",
+    "keperluan": "Membawa laptop ke rapat",
     "tanggal_pinjam": "2026-11-07",
     "batas_kembali_awal": "2026-11-10",
     "batas_kembali": "2026-11-10",
@@ -882,6 +897,7 @@ Contoh bentuk JSON yang sudah selesai (agent A, Task 3.8, FR-A-05 sampai FR-A-08
       "divisi": { "id": 1, "nama": "IT" },
       "tipe_peminjam": "karyawan",
       "telepon": "081234567890",
+      "keperluan": "Membawa laptop ke rapat",
       "tanggal_pinjam": "2026-11-09",
       "batas_kembali": "2026-11-12",
       "status": "terlambat",
@@ -914,6 +930,7 @@ Contoh bentuk JSON yang sudah selesai (agent A, Task 3.8, FR-A-05 sampai FR-A-08
     "divisi": { "id": 1, "nama": "IT" },
     "tipe_peminjam": "karyawan",
     "telepon": "081234567890",
+    "keperluan": "Membawa laptop ke rapat",
     "tanggal_pinjam": "2026-11-09",
     "batas_kembali_awal": "2026-11-12",
     "batas_kembali": "2026-11-14",
@@ -952,7 +969,7 @@ Contoh bentuk JSON yang sudah selesai (agent A, Task 3.8, FR-A-05 sampai FR-A-08
     "dibatalkan_oleh": null,
     "dibuat_pada": "2026-11-09T01:10:00.000000Z",
     "lini_masa": [
-      { "jenis": "dibuat", "waktu": "2026-11-09T01:10:00.000000Z", "ringkasan": "Peminjaman dibuat oleh Budi Santoso (karyawan)." },
+      { "jenis": "dibuat", "waktu": "2026-11-09T01:10:00.000000Z", "ringkasan": "Peminjaman dibuat oleh Budi Santoso (karyawan).", "keperluan": "Membawa laptop ke rapat" },
       { "jenis": "klaim", "waktu": "2026-11-14T03:00:00.000000Z", "ringkasan": "Klaim KMB-4Q7X2B dikirim.", "catatan_peminjam": "Satu unit masih dipakai" }
     ]
   }
