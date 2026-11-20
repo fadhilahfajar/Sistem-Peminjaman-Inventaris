@@ -1263,7 +1263,7 @@ Templat Blade di `backend/resources/views/laporan` HANYA dipakai untuk PDF; ini 
 | `/perpanjang/selesai` | Bukti perpanjangan | Batas baru dan jumlah perpanjangan | respons POST |
 | `/batal` | Batalkan pemesanan | Modal konfirmasi dengan ringkasan | POST loans/cancel |
 
-Kartu peminjaman adalah pusat: klaim, perpanjangan, dan pembatalan semuanya berawal dari sana dengan kode yang sama.
+Kartu peminjaman adalah pusat: klaim, perpanjangan, dan pembatalan semuanya berawal dari sana dengan kode yang sama. Navigasi ke beranda hanya ada di header LayoutKiosk—yang mengosongkan sesi kiosk sebelum kembali—dan tombol beranda di tingkat halaman dihapus; layar bukti (`/pinjam/selesai`, `/klaim/selesai`, `/perpanjang/selesai`) tetap memiliki tombol Selesai yang menghapus seluruh state sebelum kembali ke beranda.
 
 ### 10.3 Layar admin
 
