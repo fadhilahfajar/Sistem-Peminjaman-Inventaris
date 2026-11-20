@@ -251,6 +251,12 @@ watch(
   { deep: true },
 )
 
+// Aksi "Batalkan & Keluar": buang isian/sesi kiosk seperti idle reset sebelum pulang.
+function batalkanDanKeluar() {
+  kioskStore.resetSesi()
+  router.replace('/')
+}
+
 async function kirimForm() {
   if (sedangKirim.value) return
   if (!validasiKlien()) return
@@ -319,25 +325,13 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <!-- Header Halaman -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
-      <div>
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Formulir Peminjaman Barang
-        </h2>
-        <p class="text-sm md:text-base text-slate-600 mt-0.5">
-          Isi keranjang barang dan identitas peminjam secara mandiri.
-        </p>
-      </div>
-
-      <TombolBesar
-        varian="sekunder"
-        ukuran="sedang"
-        class="self-start sm:self-auto"
-        :dinonaktifkan="sedangKirim"
-        @click="router.push('/')"
-      >
-        &larr; Beranda
-      </TombolBesar>
+    <div class="pb-2 border-b border-slate-200">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+        Formulir Peminjaman Barang
+      </h2>
+      <p class="text-sm md:text-base text-slate-600 mt-0.5">
+        Isi keranjang barang dan identitas peminjam secara mandiri.
+      </p>
     </div>
 
     <!-- Status Memuat Data Awal -->
@@ -686,7 +680,7 @@ onMounted(() => {
           ukuran="besar"
           class="w-full sm:w-auto"
           :dinonaktifkan="sedangKirim"
-          @click="router.push('/')"
+          @click="batalkanDanKeluar"
         >
           Batalkan & Keluar
         </TombolBesar>

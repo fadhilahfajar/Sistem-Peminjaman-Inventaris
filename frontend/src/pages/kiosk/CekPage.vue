@@ -71,25 +71,13 @@ async function periksaKode() {
 <template>
   <div class="space-y-6 max-w-2xl mx-auto py-4">
     <!-- Header Halaman -->
-    <div class="flex items-center justify-between pb-3 border-b border-slate-200">
-      <div>
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Cek Peminjaman & Pengembalian
-        </h2>
-        <p class="text-sm md:text-base text-slate-600 mt-0.5">
-          Periksa status peminjaman, ajukan pengembalian, perpanjang, atau batalkan pemesanan.
-        </p>
-      </div>
-
-      <TombolBesar
-        varian="sekunder"
-        ukuran="sedang"
-        class="shrink-0"
-        :dinonaktifkan="sedangMemeriksa"
-        @click="router.push('/')"
-      >
-        &larr; Beranda
-      </TombolBesar>
+    <div class="pb-3 border-b border-slate-200">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+        Cek Peminjaman & Pengembalian
+      </h2>
+      <p class="text-sm md:text-base text-slate-600 mt-0.5">
+        Periksa status peminjaman, ajukan pengembalian, perpanjang, atau batalkan pemesanan.
+      </p>
     </div>
 
     <!-- Formulir Pencarian Kode -->
