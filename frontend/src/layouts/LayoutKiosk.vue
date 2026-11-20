@@ -1,12 +1,13 @@
 <script setup>
 import { onErrorCaptured, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import NotifikasiToast from '@/components/NotifikasiToast.vue'
 import TombolBesar from '@/components/TombolBesar.vue'
 import { useIdleKiosk } from '@/composables/useIdleKiosk'
 import { useKioskStore } from '@/stores/kiosk'
 import { useNotifikasiStore } from '@/stores/notifikasi'
 
+const route = useRoute()
 const router = useRouter()
 const kioskStore = useKioskStore()
 const notifikasi = useNotifikasiStore()
@@ -29,6 +30,11 @@ function bersihkanSesi() {
   notifikasi.tutup()
 }
 
+function kembaliKeBeranda() {
+  bersihkanSesi()
+  router.replace('/')
+}
+
 function pulihkan() {
   bersihkanSesi()
   galatTampilan.value = false
@@ -40,17 +46,28 @@ function pulihkan() {
   <div class="min-h-screen bg-slate-50 font-sans text-kiosk text-slate-900 flex flex-col">
     <!-- Header Kiosk (Sembunyi saat cetak sesuai US-03, T-39, UI-06) -->
     <header class="print:hidden border-b border-slate-200 bg-white px-4 md:px-6 py-4 shadow-2xs">
-      <div class="mx-auto max-w-5xl">
+      <div class="mx-auto flex max-w-5xl items-center justify-between gap-4">
         <RouterLink
           to="/"
-          aria-label="Kembali ke Beranda"
-          class="flex items-center gap-2 hover:opacity-85 transition-opacity rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--color-aksen,#1d4ed8)] py-1 px-1 -ml-1"
+          aria-label="Beranda"
+          class="flex items-center gap-2 hover:opacity-85 transition-opacity rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--color-aksen,#1d4ed8)] py-1 px-1 -ml-1 min-h-[44px]"
           @click="bersihkanSesi"
         >
           <span class="text-xl md:text-2xl font-black tracking-tight text-slate-900">
             Peminjaman Inventaris IT
           </span>
         </RouterLink>
+
+        <!-- Tombol Khusus Kembali ke Beranda jika di luar Beranda (target sentuh >= 44px) -->
+        <button
+          v-if="route.path !== '/'"
+          type="button"
+          class="inline-flex items-center gap-2 min-h-[44px] px-4 py-2.5 text-sm md:text-base font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded-xl transition-colors cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-slate-700"
+          @click="kembaliKeBeranda"
+        >
+          <span aria-hidden="true">&larr;</span>
+          <span>Kembali ke Beranda</span>
+        </button>
       </div>
     </header>
 
