@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { kioskApi } from '@/api'
 import FormField from '@/components/FormField.vue'
@@ -9,19 +9,38 @@ import PesanGalat from '@/components/PesanGalat.vue'
 import TombolBesar from '@/components/TombolBesar.vue'
 import { useGalat } from '@/composables/useGalat'
 import { useKioskStore } from '@/stores/kiosk'
+import { useNotifikasiStore } from '@/stores/notifikasi'
+import { bentukPayloadKlaim, pesanGalatKlaim } from '@/utils/klaim'
 import { formatTanggalIndo } from '@/utils/tanggal'
 
 const router = useRouter()
 const kioskStore = useKioskStore()
-const { errors, pesanGalat, memuat: sedangKirim, tanganiGalat, bersihkan } = useGalat()
+const notifikasi = useNotifikasiStore()
+const { errors, pesanGalat, memuat: sedangKirim, bersihkan } = useGalat()
 
 const kartu = computed(() => kioskStore.kartuPinjam)
 
 // Barang dengan sisa unit yang masih dapat dikembalikan (BR-04)
 const barangSisa = computed(() => (kartu.value?.items || []).filter((i) => i.sisa > 0))
 
-// Map item_id -> { baik, rusak, hilang }
-const isian = ref({})
+// Akses langsung / reload / Back: tanpa kartu di memori kembali ke Cek (DESAIN 10.1).
+// Dilakukan di setup, sebelum render pertama, agar template tidak membaca data kosong.
+if (!kartu.value || !kartu.value.kode_pinjam) {
+  router.replace({ path: '/cek', query: { perlu_kode: '1' } })
+}
+
+// Map item_id -> { baik, rusak, hilang }. Diisi sinkron: render pertama
+// langsung membaca isian[item_id] lewat v-model (penyebab layar putih sebelumnya).
+function buatIsianAwal() {
+  const awal = {}
+  for (const item of barangSisa.value) {
+    awal[item.item_id] = { baik: 0, rusak: 0, hilang: 0 }
+  }
+  return awal
+}
+
+const isian = ref(buatIsianAwal())
+const idempotencyKey = ref(crypto.randomUUID())
 
 const bolehKlaim = computed(() => kartu.value?.aksi?.klaim?.boleh === true)
 const alasanTidakBoleh = computed(() => kartu.value?.aksi?.klaim?.alasan || '')
@@ -35,21 +54,6 @@ const totalSemua = computed(() => totalBaik.value + totalRusak.value + totalHila
 // Modal konfirmasi (ringkasan sebelum kirim)
 const modalTerbuka = ref(false)
 const catatan = ref('')
-
-onMounted(() => {
-  // Bila kartu tidak ada di memori (mis. reload), kembali ke layar Cek (DESAIN 10.1)
-  if (!kartu.value || !kartu.value.kode_pinjam) {
-    router.replace('/cek')
-    return
-  }
-
-  // Inisialisasi isian: semua nol
-  const awal = {}
-  for (const item of barangSisa.value) {
-    awal[item.item_id] = { baik: 0, rusak: 0, hilang: 0 }
-  }
-  isian.value = awal
-})
 
 // Validasi klien FR-K-05: total per barang ≤ sisa, minimal satu unit dikembalikan
 function validasiKlien() {
@@ -94,37 +98,55 @@ function bukaKonfirmasi() {
   modalTerbuka.value = true
 }
 
-async function kirimKlaim() {
-  if (sedangKirim.value) return
+async function muatUlangKartu() {
+  const kode = kioskStore.kode || kartu.value?.kode_pinjam
+  if (!kode) return
 
-  // Bentuk lines: [{item_id, kondisi, qty}] hanya untuk isian > 0
-  const lines = []
-  for (const item of barangSisa.value) {
-    const isi = isian.value[item.item_id] || {}
-    for (const kondisi of ['baik', 'rusak', 'hilang']) {
-      const qty = Number(isi[kondisi]) || 0
-      if (qty > 0) {
-        lines.push({ item_id: item.item_id, kondisi, qty })
+  try {
+    const res = await kioskApi.lookupLoan({ kode })
+    kioskStore.setKartuPinjam(res.data?.data)
+    for (const item of barangSisa.value) {
+      if (!isian.value[item.item_id]) {
+        isian.value[item.item_id] = { baik: 0, rusak: 0, hilang: 0 }
       }
     }
+  } catch {
+    // Pesan 409 tetap tampil; gagal memuat ulang tidak boleh mengosongkan layar.
   }
+}
 
-  const payload = {
+async function kirimKlaim() {
+  if (sedangKirim.value || !kartu.value?.kode_pinjam) return
+
+  const payload = bentukPayloadKlaim({
     kode: kartu.value.kode_pinjam,
-    lines,
-    catatan: catatan.value.trim() || null,
-    idempotency_key: crypto.randomUUID(),
+    barang: barangSisa.value,
+    isian: isian.value,
+    catatan: catatan.value,
+    idempotencyKey: idempotencyKey.value,
+  })
+
+  if (payload.lines.length === 0) {
+    pesanGalat.value = 'Isi minimal satu unit barang yang dikembalikan.'
+    return
   }
 
   modalTerbuka.value = false
   sedangKirim.value = true
 
   try {
+    // Axios menganggap 201 (baru) dan 200 (replay idempotensi) sebagai sukses.
     const res = await kioskApi.buatReturnClaim(payload)
     kioskStore.setKlaimSelesai(res.data?.data)
-    await router.push('/klaim/selesai')
+    notifikasi.tampilkan('Pengembalian berhasil diajukan')
+    await router.replace('/klaim/selesai')
   } catch (err) {
-    tanganiGalat(err)
+    bersihkan()
+    const info = pesanGalatKlaim(err)
+    pesanGalat.value = info.pesan
+    if (info.muatUlangKartu) {
+      await muatUlangKartu()
+    }
   } finally {
     sedangKirim.value = false
   }

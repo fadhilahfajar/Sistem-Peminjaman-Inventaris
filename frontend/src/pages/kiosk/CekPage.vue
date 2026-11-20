@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { kioskApi } from '@/api'
 import FormField from '@/components/FormField.vue'
 import InputKode from '@/components/InputKode.vue'
@@ -9,11 +9,12 @@ import TombolBesar from '@/components/TombolBesar.vue'
 import { useKioskStore } from '@/stores/kiosk'
 
 const router = useRouter()
+const route = useRoute()
 const kioskStore = useKioskStore()
 
 const kodeInput = ref('')
 const sedangMemeriksa = ref(false)
-const pesanGalat = ref('')
+const pesanGalat = ref(route.query.perlu_kode === '1' ? 'Silakan masukkan kode peminjaman terlebih dahulu.' : '')
 const terkunci = ref(false)
 
 onMounted(() => {
