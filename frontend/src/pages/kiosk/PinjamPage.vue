@@ -1,22 +1,25 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { kioskApi } from '@/api'
 import FormField from '@/components/FormField.vue'
 import InputJumlah from '@/components/InputJumlah.vue'
 import Memuat from '@/components/Memuat.vue'
-import ModalKonfirmasi from '@/components/ModalKonfirmasi.vue'
+import PemilihBarang from '@/components/kiosk/PemilihBarang.vue'
 import PesanGalat from '@/components/PesanGalat.vue'
 import StatusKosong from '@/components/StatusKosong.vue'
 import TombolBesar from '@/components/TombolBesar.vue'
 import { useGalat } from '@/composables/useGalat'
 import { useKioskStore } from '@/stores/kiosk'
+import { useNotifikasiStore } from '@/stores/notifikasi'
+import { gabungkanKeKeranjang } from '@/utils/pemilihBarang'
 import { hariIniYmd, tambahHariYmd } from '@/utils/tanggal'
 import { normalisasiTelepon, validasiFormPinjam } from '@/utils/validasiPinjam'
 
 const route = useRoute()
 const router = useRouter()
 const kioskStore = useKioskStore()
+const notifikasi = useNotifikasiStore()
 const { errors, pesanGalat, memuat: sedangKirim, tanganiGalat, bersihkan } = useGalat()
 
 // Kunci Idempotensi UUID dibuat saat formulir dibuka (DESAIN 10.6, FR-K-02)
@@ -29,9 +32,8 @@ const daftarBarang = ref([])
 const maksDurasiAwal = ref(7)
 const maksBookingHari = ref(7)
 
-// Modal pemilih barang
+// Popup pemilih barang (pilihan sementara hidup di dalam komponen popup)
 const modalPilihBarangTerbuka = ref(false)
-const cariBarang = ref('')
 
 // Keranjang barang: list of { item_id, nama, tersedia, qty }
 const keranjang = ref([])
@@ -72,19 +74,6 @@ const apakahPemesanan = computed(() => {
 
 const totalUnitKeranjang = computed(() => {
   return keranjang.value.reduce((total, item) => total + (Number(item.qty) || 0), 0)
-})
-
-// Barang yang dapat dipilih ke keranjang (stok > 0 dan belum ada di keranjang)
-const barangTersediaUntukDipilih = computed(() => {
-  const idsDiKeranjang = new Set(keranjang.value.map((k) => k.item_id))
-  const q = cariBarang.value.trim().toLowerCase()
-
-  return daftarBarang.value.filter((b) => {
-    if (b.tersedia <= 0) return false
-    if (idsDiKeranjang.has(b.id)) return false
-    if (!q) return true
-    return b.nama.toLowerCase().includes(q)
-  })
 })
 
 // Sinkronkan batas_kembali saat tanggal_pinjam berubah
@@ -156,14 +145,23 @@ function hapusDariKeranjang(itemId) {
 }
 
 function bukaPemilihBarang() {
-  cariBarang.value = ''
   modalPilihBarangTerbuka.value = true
 }
 
-function pilihDanTutup(barang) {
-  tambahKeKeranjang(barang)
+function konfirmasiPilihBarang(barangDipilih) {
+  const sebelum = keranjang.value.length
+  keranjang.value = gabungkanKeKeranjang(keranjang.value, barangDipilih)
+  const ditambah = keranjang.value.length - sebelum
   modalPilihBarangTerbuka.value = false
+  if (ditambah > 0) notifikasi.tampilkan(`${ditambah} barang ditambahkan`)
 }
+
+// Kembalikan fokus ke formulir setelah popup ditutup (termasuk lewat Tutup/Esc).
+watch(modalPilihBarangTerbuka, (buka, sebelumnya) => {
+  if (sebelumnya && !buka) {
+    nextTick(() => document.getElementById('tambah-barang')?.focus())
+  }
+})
 
 // Urutan kolom dipakai untuk ringkasan dan fokus ke kolom pertama yang salah.
 const URUTAN_KOLOM = [
@@ -700,58 +698,13 @@ onMounted(() => {
       </div>
     </form>
 
-    <!-- Modal Pemilih Barang -->
-    <ModalKonfirmasi
-      :terbuka="modalPilihBarangTerbuka"
-      judul="Pilih Barang Inventaris"
-      teks-batal="Tutup"
-      teks-konfirmasi=""
-      @batal="modalPilihBarangTerbuka = false"
-      @update:terbuka="modalPilihBarangTerbuka = $event"
-    >
-      <div class="space-y-4 py-2">
-        <!-- Input Pencarian Cepat di Modal -->
-        <input
-          v-model="cariBarang"
-          type="text"
-          placeholder="Ketik nama barang..."
-          class="w-full min-h-[44px] px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
-        >
-
-        <!-- Daftar Barang -->
-        <div class="max-h-72 overflow-y-auto divide-y divide-slate-100 pr-1">
-          <div
-            v-for="b in barangTersediaUntukDipilih"
-            :key="b.id"
-            class="py-3 flex items-center justify-between gap-3"
-          >
-            <div>
-              <p class="font-bold text-slate-900 text-sm">
-                {{ b.nama }}
-              </p>
-              <span class="text-xs font-semibold text-emerald-600">
-                Tersedia {{ b.tersedia }} unit
-              </span>
-            </div>
-
-            <TombolBesar
-              varian="primer"
-              ukuran="sedang"
-              class="shrink-0"
-              @click="pilihDanTutup(b)"
-            >
-              + Pilih
-            </TombolBesar>
-          </div>
-
-          <p
-            v-if="barangTersediaUntukDipilih.length === 0"
-            class="text-xs text-slate-500 text-center py-6"
-          >
-            Tidak ada barang lain yang tersedia untuk dipilih.
-          </p>
-        </div>
-      </div>
-    </ModalKonfirmasi>
+    <!-- Popup Pemilih Barang: multi-pilih, konfirmasi sekali untuk semua -->
+    <PemilihBarang
+      v-model:terbuka="modalPilihBarangTerbuka"
+      :barang="daftarBarang"
+      :ids-di-keranjang="keranjang.map((k) => k.item_id)"
+      :generasi-sesi="kioskStore.generasiSesi"
+      @konfirmasi="konfirmasiPilihBarang"
+    />
   </div>
 </template>
