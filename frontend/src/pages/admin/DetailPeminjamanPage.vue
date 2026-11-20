@@ -216,7 +216,8 @@ async function simpanBatal() {
         <h3 class="text-base font-bold text-slate-900 pb-3 mb-4 border-b border-slate-100">Identitas Peminjam</h3>
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
           <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Nama</dt><dd class="font-bold text-slate-900">{{ data.nama_peminjam }}</dd></div>
-          <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Telepon</dt><dd class="font-bold text-slate-900">{{ data.telepon || '—' }}</dd></div>
+          <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Nomor WhatsApp</dt><dd class="font-bold text-slate-900">{{ data.telepon || '-' }}</dd></div>
+          <div class="flex justify-between sm:block sm:col-span-2"><dt class="text-slate-500 font-semibold">Keperluan</dt><dd class="font-bold text-slate-900 whitespace-pre-line">{{ data.keperluan || '-' }}</dd></div>
           <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Divisi</dt><dd class="font-bold text-slate-900">{{ data.divisi?.nama ?? '—' }}</dd></div>
           <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Tipe</dt><dd class="font-bold text-slate-900 capitalize">{{ data.tipe_peminjam }}</dd></div>
           <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Tgl Pinjam</dt><dd class="font-bold text-slate-900">{{ formatTanggalIndo(data.tanggal_pinjam) }}</dd></div>
