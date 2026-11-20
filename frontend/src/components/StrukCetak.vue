@@ -26,6 +26,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  keperluan: {
+    type: String,
+    default: '',
+  },
   tanggalPinjam: {
     type: String,
     default: '',
@@ -155,6 +159,10 @@ function cetak() {
         <div v-if="tipePeminjam" class="flex justify-between items-start gap-2">
           <span class="text-slate-500 print:text-black shrink-0">Tipe:</span>
           <span class="font-bold text-right capitalize">{{ tipePeminjam }}</span>
+        </div>
+        <div v-if="keperluan" class="flex justify-between items-start gap-2">
+          <span class="text-slate-500 print:text-black shrink-0">Keperluan:</span>
+          <span class="font-bold text-right break-words">{{ keperluan }}</span>
         </div>
 
         <!-- Tanggal Pinjam dengan Penanda PEMESANAN bila masa depan (FR-K-03) -->

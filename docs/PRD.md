@@ -144,9 +144,9 @@ Prioritas: **M** = Must, **S** = Should, **C** = Could. Kolom BR merujuk `DESAIN
 | ID | Kebutuhan | BR | P |
 |---|---|---|---|
 | FR-K-01 | **Katalog dan cek stok.** Nama dan jumlah `tersedia`. Barang stok 0 tidak dapat dipilih. Pencarian instan berdasarkan nama. Filter kategori. Jumlah rusak atau menunggu tidak ditampilkan | 28, 31 | M |
-| FR-K-02 | **Form peminjaman.** Nama (2–100 karakter), divisi (pilihan, wajib), tipe peminjam (wajib), telepon (opsional, 8–15 digit), tanggal pinjam (bawaan hari ini, dapat dipilih sampai `maks_booking_hari`), batas kembali, daftar barang dan jumlah. Bila tanggal pinjam di masa depan, layar menegaskan stok ditahan mulai sekarang. Validasi di klien dan server. Satu kunci idempotensi per form | 02, 20, 22, 23, 27, 30 | M |
-| FR-K-03 | **Bukti peminjaman** di layar dan siap cetak: kode pinjam besar, nama, divisi, tanggal pinjam (penanda PEMESANAN bila masa depan), batas kembali, barang dan jumlah, petunjuk mengembalikan | 17 | M |
-| FR-K-04 | **Cek peminjaman.** Input kode menampilkan kartu: per barang dipinjam, menunggu, terverifikasi, sisa. Batas kembali, penghitung mundur ("Sisa 3 hari" atau "Terlambat 2 hari"), perpanjangan terpakai dan sisa kuota, riwayat klaim. Untuk pemesanan: "Dipesan, mulai [tanggal]" dan tombol Batalkan sebagai ganti Kembalikan dan Perpanjang. Kode salah tidak membocorkan data. Terkunci setelah `kiosk_lookup_maks_gagal` gagal beruntun | 17, 18 | M |
+| FR-K-02 | **Form peminjaman.** Nama (2–100 karakter), divisi (pilihan, wajib), tipe peminjam (wajib), telepon wajib dengan label "Nomor WhatsApp" (8–15 digit; spasi, tanda hubung, dan satu awalan `+` dibuang sehingga tersimpan digit saja), keperluan wajib (3–255 karakter, spasi di ujung dipangkas), tanggal pinjam (bawaan hari ini, dapat dipilih sampai `maks_booking_hari`), batas kembali, daftar barang dan jumlah. Bila tanggal pinjam di masa depan, layar menegaskan stok ditahan mulai sekarang. Validasi di klien dan server. Satu kunci idempotensi per form | 02, 20, 22, 23, 27, 30 | M |
+| FR-K-03 | **Bukti peminjaman** di layar dan siap cetak: kode pinjam besar, nama, divisi, keperluan, tanggal pinjam (penanda PEMESANAN bila masa depan), batas kembali, barang dan jumlah, petunjuk mengembalikan | 17 | M |
+| FR-K-04 | **Cek peminjaman.** Input kode menampilkan kartu: nama, divisi, keperluan, per barang dipinjam, menunggu, terverifikasi, sisa. Batas kembali, penghitung mundur ("Sisa 3 hari" atau "Terlambat 2 hari"), perpanjangan terpakai dan sisa kuota, riwayat klaim. Untuk pemesanan: "Dipesan, mulai [tanggal]" dan tombol Batalkan sebagai ganti Kembalikan dan Perpanjang. Kode salah tidak membocorkan data. Terkunci setelah `kiosk_lookup_maks_gagal` gagal beruntun | 17, 18 | M |
 | FR-K-05 | **Klaim pengembalian parsial.** Per barang: jumlah Baik, Rusak, Hilang, total ≤ sisa. Satu catatan per klaim (opsional, ≤ 500 karakter). Tombol nonaktif bila sisa 0 | 03, 04, 10 | M |
 | FR-K-06 | **Bukti klaim**: kode klaim, isi klaim, status Menunggu Verifikasi, pengingat menyerahkan barang fisik ke petugas. Tata letak cetak | 17 | M |
 | FR-K-07 | **Perpanjangan.** Pilih tambahan hari (1 sampai batas), alasan opsional. Tampilkan batas kembali lama dan baru sebelum konfirmasi. Bila tidak memenuhi BR-11, tombol nonaktif disertai alasan jelas ("Sudah terlambat, hubungi petugas IT") | 11, 12 | M |
@@ -211,7 +211,7 @@ Prioritas: **M** = Must, **S** = Should, **C** = Could. Kolom BR merujuk `DESAIN
 | **Keterlacakan** | Buku besar stok, audit, dan riwayat koreksi tidak dapat diubah dari antarmuka |
 | **Kegunaan** | Bahasa Indonesia. Kiosk dapat dipakai dengan layar sentuh maupun keyboard fisik. Pesan galat spesifik dan tidak menyalahkan |
 | **Responsivitas** | Kiosk dioptimalkan untuk tablet atau lebih besar. Panel admin: desktop, tablet, ponsel |
-| **Privasi** | Telepon opsional, hanya tampil untuk admin. Kiosk tidak menampilkan data peminjam lain |
+| **Privasi** | Telepon wajib di kiosk, hanya tampil untuk admin. Kiosk tidak menampilkan data peminjam lain |
 | **Pemeliharaan** | Pemisahan Controller, Form Request, Service, Model. Migration satu-satunya sumber skema. Tes otomatis untuk aturan bisnis, konkurensi, dan idempotensi dijalankan sebelum setiap rilis |
 | **Instalasi** | Windows dengan PHP 8.4 dan MySQL 8.4, tanpa Docker. Cara menjalankan ditetapkan di K-3 |
 | **Kompatibilitas** | Chrome dan Edge versi terbaru |
@@ -279,6 +279,8 @@ Tes bertanda ⚙ wajib otomatis. Tes lain diuji manual.
 | T-40 | Responsif | Kiosk di tablet dan panel admin di ponsel (360 dan 768 px) tidak terpotong |
 | T-41 ⚙ | Laporan PDF | Empat jenis laporan berisi data sesuai filter |
 | T-42 ⚙ | Buku besar | Untuk setiap barang, `total`, `tersedia`, `rusak` sama dengan jumlah `delta_*` di `stock_movements` |
+| T-43 ⚙ | Telepon wajib dan dinormalkan | Kiosk menolak 422 bila telepon kosong, bukan 8–15 digit, atau berhuruf; spasi, tanda hubung, dan satu awalan `+` dibuang sehingga tersimpan digit saja; telepon tidak muncul di respons kiosk |
+| T-44 ⚙ | Keperluan wajib | Kiosk menolak 422 untuk keperluan kosong, spasi saja, kurang dari 3 karakter, atau lebih dari 255 karakter; panjang dihitung per karakter; teks tersimpan dan tampil apa adanya |
 
 ## 13. Risiko
 

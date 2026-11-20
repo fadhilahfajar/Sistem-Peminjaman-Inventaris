@@ -226,7 +226,7 @@ items            id PK · nama V150 · deskripsi TEXT null · kategori_id FK→c
                  · nama_aktif V150 GENERATED STORED = IF(dihapus_pada IS NULL, nama, NULL) UNIQUE
                  · CHECK (tersedia + rusak <= total)    -- selisihnya = dipinjam + menunggu
 loans            id PK · kode_pinjam V12 UNIQUE · nama_peminjam V100 · division_id FK→divisions
-                 · tipe_peminjam ENUM('karyawan','magang') · telepon V20 null
+                 · tipe_peminjam ENUM('karyawan','magang') · telepon V20 null · keperluan V255 null
                  · tanggal_pinjam DATE · batas_kembali_awal DATE · batas_kembali DATE
                  · idempotency_key CHAR(36) null UNIQUE · dibuat_pada
                  · dibatalkan_pada DT null · alasan_batal V500 null · dibatalkan_oleh FK→users null
@@ -443,6 +443,7 @@ Permintaan:
   "division_id": 1,
   "tipe_peminjam": "karyawan",
   "telepon": "081234567890",
+  "keperluan": "Membawa laptop ke rapat",
   "tanggal_pinjam": "2026-11-07",
   "batas_kembali": "2026-11-10",
   "idempotency_key": "c3f8e6b1-42ab-4d2c-9a1b-782f9d8e4c10",
@@ -466,6 +467,7 @@ Respons sukses (201 Created):
       "nama": "IT"
     },
     "tipe_peminjam": "karyawan",
+    "keperluan": "Membawa laptop ke rapat",
     "tanggal_pinjam": "2026-11-07",
     "batas_kembali": "2026-11-10",
     "status": "dipinjam",
@@ -488,6 +490,18 @@ Respons stok tidak cukup (409 Conflict):
 }
 ```
 
+Respons validasi gagal (422 Unprocessable Content), telepon dan keperluan wajib diisi:
+```json
+{
+  "kode": "validasi_gagal",
+  "pesan": "Data yang dikirim tidak valid.",
+  "errors": {
+    "telepon": ["Nomor WhatsApp wajib diisi."],
+    "keperluan": ["Keperluan wajib diisi."]
+  }
+}
+```
+
 - `POST /api/kiosk/loans/lookup` (200 OK, 404 Not Found, 429 Too Many Requests): contoh permintaan dan respons lookup peminjaman kiosk. Seluruh respons sukses mempertahankan pembungkus bawaan `data`. Kartu peminjaman tidak pernah memuat nomor telepon peminjam dan angka stok barang internal (`total`, `tersedia`, `rusak`). Pembatas percobaan kode berbasis IP berlaku untuk semua endpoint kiosk yang menerima kode peminjaman.
 
 Permintaan:
@@ -507,6 +521,7 @@ Respons sukses (200 OK):
       "nama": "IT"
     },
     "tipe_peminjam": "karyawan",
+    "keperluan": "Membawa laptop ke rapat",
     "tanggal_pinjam": "2026-11-07",
     "batas_kembali_awal": "2026-11-10",
     "batas_kembali": "2026-11-10",
@@ -882,6 +897,7 @@ Contoh bentuk JSON yang sudah selesai (agent A, Task 3.8, FR-A-05 sampai FR-A-08
       "divisi": { "id": 1, "nama": "IT" },
       "tipe_peminjam": "karyawan",
       "telepon": "081234567890",
+      "keperluan": "Membawa laptop ke rapat",
       "tanggal_pinjam": "2026-11-09",
       "batas_kembali": "2026-11-12",
       "status": "terlambat",
@@ -914,6 +930,7 @@ Contoh bentuk JSON yang sudah selesai (agent A, Task 3.8, FR-A-05 sampai FR-A-08
     "divisi": { "id": 1, "nama": "IT" },
     "tipe_peminjam": "karyawan",
     "telepon": "081234567890",
+    "keperluan": "Membawa laptop ke rapat",
     "tanggal_pinjam": "2026-11-09",
     "batas_kembali_awal": "2026-11-12",
     "batas_kembali": "2026-11-14",
@@ -952,7 +969,7 @@ Contoh bentuk JSON yang sudah selesai (agent A, Task 3.8, FR-A-05 sampai FR-A-08
     "dibatalkan_oleh": null,
     "dibuat_pada": "2026-11-09T01:10:00.000000Z",
     "lini_masa": [
-      { "jenis": "dibuat", "waktu": "2026-11-09T01:10:00.000000Z", "ringkasan": "Peminjaman dibuat oleh Budi Santoso (karyawan)." },
+      { "jenis": "dibuat", "waktu": "2026-11-09T01:10:00.000000Z", "ringkasan": "Peminjaman dibuat oleh Budi Santoso (karyawan).", "keperluan": "Membawa laptop ke rapat" },
       { "jenis": "klaim", "waktu": "2026-11-14T03:00:00.000000Z", "ringkasan": "Klaim KMB-4Q7X2B dikirim.", "catatan_peminjam": "Satu unit masih dipakai" }
     ]
   }
@@ -1236,17 +1253,19 @@ Templat Blade di `backend/resources/views/laporan` HANYA dipakai untuk PDF; ini 
 |---|---|---|---|
 | `/` | Beranda | Tiga tombol besar: Lihat katalog, Pinjam barang, Cek atau kembalikan | – |
 | `/katalog` | Katalog | Pencarian, filter kategori, kartu barang (nama, stok). Stok 0 diberi tanda dan tidak bisa dipilih | items, categories |
-| `/pinjam` | Form pinjam | Keranjang barang dan jumlah, nama, divisi, tipe peminjam, telepon, tanggal pinjam, batas kembali, ringkasan. Tombol Kirim nonaktif saat memproses | config, divisions, POST loans |
+| `/pinjam` | Form pinjam | Semua kolom wajib: keranjang barang dan jumlah, nama, divisi, tipe peminjam, Nomor WhatsApp (8–15 digit setelah normalisasi, petunjuk "Hanya terlihat petugas IT."), keperluan peminjaman (3–255 karakter dengan penghitung), tanggal pinjam, batas kembali, ringkasan. Tombol "Ajukan Peminjaman" memakai `aria-disabled="true"` dan gaya jelas bila ada kesalahan; mengetuknya menampilkan ringkasan "Lengkapi dulu: …" lewat `aria-live` dan memindahkan fokus ke kolom pertama yang salah. Tombol juga nonaktif saat memproses. Tombol Tambah Barang membuka popup multi-pilih `PemilihBarang`: tiap baris memuat nama, stok, dan tombol "+ Pilih"/"Dipilih" (centang, latar, garis tepi kiri, `aria-pressed`); barang di keranjang bertanda "Sudah di formulir", barang stok 0 bertanda "Habis", keduanya tidak bisa dipilih. Pencarian tidak menghapus pilihan; keterangan `aria-live` menyebut barang terpilih yang tersembunyi. Footer memuat "Tutup" dan satu tombol "Tambahkan N barang" (nonaktif dengan teks "Pilih barang dulu" bila N = 0); konfirmasi menambah semua pilihan dengan qty 1 tanpa duplikat, menutup popup, mengembalikan fokus ke formulir, dan menampilkan toast "N barang ditambahkan". Tutup/Esc membatalkan tanpa menambah; klik di luar popup tidak menutup | config, divisions, POST loans |
 | `/pinjam/selesai` | Struk dan kode | Kode besar, daftar barang, tanggal, tombol Cetak dan Selesai, pengingat mencatat kode | respons POST |
 | `/cek` | Cek peminjaman | Satu kolom kode. Pesan galat umum bila salah. Pesan terkunci setelah batas | lookup |
 | `/cek/kartu` | Kartu peminjaman | Badge status dan lencana, batas kembali, sisa hari atau hari terlambat, barang dengan sisa, riwayat klaim dengan hasil dan catatan admin. Tombol Klaim, Perpanjang, Batalkan hanya bila berlaku | respons lookup |
-| `/klaim` | Klaim pengembalian | Per barang jumlah dan kondisi, catatan, ringkasan sebelum kirim | POST return-claims |
-| `/klaim/selesai` | Bukti klaim | Kode klaim dan instruksi menyerahkan barang | respons POST |
+| `/klaim` | Klaim pengembalian | Per barang jumlah Baik/Rusak/Hilang (total ≤ sisa, BR-04), catatan opsional ≤ 500 karakter, ringkasan sebelum kirim. Nilai `isian` diisi sinkron saat form dibuka agar render pertama tidak membaca data kosong. Kunci idempotensi dibuat saat form dibuka; tombol nonaktif selama mengirim. 201 dan 200 (replay) sama-sama sukses; 409 menampilkan pesan server dan memuat ulang kartu; 404, 422, dan 429 tampil inline (429 menyebut `Retry-After`). Tanpa kartu di memori → `router.replace` ke `/cek?perlu_kode=1` dengan pesan "Silakan masukkan kode peminjaman terlebih dahulu.". Sukses: toast "Pengembalian berhasil diajukan" lalu `router.replace('/klaim/selesai')` | POST return-claims, lookup saat 409 |
+| `/klaim/selesai` | Bukti klaim | Kode klaim besar, status Menunggu Verifikasi, ringkasan barang dan jumlah per kondisi, hari terlambat bila ada, pengingat serahkan barang fisik ke petugas IT, opsi Cetak, tombol utama Selesai. Tanpa data di memori → `router.replace` ke `/cek?perlu_kode=1`. Selesai atau idle: hapus SEMUA state kiosk lalu `router.replace('/')`; Back tidak menampilkan bukti atau form lagi. Hitung mundur idle memakai `kiosk_idle_detik` dari config | respons POST |
 | `/perpanjang` | Perpanjangan | Pilihan tambahan hari, alasan opsional, batas kembali baru | POST extensions |
 | `/perpanjang/selesai` | Bukti perpanjangan | Batas baru dan jumlah perpanjangan | respons POST |
 | `/batal` | Batalkan pemesanan | Modal konfirmasi dengan ringkasan | POST loans/cancel |
 
-Kartu peminjaman adalah pusat: klaim, perpanjangan, dan pembatalan semuanya berawal dari sana dengan kode yang sama.
+Kartu peminjaman adalah pusat: klaim, perpanjangan, dan pembatalan semuanya berawal dari sana dengan kode yang sama. Navigasi ke beranda hanya ada di header LayoutKiosk—yang mengosongkan sesi kiosk sebelum kembali—dan tombol beranda di tingkat halaman dihapus; layar bukti (`/pinjam/selesai`, `/klaim/selesai`, `/perpanjang/selesai`) tetap memiliki tombol Selesai yang menghapus seluruh state sebelum kembali ke beranda.
+
+Alur tambah barang di `/pinjam`: popup menyimpan pilihan sementara hanya saat terbuka, konfirmasi sekali untuk seluruh pilihan, lalu penyesuaian jumlah dan penghapusan dilakukan di keranjang formulir. Interaksi di popup menghitung aktivitas idle; idle reset menaikkan generasi sesi sehingga popup tertutup dan pilihan dibuang. Daftar digulir dengan tinggi maksimal dan footer tetap terlihat pada lebar 360 dan 768 px; target sentuh minimal 44 px.
 
 ### 10.3 Layar admin
 
@@ -1272,7 +1291,7 @@ Navigasi: sidebar kiri di layar lebar, menu geser di tablet dan ponsel. Grup: Da
 
 ### 10.4 Komponen Vue yang dipakai ulang
 
-`LayoutKiosk`, `LayoutAdmin`, `LayoutLogin` · `Sidebar`, `Navbar` · `TombolBesar` · `KartuBarang` · `TabelData` (urutan, pagination, mode kartu di layar sempit) · `FilterBar` · `BadgeStatus`, `BadgeLencana` · `InputJumlah` (pencacah dengan batas) · `InputKode` (huruf besar otomatis) · `FormField` (label, input, galat per kolom) · `ModalKonfirmasi` · `NotifikasiToast` (`aria-live`) · `StatusKosong`, `Memuat` (skeleton), `PesanGalat` · `LiniMasa` · `StrukCetak` · `KartuAngka`.
+`LayoutKiosk`, `LayoutAdmin`, `LayoutLogin` · `Sidebar`, `Navbar` · `TombolBesar` · `KartuBarang` · `TabelData` (urutan, pagination, mode kartu di layar sempit) · `FilterBar` · `BadgeStatus`, `BadgeLencana` · `InputJumlah` (pencacah dengan batas) · `InputKode` (huruf besar otomatis) · `FormField` (label, input, galat per kolom) · `ModalKonfirmasi` · `PemilihBarang` (kiosk, multi-pilih + konfirmasi) · `NotifikasiToast` (`aria-live`) · `StatusKosong`, `Memuat` (skeleton), `PesanGalat` · `LiniMasa` · `StrukCetak` · `KartuAngka`.
 
 ### 10.5 Token desain
 
@@ -1302,7 +1321,7 @@ Warna tidak pernah menjadi satu-satunya penanda, selalu disertai teks.
 | 500 atau jaringan | Pesan umum dan tombol Coba lagi, tanpa informasi internal |
 | Sukses | Toast hijau ±4 detik di admin. Layar bukti di kiosk |
 
-- Validasi frontend hanya kemudahan. Server yang menentukan sah atau tidak.
+- Validasi frontend hanya kemudahan. Server yang menentukan sah atau tidak; form pinjam memakai `normalisasiTelepon` dan `validasiFormPinjam` sebelum mengirim nomor WhatsApp dan keperluan.
 - Kunci idempotensi (UUID) dibuat saat form dibuka dan dikirim bersama data.
 - Pencacah jumlah dibatasi stok tersedia, server tetap memeriksa ulang.
 - Pada verifikasi, selisih antara jumlah klaim dan jumlah yang sudah dibagi ke empat hasil ditampilkan, Simpan aktif hanya bila nol.

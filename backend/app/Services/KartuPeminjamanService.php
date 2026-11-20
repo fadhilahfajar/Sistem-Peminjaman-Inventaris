@@ -167,6 +167,7 @@ class KartuPeminjamanService
                 'nama' => $loan->divisi?->nama ?? '',
             ],
             'tipe_peminjam' => $loan->tipe_peminjam,
+            'keperluan' => $loan->keperluan,
             'tanggal_pinjam' => $tanggalPinjam,
             'batas_kembali_awal' => $batasKembaliAwal,
             'batas_kembali' => $batasKembali,

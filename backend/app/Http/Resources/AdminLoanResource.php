@@ -25,6 +25,7 @@ class AdminLoanResource extends JsonResource
             ],
             'tipe_peminjam' => $this->tipe_peminjam,
             'telepon' => $this->telepon,
+            'keperluan' => $this->keperluan,
             'tanggal_pinjam' => $this->tanggal_pinjam->format('Y-m-d'),
             'batas_kembali' => $this->batas_kembali->format('Y-m-d'),
             'status' => $status['status'],

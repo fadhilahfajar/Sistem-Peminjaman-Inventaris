@@ -298,3 +298,15 @@ it('pemesanan melebihi stok ditolak 409 tanpa efek (T-23)', function () {
     expect($item->fresh()->tersedia)->toBe(10);
     p25TidakAdaEfek();
 });
+
+it('Service menerima pemanggilan langsung tanpa keperluan dan tanpa telepon', function () {
+    $item = p25Barang('Kabel HDMI', 10);
+    $data = p25Data($item, 1);
+    unset($data['keperluan'], $data['telepon']);
+
+    $loan = $this->layanan->buat($data);
+
+    expect($loan->keperluan)->toBeNull()
+        ->and($loan->telepon)->toBeNull()
+        ->and($loan->items)->toHaveCount(1);
+});

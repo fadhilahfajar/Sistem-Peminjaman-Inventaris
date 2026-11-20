@@ -25,7 +25,7 @@ class PeminjamanService
     /**
      * Membuat peminjaman atau pemesanan dari kiosk (DESAIN 7.1, BR-02, BR-20, BR-22, BR-23).
      *
-     * @param  array{nama_peminjam: string, division_id: int, tipe_peminjam: string, telepon?: ?string, tanggal_pinjam: string, batas_kembali: string, idempotency_key: string, items: list<array{item_id: int, qty: int}>}  $data
+     * @param  array{nama_peminjam: string, division_id: int, tipe_peminjam: string, telepon?: ?string, keperluan?: ?string, tanggal_pinjam: string, batas_kembali: string, idempotency_key: string, items: list<array{item_id: int, qty: int}>}  $data
      */
     public function buat(array $data): Loan
     {
@@ -61,6 +61,7 @@ class PeminjamanService
             'division_id' => $n['division_id'],
             'tipe_peminjam' => $n['tipe'],
             'telepon' => $n['telepon'],
+            'keperluan' => $n['keperluan'],
             'tanggal_pinjam' => $n['tanggal_pinjam'],
             'batas_kembali_awal' => $n['batas_kembali'],
             'batas_kembali' => $n['batas_kembali'],
@@ -199,12 +200,14 @@ class PeminjamanService
         }
 
         $telepon = $teks($d['telepon'] ?? null);
+        $keperluan = $teks($d['keperluan'] ?? null);
 
         return [
             'nama' => $teks($d['nama_peminjam'] ?? null),
             'division_id' => $bulat($d['division_id'] ?? null),
             'tipe' => $teks($d['tipe_peminjam'] ?? null),
             'telepon' => $telepon === '' ? null : $telepon,
+            'keperluan' => $keperluan === '' ? null : $keperluan,
             'tanggal_pinjam' => $teks($d['tanggal_pinjam'] ?? null),
             'batas_kembali' => $teks($d['batas_kembali'] ?? null),
             'items' => $items,
@@ -247,6 +250,7 @@ class PeminjamanService
             && (int) $lama->division_id === $n['division_id']
             && $lama->tipe_peminjam === $n['tipe']
             && $lama->telepon === $n['telepon']
+            && $lama->keperluan === $n['keperluan']
             && $lama->tanggal_pinjam->format('Y-m-d') === $n['tanggal_pinjam']
             && $lama->batas_kembali_awal->format('Y-m-d') === $n['batas_kembali'];
     }

@@ -19,6 +19,7 @@ const { pesanGalat, tanganiGalat, bersihkan } = useGalat()
 
 const kolom = [
   { kunci: 'kode_pinjam', label: 'Kode' },
+  { kunci: 'keperluan', label: 'Keperluan', kelas: 'max-w-[16rem]' },
   { kunci: 'nama_peminjam', label: 'Peminjam' },
   { kunci: 'divisi', label: 'Divisi' },
   { kunci: 'tanggal_pinjam', label: 'Tgl Pinjam' },
@@ -251,6 +252,9 @@ function namaDivisi(b) {
       @ubah-halaman="muat($event)"
       @klik-baris="bukaDetail"
     >
+      <template #cell-keperluan="{ nilai }">
+        <span class="block truncate" :title="nilai || ''">{{ nilai || '-' }}</span>
+      </template>
       <template #cell-divisi="{ baris: b }">{{ namaDivisi(b) }}</template>
       <template #cell-tanggal_pinjam="{ nilai }">{{ formatTanggalIndo(nilai) }}</template>
       <template #cell-batas_kembali="{ nilai }">{{ formatTanggalIndo(nilai) }}</template>

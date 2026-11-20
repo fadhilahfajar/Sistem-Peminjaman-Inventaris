@@ -25,6 +25,7 @@ class AdminLoanDetailResource extends JsonResource
             ],
             'tipe_peminjam' => $this->tipe_peminjam,
             'telepon' => $this->telepon,
+            'keperluan' => $this->keperluan,
             'tanggal_pinjam' => $this->tanggal_pinjam->format('Y-m-d'),
             'batas_kembali_awal' => $this->batas_kembali_awal->format('Y-m-d'),
             'batas_kembali' => $this->batas_kembali->format('Y-m-d'),
@@ -141,6 +142,7 @@ class AdminLoanDetailResource extends JsonResource
             'jenis' => 'dibuat',
             'waktu' => $this->dibuat_pada,
             'ringkasan' => "Peminjaman dibuat oleh {$this->nama_peminjam} ({$this->tipe_peminjam}).",
+            'keperluan' => $this->keperluan,
         ]);
 
         foreach ($this->extensions as $ext) {

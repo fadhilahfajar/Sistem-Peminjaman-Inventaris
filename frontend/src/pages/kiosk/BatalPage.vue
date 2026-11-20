@@ -79,11 +79,6 @@ async function batalkan() {
         pada {{ formatWaktuIndo(suksesData.dibatalkan_pada) }}. Stok barang telah kembali tersedia.
       </div>
 
-      <div class="flex justify-center">
-        <TombolBesar varian="primer" ukuran="besar" @click="router.push('/')">
-          Kembali ke Beranda
-        </TombolBesar>
-      </div>
     </div>
 
     <!-- Layar Konfirmasi -->

@@ -64,6 +64,7 @@ function selesai() {
       :nama-peminjam="dataPinjam.nama_peminjam"
       :divisi="dataPinjam.division?.nama"
       :tipe-peminjam="dataPinjam.tipe_peminjam"
+      :keperluan="dataPinjam.keperluan"
       :tanggal-pinjam="dataPinjam.tanggal_pinjam"
       :batas-kembali="dataPinjam.batas_kembali"
       :items="dataPinjam.items"

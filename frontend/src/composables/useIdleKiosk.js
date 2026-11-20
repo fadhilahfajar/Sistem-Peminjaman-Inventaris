@@ -49,7 +49,7 @@ export function useIdleKiosk({ detikMundur = 10 } = {}) {
   function aturUlang() {
     batalkanMundur()
     kioskStore.resetSesi()
-    router.push('/')
+    router.replace('/')
     mulaiIdle()
   }
 

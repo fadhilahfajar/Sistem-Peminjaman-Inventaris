@@ -292,3 +292,26 @@ it('page_size di atas 100 dan rentang tanggal terbalik ditolak 422', function ()
     spa()->actingAs($this->admin, 'web')->getJson('/api/admin/loans?dari=2026-11-10&sampai=2026-11-01')
         ->assertStatus(422)->assertJsonValidationErrors('sampai');
 });
+
+it('daftar dan detail admin memuat keperluan, data lama null, dan lini masa dibuat memuat keperluan', function () {
+    $item = ($this->barang)();
+    $baru = ($this->pinjam)($item, 1, ['keperluan' => 'Presentasi rapat tim']);
+    $lama = ($this->pinjam)($item, 1);
+
+    $daftar = spa()->actingAs($this->admin, 'web')->getJson('/api/admin/loans')->assertOk()->json('data');
+    $barisBaru = collect($daftar)->firstWhere('id', $baru->id);
+    $barisLama = collect($daftar)->firstWhere('id', $lama->id);
+
+    expect($barisBaru)->not->toBeNull()
+        ->and($barisBaru['keperluan'])->toBe('Presentasi rapat tim')
+        ->and($barisLama)->not->toBeNull()
+        ->and($barisLama['keperluan'])->toBeNull();
+
+    $detail = spa()->actingAs($this->admin, 'web')->getJson("/api/admin/loans/{$baru->id}")->assertOk();
+
+    $detail->assertJsonPath('data.keperluan', 'Presentasi rapat tim')
+        ->assertJsonPath('data.telepon', '081234567890');
+
+    $dibuat = collect($detail->json('data.lini_masa'))->firstWhere('jenis', 'dibuat');
+    expect($dibuat['keperluan'])->toBe('Presentasi rapat tim');
+});

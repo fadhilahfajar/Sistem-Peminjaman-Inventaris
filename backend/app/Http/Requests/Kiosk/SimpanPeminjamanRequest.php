@@ -14,6 +14,24 @@ class SimpanPeminjamanRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $telepon = $this->input('telepon');
+
+        if (is_string($telepon)) {
+            $telepon = (string) preg_replace('/[\s-]/u', '', trim($telepon));
+            $telepon = (string) preg_replace('/^\+/', '', $telepon);
+
+            $this->merge(['telepon' => $telepon]);
+        }
+
+        $keperluan = $this->input('keperluan');
+
+        if (is_string($keperluan)) {
+            $this->merge(['keperluan' => trim($keperluan)]);
+        }
+    }
+
     /** @return array<string, mixed> */
     public function rules(): array
     {
@@ -26,7 +44,8 @@ class SimpanPeminjamanRequest extends FormRequest
                     Rule::exists('divisions', 'id')->where('aktif', 1),
                 ],
                 'tipe_peminjam' => ['required', 'string', Rule::in(['karyawan', 'magang'])],
-                'telepon' => ['nullable', 'string', 'regex:/^[0-9]{8,15}$/'],
+                'telepon' => ['required', 'string', 'regex:/^[0-9]{8,15}$/'],
+                'keperluan' => ['required', 'string', 'min:3', 'max:255'],
                 'tanggal_pinjam' => ['required', 'date_format:Y-m-d'],
                 'batas_kembali' => ['required', 'date_format:Y-m-d'],
                 'items' => ['required', 'array', 'min:1'],
@@ -57,8 +76,13 @@ class SimpanPeminjamanRequest extends FormRequest
                 'tipe_peminjam.required' => 'Tipe peminjam wajib dipilih.',
                 'tipe_peminjam.string' => 'Tipe peminjam tidak valid.',
                 'tipe_peminjam.in' => 'Tipe peminjam harus karyawan atau magang.',
-                'telepon.string' => 'Nomor telepon harus berupa teks.',
-                'telepon.regex' => 'Telepon harus 8 sampai 15 digit.',
+                'telepon.required' => 'Nomor WhatsApp wajib diisi.',
+                'telepon.string' => 'Nomor WhatsApp harus berupa teks.',
+                'telepon.regex' => 'Nomor WhatsApp hanya berisi angka, 8 sampai 15 digit.',
+                'keperluan.required' => 'Keperluan wajib diisi.',
+                'keperluan.string' => 'Keperluan harus berupa teks.',
+                'keperluan.min' => 'Keperluan minimal 3 karakter.',
+                'keperluan.max' => 'Keperluan maksimal 255 karakter.',
                 'tanggal_pinjam.required' => 'Tanggal pinjam wajib diisi.',
                 'tanggal_pinjam.date_format' => 'Format tanggal pinjam harus YYYY-MM-DD.',
                 'batas_kembali.required' => 'Batas kembali wajib diisi.',

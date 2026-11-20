@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Loan extends ModelDomain
 {
     protected $fillable = [
-        'kode_pinjam', 'nama_peminjam', 'division_id', 'tipe_peminjam', 'telepon',
+        'kode_pinjam', 'nama_peminjam', 'division_id', 'tipe_peminjam', 'telepon', 'keperluan',
         'tanggal_pinjam', 'batas_kembali_awal', 'batas_kembali', 'idempotency_key',
         'dibatalkan_pada', 'alasan_batal', 'dibatalkan_oleh',
     ];

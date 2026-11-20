@@ -50,6 +50,9 @@ const IKON = {
       <div class="space-y-1">
         <p class="text-sm font-semibold text-slate-900">{{ e.ringkasan }}</p>
         <p class="text-xs text-slate-500">{{ formatWaktuIndo(e.waktu) }}</p>
+        <p v-if="e.keperluan" class="text-xs text-slate-600">
+          Keperluan: <span class="font-semibold">{{ e.keperluan }}</span>
+        </p>
         <p v-if="e.catatan_peminjam" class="text-xs text-slate-600 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
           Catatan peminjam: {{ e.catatan_peminjam }}
         </p>

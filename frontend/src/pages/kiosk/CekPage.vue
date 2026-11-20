@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { kioskApi } from '@/api'
 import FormField from '@/components/FormField.vue'
 import InputKode from '@/components/InputKode.vue'
@@ -9,11 +9,12 @@ import TombolBesar from '@/components/TombolBesar.vue'
 import { useKioskStore } from '@/stores/kiosk'
 
 const router = useRouter()
+const route = useRoute()
 const kioskStore = useKioskStore()
 
 const kodeInput = ref('')
 const sedangMemeriksa = ref(false)
-const pesanGalat = ref('')
+const pesanGalat = ref(route.query.perlu_kode === '1' ? 'Silakan masukkan kode peminjaman terlebih dahulu.' : '')
 const terkunci = ref(false)
 
 onMounted(() => {
@@ -70,25 +71,13 @@ async function periksaKode() {
 <template>
   <div class="space-y-6 max-w-2xl mx-auto py-4">
     <!-- Header Halaman -->
-    <div class="flex items-center justify-between pb-3 border-b border-slate-200">
-      <div>
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Cek Peminjaman & Pengembalian
-        </h2>
-        <p class="text-sm md:text-base text-slate-600 mt-0.5">
-          Periksa status peminjaman, ajukan pengembalian, perpanjang, atau batalkan pemesanan.
-        </p>
-      </div>
-
-      <TombolBesar
-        varian="sekunder"
-        ukuran="sedang"
-        class="shrink-0"
-        :dinonaktifkan="sedangMemeriksa"
-        @click="router.push('/')"
-      >
-        &larr; Beranda
-      </TombolBesar>
+    <div class="pb-3 border-b border-slate-200">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+        Cek Peminjaman & Pengembalian
+      </h2>
+      <p class="text-sm md:text-base text-slate-600 mt-0.5">
+        Periksa status peminjaman, ajukan pengembalian, perpanjang, atau batalkan pemesanan.
+      </p>
     </div>
 
     <!-- Formulir Pencarian Kode -->

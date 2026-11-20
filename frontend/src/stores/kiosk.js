@@ -13,6 +13,8 @@ export const useKioskStore = defineStore('kiosk', () => {
   const kartuPinjam = ref(null)
   const klaimSelesai = ref(null)
   const perpanjangSelesai = ref(null)
+  // Naik setiap reset sesi agar popup yang sedang terbuka ikut tertutup.
+  const generasiSesi = ref(0)
 
   function setKode(nilai) {
     kode.value = nilai
@@ -51,6 +53,7 @@ export const useKioskStore = defineStore('kiosk', () => {
     kartuPinjam.value = null
     klaimSelesai.value = null
     perpanjangSelesai.value = null
+    generasiSesi.value += 1
   }
 
   return {
@@ -59,6 +62,7 @@ export const useKioskStore = defineStore('kiosk', () => {
     kartuPinjam,
     klaimSelesai,
     perpanjangSelesai,
+    generasiSesi,
     setKode,
     setPinjamSelesai,
     setKartuPinjam,

@@ -105,25 +105,14 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-6">
-    <!-- Navigasi Atas & Judul Halaman -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
-      <div>
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Katalog Barang
-        </h2>
-        <p class="text-sm md:text-base text-slate-600 mt-0.5">
-          Daftar perangkat inventaris IT dan ketersediaan stok aktif.
-        </p>
-      </div>
-
-      <TombolBesar
-        varian="sekunder"
-        ukuran="sedang"
-        class="self-start sm:self-auto"
-        @click="router.push('/')"
-      >
-        &larr; Kembali ke Beranda
-      </TombolBesar>
+    <!-- Judul Halaman -->
+    <div class="pb-2 border-b border-slate-200">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+        Katalog Barang
+      </h2>
+      <p class="text-sm md:text-base text-slate-600 mt-0.5">
+        Daftar perangkat inventaris IT dan ketersediaan stok aktif.
+      </p>
     </div>
 
     <!-- Filter & Pencarian -->

@@ -1,42 +1,95 @@
 <script setup>
-import { useRoute } from 'vue-router'
-import { useIdleKiosk } from '@/composables/useIdleKiosk'
+import { onErrorCaptured, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import NotifikasiToast from '@/components/NotifikasiToast.vue'
 import TombolBesar from '@/components/TombolBesar.vue'
+import { useIdleKiosk } from '@/composables/useIdleKiosk'
+import { useKioskStore } from '@/stores/kiosk'
+import { useNotifikasiStore } from '@/stores/notifikasi'
 
 const route = useRoute()
+const router = useRouter()
+const kioskStore = useKioskStore()
+const notifikasi = useNotifikasiStore()
 const { hitungMundur, aturUlang, batalkanMundur } = useIdleKiosk()
+
+const galatTampilan = ref(false)
+
+// Galat render apa pun ditampilkan sebagai pesan, bukan layar putih.
+onErrorCaptured((err) => {
+  console.error('[kiosk] galat tampilan:', err)
+  kioskStore.resetSesi()
+  notifikasi.tutup()
+  galatTampilan.value = true
+  return false
+})
+
+// Satu-satunya jalan umum ke beranda: header. Sesi dibersihkan seperti idle reset (FR-K-10).
+function bersihkanSesi() {
+  kioskStore.resetSesi()
+  notifikasi.tutup()
+}
+
+function kembaliKeBeranda() {
+  bersihkanSesi()
+  router.replace('/')
+}
+
+function pulihkan() {
+  bersihkanSesi()
+  galatTampilan.value = false
+  router.replace('/')
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-slate-50 font-sans text-kiosk text-slate-900 flex flex-col">
     <!-- Header Kiosk (Sembunyi saat cetak sesuai US-03, T-39, UI-06) -->
     <header class="print:hidden border-b border-slate-200 bg-white px-4 md:px-6 py-4 shadow-2xs">
-      <div class="mx-auto flex max-w-5xl items-center justify-between">
+      <div class="mx-auto flex max-w-5xl items-center justify-between gap-4">
         <RouterLink
           to="/"
-          class="flex items-center gap-2 hover:opacity-85 transition-opacity rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--color-aksen,#1d4ed8)] py-1 px-1 -ml-1"
+          aria-label="Beranda"
+          class="flex items-center gap-2 hover:opacity-85 transition-opacity rounded-lg focus-visible:outline-2 focus-visible:outline-[var(--color-aksen,#1d4ed8)] py-1 px-1 -ml-1 min-h-[44px]"
+          @click="bersihkanSesi"
         >
           <span class="text-xl md:text-2xl font-black tracking-tight text-slate-900">
             Peminjaman Inventaris IT
           </span>
         </RouterLink>
 
-        <!-- Tombol Cepat Kembali ke Beranda jika di luar Beranda -->
-        <RouterLink
+        <!-- Tombol Khusus Kembali ke Beranda jika di luar Beranda (target sentuh >= 44px) -->
+        <button
           v-if="route.path !== '/'"
-          to="/"
-          class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors select-none focus-visible:outline-2 focus-visible:outline-slate-700"
+          type="button"
+          class="inline-flex items-center gap-2 min-h-[44px] px-4 py-2.5 text-sm md:text-base font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded-xl transition-colors cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-slate-700"
+          @click="kembaliKeBeranda"
         >
-          <span>&larr;</span>
-          <span>Beranda</span>
-        </RouterLink>
+          <span aria-hidden="true">&larr;</span>
+          <span>Kembali ke Beranda</span>
+        </button>
       </div>
     </header>
 
     <!-- Konten Utama Kiosk -->
     <main class="mx-auto w-full max-w-5xl flex-1 p-4 md:p-6 print:p-0 print:max-w-none">
-      <RouterView />
+      <div v-if="galatTampilan" class="max-w-lg mx-auto py-12 text-center space-y-5">
+        <p class="text-lg md:text-xl font-bold text-slate-900">
+          Terjadi kesalahan. Kembali ke beranda.
+        </p>
+        <TombolBesar varian="primer" ukuran="besar" @click="pulihkan">
+          Kembali ke Beranda
+        </TombolBesar>
+      </div>
+      <RouterView v-else />
     </main>
+
+    <!-- Satu toast global kiosk -->
+    <NotifikasiToast
+      v-model:terbuka="notifikasi.terbuka"
+      :pesan="notifikasi.pesan"
+      :tipe="notifikasi.tipe"
+    />
 
     <!-- Overlay Hitung Mundur Auto-Reset (FR-K-10) -->
     <Teleport to="body">

@@ -1,21 +1,25 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { kioskApi } from '@/api'
 import FormField from '@/components/FormField.vue'
 import InputJumlah from '@/components/InputJumlah.vue'
 import Memuat from '@/components/Memuat.vue'
-import ModalKonfirmasi from '@/components/ModalKonfirmasi.vue'
+import PemilihBarang from '@/components/kiosk/PemilihBarang.vue'
 import PesanGalat from '@/components/PesanGalat.vue'
 import StatusKosong from '@/components/StatusKosong.vue'
 import TombolBesar from '@/components/TombolBesar.vue'
 import { useGalat } from '@/composables/useGalat'
 import { useKioskStore } from '@/stores/kiosk'
+import { useNotifikasiStore } from '@/stores/notifikasi'
+import { gabungkanKeKeranjang } from '@/utils/pemilihBarang'
 import { hariIniYmd, tambahHariYmd } from '@/utils/tanggal'
+import { normalisasiTelepon, validasiFormPinjam } from '@/utils/validasiPinjam'
 
 const route = useRoute()
 const router = useRouter()
 const kioskStore = useKioskStore()
+const notifikasi = useNotifikasiStore()
 const { errors, pesanGalat, memuat: sedangKirim, tanganiGalat, bersihkan } = useGalat()
 
 // Kunci Idempotensi UUID dibuat saat formulir dibuka (DESAIN 10.6, FR-K-02)
@@ -28,9 +32,8 @@ const daftarBarang = ref([])
 const maksDurasiAwal = ref(7)
 const maksBookingHari = ref(7)
 
-// Modal pemilih barang
+// Popup pemilih barang (pilihan sementara hidup di dalam komponen popup)
 const modalPilihBarangTerbuka = ref(false)
-const cariBarang = ref('')
 
 // Keranjang barang: list of { item_id, nama, tersedia, qty }
 const keranjang = ref([])
@@ -41,9 +44,12 @@ const form = ref({
   division_id: '',
   tipe_peminjam: 'karyawan',
   telepon: '',
+  keperluan: '',
   tanggal_pinjam: hariIniYmd(),
   batas_kembali: tambahHariYmd(hariIniYmd(), 7),
 })
+
+const ringkasanKurang = ref('')
 
 const hariIni = computed(() => hariIniYmd())
 const tanggalPinjamMaks = computed(() => tambahHariYmd(hariIni.value, maksBookingHari.value))
@@ -51,25 +57,23 @@ const batasKembaliMaks = computed(() =>
   tambahHariYmd(form.value.tanggal_pinjam || hariIni.value, maksDurasiAwal.value),
 )
 
+const configValidasi = computed(() => ({
+  hariIni: hariIni.value,
+  maks_booking_hari: maksBookingHari.value,
+  maks_durasi_awal_hari: maksDurasiAwal.value,
+}))
+const galatForm = computed(() =>
+  validasiFormPinjam({ ...form.value, items: keranjang.value }, configValidasi.value),
+)
+const formValid = computed(() => Object.keys(galatForm.value).length === 0)
+const panjangKeperluan = computed(() => [...form.value.keperluan.trim()].length)
+
 const apakahPemesanan = computed(() => {
   return form.value.tanggal_pinjam && form.value.tanggal_pinjam > hariIni.value
 })
 
 const totalUnitKeranjang = computed(() => {
   return keranjang.value.reduce((total, item) => total + (Number(item.qty) || 0), 0)
-})
-
-// Barang yang dapat dipilih ke keranjang (stok > 0 dan belum ada di keranjang)
-const barangTersediaUntukDipilih = computed(() => {
-  const idsDiKeranjang = new Set(keranjang.value.map((k) => k.item_id))
-  const q = cariBarang.value.trim().toLowerCase()
-
-  return daftarBarang.value.filter((b) => {
-    if (b.tersedia <= 0) return false
-    if (idsDiKeranjang.has(b.id)) return false
-    if (!q) return true
-    return b.nama.toLowerCase().includes(q)
-  })
 })
 
 // Sinkronkan batas_kembali saat tanggal_pinjam berubah
@@ -141,77 +145,114 @@ function hapusDariKeranjang(itemId) {
 }
 
 function bukaPemilihBarang() {
-  cariBarang.value = ''
   modalPilihBarangTerbuka.value = true
 }
 
-function pilihDanTutup(barang) {
-  tambahKeKeranjang(barang)
+function konfirmasiPilihBarang(barangDipilih) {
+  const sebelum = keranjang.value.length
+  keranjang.value = gabungkanKeKeranjang(keranjang.value, barangDipilih)
+  const ditambah = keranjang.value.length - sebelum
   modalPilihBarangTerbuka.value = false
+  if (ditambah > 0) notifikasi.tampilkan(`${ditambah} barang ditambahkan`)
 }
 
-// Validasi formulir sisi klien sebelum mengirim
+// Kembalikan fokus ke formulir setelah popup ditutup (termasuk lewat Tutup/Esc).
+watch(modalPilihBarangTerbuka, (buka, sebelumnya) => {
+  if (sebelumnya && !buka) {
+    nextTick(() => document.getElementById('tambah-barang')?.focus())
+  }
+})
+
+// Urutan kolom dipakai untuk ringkasan dan fokus ke kolom pertama yang salah.
+const URUTAN_KOLOM = [
+  'items',
+  'nama_peminjam',
+  'division_id',
+  'tipe_peminjam',
+  'telepon',
+  'keperluan',
+  'tanggal_pinjam',
+  'batas_kembali',
+]
+const LABEL_KOLOM = {
+  items: 'barang',
+  nama_peminjam: 'nama',
+  division_id: 'divisi',
+  tipe_peminjam: 'tipe peminjam',
+  telepon: 'Nomor WhatsApp',
+  keperluan: 'keperluan',
+  tanggal_pinjam: 'tanggal pinjam',
+  batas_kembali: 'batas kembali',
+}
+const FOKUS_KOLOM = {
+  items: 'tambah-barang',
+  nama_peminjam: 'nama_peminjam',
+  division_id: 'division_id',
+  tipe_peminjam: 'tipe_karyawan',
+  telepon: 'telepon',
+  keperluan: 'keperluan',
+  tanggal_pinjam: 'tanggal_pinjam',
+  batas_kembali: 'batas_kembali',
+}
+
+function urutanGalat(galat) {
+  return Object.keys(galat).sort(
+    (a, b) => URUTAN_KOLOM.indexOf(a) - URUTAN_KOLOM.indexOf(b),
+  )
+}
+
+function labelKolom(kunci) {
+  if (kunci.startsWith('items.')) return 'jumlah barang'
+  return LABEL_KOLOM[kunci] || kunci
+}
+
+function fokusKolom(kunci) {
+  const id = kunci.startsWith('items.')
+    ? `qty-${kunci.split('.')[1]}`
+    : FOKUS_KOLOM[kunci]
+
+  if (id) document.getElementById(id)?.focus()
+}
+
+function tampilkanRingkasanDanFokus(galat) {
+  const kunci = urutanGalat(galat)
+  if (kunci.length === 0) {
+    ringkasanKurang.value = ''
+    return
+  }
+
+  ringkasanKurang.value = `Lengkapi dulu: ${kunci.map(labelKolom).join(', ')}`
+  fokusKolom(kunci[0])
+}
+
 function validasiKlien() {
   bersihkan()
-  const galatKlien = {}
+  errors.value = { ...galatForm.value }
 
-  if (keranjang.value.length === 0) {
-    galatKlien.items = ['Pilih minimal satu barang untuk dipinjam.']
+  if (Object.keys(errors.value).length === 0) {
+    ringkasanKurang.value = ''
+    return true
   }
 
-  for (const [idx, item] of keranjang.value.entries()) {
-    if (!item.qty || item.qty < 1) {
-      galatKlien[`items.${idx}.qty`] = ['Jumlah barang harus minimal 1 unit.']
-    } else if (item.qty > item.tersedia) {
-      galatKlien[`items.${idx}.qty`] = [`Jumlah melebihi stok yang tersedia (${item.tersedia} unit).`]
+  tampilkanRingkasanDanFokus(errors.value)
+  return false
+}
+
+watch(
+  [form, keranjang],
+  () => {
+    if (ringkasanKurang.value || Object.keys(errors.value).length > 0) {
+      bersihkan()
+      ringkasanKurang.value = ''
     }
-  }
+  },
+  { deep: true },
+)
 
-  const nama = form.value.nama_peminjam.trim()
-  if (!nama) {
-    galatKlien.nama_peminjam = ['Nama peminjam wajib diisi.']
-  } else if (nama.length < 2) {
-    galatKlien.nama_peminjam = ['Nama peminjam minimal 2 karakter.']
-  } else if (nama.length > 100) {
-    galatKlien.nama_peminjam = ['Nama peminjam maksimal 100 karakter.']
-  }
-
-  if (!form.value.division_id) {
-    galatKlien.division_id = ['Divisi wajib dipilih.']
-  }
-
-  if (!['karyawan', 'magang'].includes(form.value.tipe_peminjam)) {
-    galatKlien.tipe_peminjam = ['Tipe peminjam wajib dipilih (karyawan atau magang).']
-  }
-
-  const tlp = (form.value.telepon || '').trim()
-  if (tlp && !/^[0-9]{8,15}$/.test(tlp)) {
-    galatKlien.telepon = ['Nomor telepon harus berupa 8 sampai 15 digit angka.']
-  }
-
-  if (!form.value.tanggal_pinjam) {
-    galatKlien.tanggal_pinjam = ['Tanggal pinjam wajib diisi.']
-  } else if (form.value.tanggal_pinjam < hariIni.value) {
-    galatKlien.tanggal_pinjam = ['Tanggal pinjam tidak boleh di masa lalu.']
-  } else if (form.value.tanggal_pinjam > tanggalPinjamMaks.value) {
-    galatKlien.tanggal_pinjam = [`Tanggal pinjam paling jauh ${maksBookingHari.value} hari dari hari ini.`]
-  }
-
-  if (!form.value.batas_kembali) {
-    galatKlien.batas_kembali = ['Batas kembali wajib diisi.']
-  } else if (form.value.batas_kembali < form.value.tanggal_pinjam) {
-    galatKlien.batas_kembali = ['Batas kembali tidak boleh sebelum tanggal pinjam.']
-  } else if (form.value.batas_kembali > batasKembaliMaks.value) {
-    galatKlien.batas_kembali = [`Batas kembali maksimal ${maksDurasiAwal.value} hari dari tanggal pinjam.`]
-  }
-
-  if (Object.keys(galatKlien).length > 0) {
-    errors.value = galatKlien
-    pesanGalat.value = 'Mohon periksa kembali isian formulir yang ditandai merah.'
-    return false
-  }
-
-  return true
+// Aksi "Batalkan & Keluar": buang isian/sesi kiosk seperti idle reset sebelum pulang.
+function batalkanDanKeluar() {
+  kioskStore.resetSesi()
+  router.replace('/')
 }
 
 async function kirimForm() {
@@ -223,10 +264,11 @@ async function kirimForm() {
   const payload = {
     nama_peminjam: form.value.nama_peminjam.trim(),
     division_id: Number(form.value.division_id),
-    tipe_peminjam: form.value.tipe_peminjam,
-    telepon: form.value.telepon.trim() || null,
-    tanggal_pinjam: form.value.tanggal_pinjam,
-    batas_kembali: form.value.batas_kembali,
+    tipe_peminjam: form.value.tipe_peminjam.trim(),
+    telepon: normalisasiTelepon(form.value.telepon),
+    keperluan: form.value.keperluan.trim(),
+    tanggal_pinjam: form.value.tanggal_pinjam.trim(),
+    batas_kembali: form.value.batas_kembali.trim(),
     items: keranjang.value.map((k) => ({
       item_id: k.item_id,
       qty: Number(k.qty),
@@ -245,6 +287,12 @@ async function kirimForm() {
     await router.push('/pinjam/selesai')
   } catch (err) {
     tanganiGalat(err)
+
+    if (err.response?.status === 422) {
+      tampilkanRingkasanDanFokus(errors.value)
+    } else {
+      ringkasanKurang.value = ''
+    }
 
     // Jika terjadi konflik stok (409), muat ulang daftar barang agar stok terbaru tampil
     if (err.response?.status === 409) {
@@ -275,25 +323,13 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <!-- Header Halaman -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
-      <div>
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Formulir Peminjaman Barang
-        </h2>
-        <p class="text-sm md:text-base text-slate-600 mt-0.5">
-          Isi keranjang barang dan identitas peminjam secara mandiri.
-        </p>
-      </div>
-
-      <TombolBesar
-        varian="sekunder"
-        ukuran="sedang"
-        class="self-start sm:self-auto"
-        :dinonaktifkan="sedangKirim"
-        @click="router.push('/')"
-      >
-        &larr; Beranda
-      </TombolBesar>
+    <div class="pb-2 border-b border-slate-200">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+        Formulir Peminjaman Barang
+      </h2>
+      <p class="text-sm md:text-base text-slate-600 mt-0.5">
+        Isi keranjang barang dan identitas peminjam secara mandiri.
+      </p>
     </div>
 
     <!-- Status Memuat Data Awal -->
@@ -310,6 +346,15 @@ onMounted(() => {
         :pesan="pesanGalat"
       />
 
+      <p
+        v-if="ringkasanKurang"
+        class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm md:text-base font-semibold"
+        role="status"
+        aria-live="polite"
+      >
+        {{ ringkasanKurang }}
+      </p>
+
       <!-- Bagian 1: Keranjang Barang -->
       <section class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
@@ -323,6 +368,7 @@ onMounted(() => {
           </div>
 
           <TombolBesar
+            id="tambah-barang"
             varian="primer"
             ukuran="sedang"
             class="self-start sm:self-auto"
@@ -358,6 +404,7 @@ onMounted(() => {
             <!-- Stepper Jumlah & Tombol Hapus -->
             <div class="flex items-center gap-3 self-end sm:self-auto">
               <InputJumlah
+                :id="`qty-${idx}`"
                 v-model="item.qty"
                 :min="1"
                 :max="item.tersedia"
@@ -478,6 +525,7 @@ onMounted(() => {
                 ]"
               >
                 <input
+                  id="tipe_karyawan"
                   v-model="form.tipe_peminjam"
                   type="radio"
                   value="karyawan"
@@ -508,23 +556,50 @@ onMounted(() => {
             </div>
           </FormField>
 
-          <!-- Nomor Telepon -->
+          <!-- Nomor WhatsApp -->
           <FormField
             id="telepon"
-            label="Nomor Telepon (WhatsApp)"
-            bantuan="Opsional. 8 sampai 15 digit angka (contoh: 081234567890)"
+            label="Nomor WhatsApp"
+            wajib
+            bantuan="Hanya terlihat petugas IT. 8 sampai 15 digit angka; spasi, tanda hubung, dan awalan + dibuang otomatis."
             :galat="errors.telepon?.[0]"
           >
             <input
               id="telepon"
               v-model="form.telepon"
               type="tel"
-              maxlength="15"
-              placeholder="08xxxxxxxxxx"
+              inputmode="tel"
+              autocomplete="tel"
+              maxlength="24"
+              placeholder="081234567890 atau +62 812-3456-7890"
               :disabled="sedangKirim"
               class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors"
             >
           </FormField>
+
+          <!-- Keperluan -->
+          <div class="sm:col-span-2">
+            <FormField
+              id="keperluan"
+              label="Keperluan peminjaman"
+              wajib
+              bantuan="Minimal 3 karakter, maksimal 255 karakter."
+              :galat="errors.keperluan?.[0]"
+            >
+              <textarea
+                id="keperluan"
+                v-model="form.keperluan"
+                rows="2"
+                maxlength="255"
+                placeholder="Contoh: Membawa laptop ke rapat tim"
+                :disabled="sedangKirim"
+                class="w-full min-h-[80px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors resize-y"
+              />
+              <p class="text-xs text-slate-500 text-right tabular-nums" aria-hidden="true">
+                {{ panjangKeperluan }}/255
+              </p>
+            </FormField>
+          </div>
         </div>
       </section>
 
@@ -603,7 +678,7 @@ onMounted(() => {
           ukuran="besar"
           class="w-full sm:w-auto"
           :dinonaktifkan="sedangKirim"
-          @click="router.push('/')"
+          @click="batalkanDanKeluar"
         >
           Batalkan & Keluar
         </TombolBesar>
@@ -613,66 +688,23 @@ onMounted(() => {
           varian="primer"
           ukuran="besar"
           class="w-full sm:w-auto sm:min-w-[280px]"
+          :class="formValid ? '' : '!opacity-50 !cursor-not-allowed !grayscale'"
+          :aria-disabled="formValid ? undefined : 'true'"
           :memuat="sedangKirim"
-          :dinonaktifkan="sedangKirim || keranjang.length === 0"
+          :dinonaktifkan="sedangKirim"
         >
           {{ apakahPemesanan ? 'Ajukan Pemesanan' : 'Ajukan Peminjaman' }}
         </TombolBesar>
       </div>
     </form>
 
-    <!-- Modal Pemilih Barang -->
-    <ModalKonfirmasi
-      :terbuka="modalPilihBarangTerbuka"
-      judul="Pilih Barang Inventaris"
-      teks-batal="Tutup"
-      teks-konfirmasi=""
-      @batal="modalPilihBarangTerbuka = false"
-      @update:terbuka="modalPilihBarangTerbuka = $event"
-    >
-      <div class="space-y-4 py-2">
-        <!-- Input Pencarian Cepat di Modal -->
-        <input
-          v-model="cariBarang"
-          type="text"
-          placeholder="Ketik nama barang..."
-          class="w-full min-h-[44px] px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
-        >
-
-        <!-- Daftar Barang -->
-        <div class="max-h-72 overflow-y-auto divide-y divide-slate-100 pr-1">
-          <div
-            v-for="b in barangTersediaUntukDipilih"
-            :key="b.id"
-            class="py-3 flex items-center justify-between gap-3"
-          >
-            <div>
-              <p class="font-bold text-slate-900 text-sm">
-                {{ b.nama }}
-              </p>
-              <span class="text-xs font-semibold text-emerald-600">
-                Tersedia {{ b.tersedia }} unit
-              </span>
-            </div>
-
-            <TombolBesar
-              varian="primer"
-              ukuran="sedang"
-              class="shrink-0"
-              @click="pilihDanTutup(b)"
-            >
-              + Pilih
-            </TombolBesar>
-          </div>
-
-          <p
-            v-if="barangTersediaUntukDipilih.length === 0"
-            class="text-xs text-slate-500 text-center py-6"
-          >
-            Tidak ada barang lain yang tersedia untuk dipilih.
-          </p>
-        </div>
-      </div>
-    </ModalKonfirmasi>
+    <!-- Popup Pemilih Barang: multi-pilih, konfirmasi sekali untuk semua -->
+    <PemilihBarang
+      v-model:terbuka="modalPilihBarangTerbuka"
+      :barang="daftarBarang"
+      :ids-di-keranjang="keranjang.map((k) => k.item_id)"
+      :generasi-sesi="kioskStore.generasiSesi"
+      @konfirmasi="konfirmasiPilihBarang"
+    />
   </div>
 </template>
