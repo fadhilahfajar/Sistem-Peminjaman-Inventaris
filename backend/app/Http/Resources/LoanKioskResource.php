@@ -28,6 +28,7 @@ class LoanKioskResource extends JsonResource
                 'nama' => $this->divisi->nama,
             ],
             'tipe_peminjam' => $this->tipe_peminjam,
+            'keperluan' => $this->keperluan,
             'tanggal_pinjam' => $tanggalPinjam,
             'batas_kembali' => $this->batas_kembali->format('Y-m-d'),
             'status' => $statusInfo['status'],
