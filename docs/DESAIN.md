@@ -1253,7 +1253,7 @@ Templat Blade di `backend/resources/views/laporan` HANYA dipakai untuk PDF; ini 
 |---|---|---|---|
 | `/` | Beranda | Tiga tombol besar: Lihat katalog, Pinjam barang, Cek atau kembalikan | – |
 | `/katalog` | Katalog | Pencarian, filter kategori, kartu barang (nama, stok). Stok 0 diberi tanda dan tidak bisa dipilih | items, categories |
-| `/pinjam` | Form pinjam | Keranjang barang dan jumlah, nama, divisi, tipe peminjam, telepon, tanggal pinjam, batas kembali, ringkasan. Tombol Kirim nonaktif saat memproses | config, divisions, POST loans |
+| `/pinjam` | Form pinjam | Semua kolom wajib: keranjang barang dan jumlah, nama, divisi, tipe peminjam, Nomor WhatsApp (8–15 digit setelah normalisasi, petunjuk "Hanya terlihat petugas IT."), keperluan peminjaman (3–255 karakter dengan penghitung), tanggal pinjam, batas kembali, ringkasan. Tombol "Ajukan Peminjaman" memakai `aria-disabled="true"` dan gaya jelas bila ada kesalahan; mengetuknya menampilkan ringkasan "Lengkapi dulu: …" lewat `aria-live` dan memindahkan fokus ke kolom pertama yang salah. Tombol juga nonaktif saat memproses | config, divisions, POST loans |
 | `/pinjam/selesai` | Struk dan kode | Kode besar, daftar barang, tanggal, tombol Cetak dan Selesai, pengingat mencatat kode | respons POST |
 | `/cek` | Cek peminjaman | Satu kolom kode. Pesan galat umum bila salah. Pesan terkunci setelah batas | lookup |
 | `/cek/kartu` | Kartu peminjaman | Badge status dan lencana, batas kembali, sisa hari atau hari terlambat, barang dengan sisa, riwayat klaim dengan hasil dan catatan admin. Tombol Klaim, Perpanjang, Batalkan hanya bila berlaku | respons lookup |
@@ -1319,7 +1319,7 @@ Warna tidak pernah menjadi satu-satunya penanda, selalu disertai teks.
 | 500 atau jaringan | Pesan umum dan tombol Coba lagi, tanpa informasi internal |
 | Sukses | Toast hijau ±4 detik di admin. Layar bukti di kiosk |
 
-- Validasi frontend hanya kemudahan. Server yang menentukan sah atau tidak.
+- Validasi frontend hanya kemudahan. Server yang menentukan sah atau tidak; form pinjam memakai `normalisasiTelepon` dan `validasiFormPinjam` sebelum mengirim nomor WhatsApp dan keperluan.
 - Kunci idempotensi (UUID) dibuat saat form dibuka dan dikirim bersama data.
 - Pencacah jumlah dibatasi stok tersedia, server tetap memeriksa ulang.
 - Pada verifikasi, selisih antara jumlah klaim dan jumlah yang sudah dibagi ke empat hasil ditampilkan, Simpan aktif hanya bila nol.
