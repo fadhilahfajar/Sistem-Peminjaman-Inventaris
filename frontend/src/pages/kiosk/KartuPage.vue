@@ -175,6 +175,14 @@ function keHalamanBatal() {
         </div>
       </div>
 
+      <div
+        v-if="kartu.keperluan"
+        class="p-3 bg-slate-50 rounded-xl space-y-0.5 text-xs md:text-sm"
+      >
+        <span class="text-slate-500 font-semibold block text-[11px] uppercase">Keperluan</span>
+        <span class="font-bold text-slate-900 block whitespace-pre-line">{{ kartu.keperluan }}</span>
+      </div>
+
       <!-- Info Kuota Perpanjangan (FR-K-04) -->
       <div
         v-if="!kartu.pemesanan && kartu.status !== 'dibatalkan'"
