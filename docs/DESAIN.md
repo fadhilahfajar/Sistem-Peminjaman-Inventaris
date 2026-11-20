@@ -1253,7 +1253,7 @@ Templat Blade di `backend/resources/views/laporan` HANYA dipakai untuk PDF; ini 
 |---|---|---|---|
 | `/` | Beranda | Tiga tombol besar: Lihat katalog, Pinjam barang, Cek atau kembalikan | – |
 | `/katalog` | Katalog | Pencarian, filter kategori, kartu barang (nama, stok). Stok 0 diberi tanda dan tidak bisa dipilih | items, categories |
-| `/pinjam` | Form pinjam | Semua kolom wajib: keranjang barang dan jumlah, nama, divisi, tipe peminjam, Nomor WhatsApp (8–15 digit setelah normalisasi, petunjuk "Hanya terlihat petugas IT."), keperluan peminjaman (3–255 karakter dengan penghitung), tanggal pinjam, batas kembali, ringkasan. Tombol "Ajukan Peminjaman" memakai `aria-disabled="true"` dan gaya jelas bila ada kesalahan; mengetuknya menampilkan ringkasan "Lengkapi dulu: …" lewat `aria-live` dan memindahkan fokus ke kolom pertama yang salah. Tombol juga nonaktif saat memproses | config, divisions, POST loans |
+| `/pinjam` | Form pinjam | Semua kolom wajib: keranjang barang dan jumlah, nama, divisi, tipe peminjam, Nomor WhatsApp (8–15 digit setelah normalisasi, petunjuk "Hanya terlihat petugas IT."), keperluan peminjaman (3–255 karakter dengan penghitung), tanggal pinjam, batas kembali, ringkasan. Tombol "Ajukan Peminjaman" memakai `aria-disabled="true"` dan gaya jelas bila ada kesalahan; mengetuknya menampilkan ringkasan "Lengkapi dulu: …" lewat `aria-live` dan memindahkan fokus ke kolom pertama yang salah. Tombol juga nonaktif saat memproses. Tombol Tambah Barang membuka popup multi-pilih `PemilihBarang`: tiap baris memuat nama, stok, dan tombol "+ Pilih"/"Dipilih" (centang, latar, garis tepi kiri, `aria-pressed`); barang di keranjang bertanda "Sudah di formulir", barang stok 0 bertanda "Habis", keduanya tidak bisa dipilih. Pencarian tidak menghapus pilihan; keterangan `aria-live` menyebut barang terpilih yang tersembunyi. Footer memuat "Tutup" dan satu tombol "Tambahkan N barang" (nonaktif dengan teks "Pilih barang dulu" bila N = 0); konfirmasi menambah semua pilihan dengan qty 1 tanpa duplikat, menutup popup, mengembalikan fokus ke formulir, dan menampilkan toast "N barang ditambahkan". Tutup/Esc membatalkan tanpa menambah; klik di luar popup tidak menutup | config, divisions, POST loans |
 | `/pinjam/selesai` | Struk dan kode | Kode besar, daftar barang, tanggal, tombol Cetak dan Selesai, pengingat mencatat kode | respons POST |
 | `/cek` | Cek peminjaman | Satu kolom kode. Pesan galat umum bila salah. Pesan terkunci setelah batas | lookup |
 | `/cek/kartu` | Kartu peminjaman | Badge status dan lencana, batas kembali, sisa hari atau hari terlambat, barang dengan sisa, riwayat klaim dengan hasil dan catatan admin. Tombol Klaim, Perpanjang, Batalkan hanya bila berlaku | respons lookup |
@@ -1264,6 +1264,8 @@ Templat Blade di `backend/resources/views/laporan` HANYA dipakai untuk PDF; ini 
 | `/batal` | Batalkan pemesanan | Modal konfirmasi dengan ringkasan | POST loans/cancel |
 
 Kartu peminjaman adalah pusat: klaim, perpanjangan, dan pembatalan semuanya berawal dari sana dengan kode yang sama. Navigasi ke beranda hanya ada di header LayoutKiosk—yang mengosongkan sesi kiosk sebelum kembali—dan tombol beranda di tingkat halaman dihapus; layar bukti (`/pinjam/selesai`, `/klaim/selesai`, `/perpanjang/selesai`) tetap memiliki tombol Selesai yang menghapus seluruh state sebelum kembali ke beranda.
+
+Alur tambah barang di `/pinjam`: popup menyimpan pilihan sementara hanya saat terbuka, konfirmasi sekali untuk seluruh pilihan, lalu penyesuaian jumlah dan penghapusan dilakukan di keranjang formulir. Interaksi di popup menghitung aktivitas idle; idle reset menaikkan generasi sesi sehingga popup tertutup dan pilihan dibuang. Daftar digulir dengan tinggi maksimal dan footer tetap terlihat pada lebar 360 dan 768 px; target sentuh minimal 44 px.
 
 ### 10.3 Layar admin
 
@@ -1289,7 +1291,7 @@ Navigasi: sidebar kiri di layar lebar, menu geser di tablet dan ponsel. Grup: Da
 
 ### 10.4 Komponen Vue yang dipakai ulang
 
-`LayoutKiosk`, `LayoutAdmin`, `LayoutLogin` · `Sidebar`, `Navbar` · `TombolBesar` · `KartuBarang` · `TabelData` (urutan, pagination, mode kartu di layar sempit) · `FilterBar` · `BadgeStatus`, `BadgeLencana` · `InputJumlah` (pencacah dengan batas) · `InputKode` (huruf besar otomatis) · `FormField` (label, input, galat per kolom) · `ModalKonfirmasi` · `NotifikasiToast` (`aria-live`) · `StatusKosong`, `Memuat` (skeleton), `PesanGalat` · `LiniMasa` · `StrukCetak` · `KartuAngka`.
+`LayoutKiosk`, `LayoutAdmin`, `LayoutLogin` · `Sidebar`, `Navbar` · `TombolBesar` · `KartuBarang` · `TabelData` (urutan, pagination, mode kartu di layar sempit) · `FilterBar` · `BadgeStatus`, `BadgeLencana` · `InputJumlah` (pencacah dengan batas) · `InputKode` (huruf besar otomatis) · `FormField` (label, input, galat per kolom) · `ModalKonfirmasi` · `PemilihBarang` (kiosk, multi-pilih + konfirmasi) · `NotifikasiToast` (`aria-live`) · `StatusKosong`, `Memuat` (skeleton), `PesanGalat` · `LiniMasa` · `StrukCetak` · `KartuAngka`.
 
 ### 10.5 Token desain
 
