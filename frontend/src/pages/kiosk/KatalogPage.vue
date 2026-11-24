@@ -107,7 +107,7 @@ onMounted(async () => {
   <div class="space-y-6">
     <!-- Judul Halaman -->
     <div class="pb-2 border-b border-slate-200">
-      <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900">
         Katalog Barang
       </h2>
       <p class="text-sm md:text-base text-slate-600 mt-0.5">
@@ -116,7 +116,7 @@ onMounted(async () => {
     </div>
 
     <!-- Filter & Pencarian -->
-    <div class="space-y-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+    <div class="space-y-3 bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
       <!-- Kolom Pencarian -->
       <div class="relative w-full">
         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -130,7 +130,7 @@ onMounted(async () => {
           type="text"
           placeholder="Cari nama barang inventaris..."
           maxlength="100"
-          class="w-full min-h-[48px] pl-10 pr-10 bg-slate-50 border border-slate-300 rounded-xl text-base text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors"
+          class="w-full min-h-[48px] pl-10 pr-10 bg-slate-50 border border-slate-300 rounded-lg text-base text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors"
           @input="onInputPencarian"
         >
 
@@ -150,7 +150,7 @@ onMounted(async () => {
         v-if="kategoriList.length > 0"
         class="flex items-center gap-2 overflow-x-auto pb-1 text-sm scrollbar-none"
       >
-        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0 mr-1">
+        <span class="text-xs font-semibold text-slate-600 shrink-0 mr-1">
           Kategori:
         </span>
 
@@ -158,7 +158,7 @@ onMounted(async () => {
         <button
           type="button"
           :class="[
-            'min-h-[44px] px-4 py-2 rounded-xl font-medium transition-colors cursor-pointer shrink-0 text-sm select-none',
+            'min-h-[44px] px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer shrink-0 text-sm select-none',
             'focus-visible:outline-2 focus-visible:outline-[var(--color-aksen,#1d4ed8)]',
             kategoriTerpilih === null
               ? 'bg-[var(--color-aksen,#1d4ed8)] text-white shadow-xs font-semibold'
@@ -175,7 +175,7 @@ onMounted(async () => {
           :key="kat.id"
           type="button"
           :class="[
-            'min-h-[44px] px-4 py-2 rounded-xl font-medium transition-colors cursor-pointer shrink-0 text-sm select-none',
+            'min-h-[44px] px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer shrink-0 text-sm select-none',
             'focus-visible:outline-2 focus-visible:outline-[var(--color-aksen,#1d4ed8)]',
             kategoriTerpilih === kat.id
               ? 'bg-[var(--color-aksen,#1d4ed8)] text-white shadow-xs font-semibold'
@@ -223,7 +223,7 @@ onMounted(async () => {
 
     <!-- Grid Kartu Barang -->
     <div v-else class="space-y-4">
-      <div class="flex items-center justify-between text-xs text-slate-500 px-1">
+      <div class="flex items-center justify-between text-xs text-slate-600 px-1">
         <span>Menampilkan <strong>{{ items.length }}</strong> barang</span>
         <span>Stok 0 ditandai habis dan tidak dapat dipilih</span>
       </div>

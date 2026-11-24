@@ -69,7 +69,7 @@ const jumlahLencana = computed(() => {
     >
       <p
         v-if="grup.judul"
-        class="px-2 pb-1 text-[11px] font-bold uppercase tracking-widest text-slate-400"
+        class="px-2 pb-1 text-xs font-semibold text-slate-500"
       >
         {{ grup.judul }}
       </p>
@@ -79,8 +79,10 @@ const jumlahLencana = computed(() => {
         :key="item.path"
         :to="item.path"
         :class="[
-          'flex items-center justify-between gap-2 rounded-lg px-3 py-2 min-h-[40px] font-medium transition-colors',
-          aktif(item.path, item.tepat) ? 'bg-slate-700 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white',
+          'flex items-center justify-between gap-2 rounded-lg px-3 min-h-[44px] font-medium transition-colors',
+          aktif(item.path, item.tepat)
+            ? 'bg-slate-900 text-white'
+            : 'text-slate-700 hover:bg-slate-100',
         ]"
         @click="$emit('navigasi')"
       >
@@ -89,7 +91,7 @@ const jumlahLencana = computed(() => {
         <!-- Lencana antrean (FR-A-15, FR-A-19) -->
         <span
           v-if="item.lencana && jumlahLencana[item.lencana] > 0"
-          class="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full text-xs font-bold bg-amber-400 text-slate-900 tabular-nums"
+          class="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-md text-xs font-bold bg-amber-200 text-amber-950 tabular-nums"
           :aria-label="`${jumlahLencana[item.lencana]} item menunggu`"
         >
           {{ jumlahLencana[item.lencana] > 99 ? '99+' : jumlahLencana[item.lencana] }}

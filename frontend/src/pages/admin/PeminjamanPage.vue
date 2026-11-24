@@ -109,7 +109,7 @@ function bukaDetail(baris) {
 }
 
 function namaDivisi(b) {
-  return b.divisi?.nama ?? '—'
+  return b.divisi?.nama ?? ''
 }
 </script>
 
@@ -117,27 +117,27 @@ function namaDivisi(b) {
   <section class="space-y-6">
     <div>
       <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Daftar Peminjaman</h2>
-      <p class="text-sm text-slate-500 mt-0.5">Filter lengkap, urut terbaru. Klik baris untuk detail (FR-A-05).</p>
+      <p class="text-sm text-slate-600 mt-0.5">Filter lengkap, urut terbaru. Klik baris untuk detail.</p>
     </div>
 
     <!-- Ringkasan singkat dari angka dasbor (satu sumber data) -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-      <div class="px-3 py-2 rounded-xl bg-blue-50 border border-blue-200 text-sm">
-        <span class="font-bold text-blue-950 tabular-nums">{{ sesi.ringkasan?.dipinjam ?? '…' }}</span>
+    <div class="flex flex-wrap items-baseline gap-x-6 gap-y-2 text-sm">
+      <span class="tabular-nums">
+        <span class="font-bold text-blue-950">{{ sesi.ringkasan?.dipinjam ?? '…' }}</span>
         <span class="text-blue-800"> Dipinjam</span>
-      </div>
-      <div class="px-3 py-2 rounded-xl bg-red-50 border border-red-200 text-sm">
-        <span class="font-bold text-red-950 tabular-nums">{{ sesi.ringkasan?.terlambat ?? '…' }}</span>
+      </span>
+      <span class="tabular-nums">
+        <span class="font-bold text-red-950">{{ sesi.ringkasan?.terlambat ?? '…' }}</span>
         <span class="text-red-800"> Terlambat</span>
-      </div>
-      <div class="px-3 py-2 rounded-xl bg-yellow-50 border border-yellow-200 text-sm">
-        <span class="font-bold text-yellow-950 tabular-nums">{{ sesi.ringkasan?.menunggu_verifikasi ?? '…' }}</span>
+      </span>
+      <span class="tabular-nums">
+        <span class="font-bold text-yellow-950">{{ sesi.ringkasan?.menunggu_verifikasi ?? '…' }}</span>
         <span class="text-yellow-800"> Menunggu Verifikasi</span>
-      </div>
-      <div class="px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-sm">
-        <span class="font-bold text-emerald-950 tabular-nums">{{ sesi.ringkasan?.selesai ?? '…' }}</span>
+      </span>
+      <span class="tabular-nums">
+        <span class="font-bold text-emerald-950">{{ sesi.ringkasan?.selesai ?? '…' }}</span>
         <span class="text-emerald-800"> Selesai</span>
-      </div>
+      </span>
     </div>
 
     <FilterBar :memuat="sedangMuat" @terapkan="terapkan" @atur-ulang="aturUlang">

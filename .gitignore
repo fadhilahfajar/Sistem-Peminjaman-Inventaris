@@ -3,6 +3,8 @@
 !.env.example
 vendor/
 node_modules/
+test-results/
+playwright-report/
 *.sql
 *.log
 .DS_Store

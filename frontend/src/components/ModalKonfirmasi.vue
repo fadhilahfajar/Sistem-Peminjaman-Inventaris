@@ -32,6 +32,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // Untuk modal baca-saja: sembunyikan tombol konfirmasi, sisakan tombol tutup.
+  tanpaKonfirmasi: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['update:terbuka', 'konfirmasi', 'batal'])
@@ -87,7 +92,7 @@ onUnmounted(() => {
       @click.self="tutup"
     >
       <div
-        class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150"
+        class="w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto bg-white rounded-lg shadow-sm border border-slate-200 p-6 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150"
       >
         <h2
           :id="`${modalId}-title`"
@@ -115,6 +120,7 @@ onUnmounted(() => {
           </TombolBesar>
 
           <TombolBesar
+            v-if="!tanpaKonfirmasi"
             :varian="varianKonfirmasi"
             ukuran="sedang"
             lebar-penuh

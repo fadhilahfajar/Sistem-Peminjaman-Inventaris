@@ -36,7 +36,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['ubah-urutan', 'ubah-halaman'])
+const emit = defineEmits(['ubah-urutan', 'ubah-halaman', 'klik-baris'])
 
 function klikUrut(kolom) {
   if (kolom.urut) {
@@ -120,7 +120,7 @@ function kunciBaris(baris, i) {
                   :name="`cell-${k.kunci}`"
                   :nilai="baris[k.kunci]"
                   :baris="baris"
-                >{{ baris[k.kunci] ?? '—' }}</slot>
+                >{{ baris[k.kunci] ?? '' }}</slot>
               </dd>
             </div>
           </dl>
@@ -128,7 +128,7 @@ function kunciBaris(baris, i) {
       </div>
 
       <!-- Tabel di layar lebar -->
-      <div class="hidden md:block bg-white rounded-xl border border-slate-200 shadow-xs overflow-x-auto">
+      <div class="hidden md:block bg-white rounded-lg border border-slate-200 shadow-xs overflow-x-auto">
         <table class="w-full text-sm text-left">
           <thead>
             <tr class="border-b border-slate-200 bg-slate-50">
@@ -138,7 +138,7 @@ function kunciBaris(baris, i) {
                 scope="col"
                 :aria-sort="teksAriaSort(k)"
                 :class="[
-                  'px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-600 whitespace-nowrap',
+                  'px-4 py-3 text-xs font-semibold text-slate-600 whitespace-nowrap',
                   k.urut ? 'cursor-pointer select-none' : '',
                   kelasUrut(k),
                   k.kelasTh || '',
@@ -166,7 +166,7 @@ function kunciBaris(baris, i) {
                   :name="`cell-${k.kunci}`"
                   :nilai="baris[k.kunci]"
                   :baris="baris"
-                >{{ baris[k.kunci] ?? '—' }}</slot>
+                >{{ baris[k.kunci] ?? '' }}</slot>
               </td>
             </tr>
           </tbody>

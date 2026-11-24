@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentasi Manajemen - Sistem Peminjaman & Inventaris Barang Tim IT</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #0b1120;
+            color: #f8fafc;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 5px;
+            background: #1e293b;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 50;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #2563eb);
+            width: 11%;
+            transition: width 0.3s ease;
+        }
+
+        /* Top Nav */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 32px;
+            background: rgba(15, 23, 42, 0.85);
+            border-bottom: 1px solid #1e293b;
+            backdrop-filter: blur(8px);
+            z-index: 40;
+        }
+        .brand-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+        }
+        .badge {
+            background: #1e293b;
+            color: #38bdf8;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid #334155;
+        }
+
+        /* Slide Main Area */
+        main {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 32px;
+            overflow: hidden;
+        }
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1080px;
+            animation: fadeIn 0.35s ease forwards;
+        }
+        .slide.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-tag {
+            color: #38bdf8;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .slide-title {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.2;
+            margin-bottom: 24px;
+        }
+        .slide-subtitle {
+            font-size: 18px;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        /* Card Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .card {
+            background: #131c31;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+        }
+        .card-highlight {
+            border-color: #0284c7;
+            background: linear-gradient(180deg, #132238 0%, #131c31 100%);
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-text {
+            font-size: 15px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        .card-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .card-list li {
+            font-size: 15px;
+            color: #cbd5e1;
+            line-height: 1.5;
+            position: relative;
+            padding-left: 20px;
+        }
+        .card-list li::before {
+            content: "•";
+            color: #38bdf8;
+            font-weight: bold;
+            font-size: 18px;
+            position: absolute;
+            left: 0;
+            top: -2px;
+        }
+
+        /* Formula Box */
+        .formula-box {
+            background: #0f172a;
+            border: 1px dashed #38bdf8;
+            border-radius: 10px;
+            padding: 16px 24px;
+            text-align: center;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 18px;
+            color: #38bdf8;
+            margin: 20px 0;
+        }
+
+        /* Speaker Notes Panel (Bottom Drawer) */
+        .notes-drawer {
+            background: #0f172a;
+            border-top: 1px solid #334155;
+            padding: 16px 32px;
+            transition: max-height 0.3s ease;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+        .notes-drawer.collapsed {
+            max-height: 0;
+            padding: 0 32px;
+            border-top-color: transparent;
+        }
+        .notes-header {
+            font-size: 12px;
+            font-weight: 700;
+            color: #38bdf8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .notes-content {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        /* Footer Controls */
+        footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 32px;
+            background: #0f172a;
+            border-top: 1px solid #1e293b;
+            font-size: 14px;
+        }
+        .btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background: #334155;
+            border-color: #475569;
+        }
+        .btn-primary {
+            background: #0284c7;
+            border-color: #0369a1;
+        }
+        .btn-primary:hover {
+            background: #0369a1;
+        }
+        .controls-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .slide-counter {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        .shortcut-hint {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            header, main, footer { padding-left: 16px; padding-right: 16px; }
+            .slide-title { font-size: 24px; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .shortcut-hint { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <header>
+        <div class="brand-title">SISTEM PEMINJAMAN & INVENTARIS BARANG TIM IT</div>
+        <div class="controls-group">
+            <span class="badge">Presentasi Manajemen</span>
+            <button class="btn" id="toggleNotesBtn" onclick="toggleNotes()">Catatan Pembicara (N)</button>
+            <button class="btn" onclick="toggleFullScreen()">Layar Penuh (F)</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Slide 1 -->
+        <div class="slide active" data-notes="Selamat pagi Bapak/Ibu. Hari ini saya mempresentasikan sistem baru yang kami kembangkan untuk menjawab persoalan inventaris dan peminjaman alat di lingkungan kerja kita, yaitu Sistem Peminjaman & Inventaris Barang Tim IT. Sistem ini dirancang untuk mempermudah operasional rekan kerja di lapangan sekaligus memberi tim IT kendali penuh atas pencatatan, kondisi fisik, dan keberadaan setiap aset perusahaan.">
+            <div class="slide-tag">Pengenalan Proyek</div>
+            <h1 class="slide-title">Sistem Peminjaman & Inventaris Barang Tim IT</h1>
+            <p class="slide-subtitle">Otomasi Peminjaman Mandiri, Kendali Stok Presisi, dan Akuntabilitas Aset Perusahaan</p>
+            <div class="card card-highlight" style="max-width: 650px;">
+                <div class="card-title">Sasaran Utama Sistem</div>
+                <p class="card-text">Menghadirkan titik temu antara kemudahan rekan kerja meminjam perangkat secara mandiri (Kiosk) dan disiplin audit timbal-balik oleh tim IT sebelum stok dan status diselesaikan.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide" data-notes="Selama ini, peminjaman perangkat IT masih menghadapi kendala operasional harian. Rekan-rekan sering meminjam lewat chat pribadi atau form kertas yang rentan hilang. Ketika barang kembali dalam keadaan rusak atau kelengkapan berkurang, tim IT kesulitan melacak siapa yang terakhir bertanggung jawab. Akibatnya, ada selisih antara angka di pembukuan dengan fisik barang yang ada di lemari inventaris.">
+            <div class="slide-tag">Analisis Masalah</div>
+            <h2 class="slide-title">Tantangan Pengelolaan Aset Saat Ini</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">1. Pencatatan Tersebar</div>
+                    <p class="card-text">Permintaan melalui WhatsApp atau form fisik mudah tercecer dan tidak tersinkronisasi ke status barang riil.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">2. Ketersediaan Tidak Transparan</div>
+                    <p class="card-text">Peminjam tidak bisa mengetahui barang siap pakai tanpa interupsi bertanya langsung ke staf IT.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">3. Pertanggungjawaban Fisik Lemah</div>
+                    <p class="card-text">Perangkat yang kembali dengan kabel putus atau kelengkapan hilang sulit dilacak pemegang terakhirnya.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">4. Selisih Pembukuan Stok</div>
+                    <p class="card-text">Angka di rekap catatan seringkali berbeda dengan kondisi fisik riil di gudang inventaris.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide" data-notes="Solusi yang kami bangun menggunakan pendekatan dua sisi. Sisi pertama adalah Mode Kiosk untuk peminjam. Mereka tidak perlu membuat akun atau menghafal kata sandi baru. Cukup datang ke meja IT, pilih barang, masukkan nama, divisi, dan keperluan, lalu sistem menerbitkan kode transaksi. Sisi kedua adalah Panel Admin, tempat staf IT memegang kendali verifikasi, memeriksa kondisi alat saat kembali, dan melihat riwayat aset.">
+            <div class="slide-tag">Konsep Solusi</div>
+            <h2 class="slide-title">Arsitektur Dua Sisi: Kiosk & Panel Admin</h2>
+            <div class="grid-2">
+                <div class="card card-highlight">
+                    <div class="card-title">Mode Kiosk (Peminjam Mandiri)</div>
+                    <ul class="card-list">
+                        <li>Layar sentuh mandiri (*self-service*) di area IT.</li>
+                        <li>Tanpa registrasi akun; meminjam langsung tanpa menghafal password.</li>
+                        <li>Verifikasi menggunakan kode acak 6 digit unik.</li>
+                        <li>Auto-reset dalam hitungan detik bila ditinggalkan peminjam.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-title">Panel Admin (Staf IT & Manajemen)</div>
+                    <ul class="card-list">
+                        <li>Akses otentikasi sesi aman khusus staf IT.</li>
+                        <li>Verifikasi fisik unit demi unit saat pengembalian barang.</li>
+                        <li>Pengelolaan kuota stok, batas hari pinjam, dan master kategori.</li>
+                        <li>Ekspor laporan resmi berkala format PDF siap cetak.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide" data-notes="Dari sisi rekan kerja yang meminjam, prosesnya dibuat sangat ringkas di bawah dua menit. Peminjam membuka katalog, melihat alat yang ready, memilih jumlah, dan mengisi keperluan pemakaian. Sistem langsung mengunci stok agar tidak diambil orang lain, menerbitkan bukti kode unik, dan mencatat nomor kontak mereka. Jika tugas lapangan mereka butuh waktu tambahan, mereka bisa mengajukan perpanjangan langsung di sistem tanpa negosiasi manual yang tidak tercatat.">
+            <div class="slide-tag">Sisi Pengguna</div>
+            <h2 class="slide-title">Alur Cepat dan Mandiri di Sisi Kiosk</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Katalog & Booking Transparan</div>
+                    <p class="card-text">Hanya menampilkan barang yang tersedia. Stok habis tidak dapat dipilih. Tersedia opsi booking jika jadwal penggunaan untuk beberapa hari ke depan.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Validasi Keperluan & Kontak</div>
+                    <p class="card-text">Wajib mencantumkan divisi, nomor kontak aktif, dan tujuan pinjam. Kontak peminjam diproteksi dan hanya dapat dibaca oleh tim IT internal.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Bukti Transaksi Instan</div>
+                    <p class="card-text">Menerbitkan kode pinjam unik (misal: PJM-XXXXXX) serta struk rincian pengembalian yang dapat dicetak atau difoto.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Perpanjangan Terkontrol</div>
+                    <p class="card-text">Peminjam dapat mengajukan perpanjangan langsung di layar Kiosk maksimal 2 kali sesuai aturan batas hari.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide" data-notes="Poin terpenting dalam keamanan aset ada di tahap verifikasi. Sistem tidak langsung menyelesaikan peminjaman hanya karena peminjam mengklik tombol kembali. Peminjam menyerahkan fisik barang ke staf IT, lalu staf IT memverifikasi kondisinya. Jika kabel proyektor putus atau ada bagian yang hilang, staf IT menandai status rusak atau hilang. Angka stok di sistem langsung disesuaikan secara otomatis, dan peminjam tidak bisa mengklaim barang sudah kembali sebelum verifikasi fisik tuntas.">
+            <div class="slide-tag">Kontrol Kualitas</div>
+            <h2 class="slide-title">Kontrol & Verifikasi Fisik oleh Tim IT</h2>
+            <div class="grid-4" style="margin-bottom: 20px;">
+                <div class="card">
+                    <div class="card-title" style="color:#4ade80;">Unit Baik</div>
+                    <p class="card-text">Otomatis menambah kembali angka stok yang siap dipinjam.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title" style="color:#facc15;">Unit Rusak</div>
+                    <p class="card-text">Masuk antrean perbaikan; stok siap pakai tidak bertambah.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title" style="color:#f87171;">Unit Hilang</div>
+                    <p class="card-text">Total aset berkurang otomatis; tercatat di audit aset.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title" style="color:#c084fc;">Unit Ditolak</div>
+                    <p class="card-text">Bila barang bukan milik IT; peminjam tetap berstatus meminjam.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Kewajiban Catatan Petugas</div>
+                <p class="card-text">Sistem mewajibkan staf IT menulis catatan alasan jika hasil verifikasi berbeda dari klaim peminjam (misal: peminjam lapor baik, namun fisik barang ditemukan retak).</p>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide" data-notes="Di belakang layar, kami menerapkan prinsip pencatatan seperti pembukuan finansial. Tidak ada staf yang bisa mengubah angka stok secara manual melalui database. Setiap penambahan, pengurangan, unit rusak, atau barang kembali tercatat sebagai satu baris mutasi stok di buku besar. Rumus keseimbangan aset terjaga secara matematis: total barang selalu sama dengan jumlah barang tersedia, sedang dipinjam, dan sedang rusak. Ini menjamin data laporan kita selalu bersih saat diaudit.">
+            <div class="slide-tag">Keandalan Data</div>
+            <h2 class="slide-title">Integritas Data: Model Buku Besar Stok</h2>
+            <div class="formula-box">
+                Total Aset = Tersedia + Sedang Dipinjam + Rusak / Perbaikan
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Prinsip Buku Besar (Ledger)</div>
+                    <p class="card-text">Angka stok dilarang di-update manual. Setiap pergerakan barang menghasilkan tepat satu baris riwayat mutasi resmi bertransaksi ganda.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Riwayat Append-Only</div>
+                    <p class="card-text">Tabel mutasi stok, koreksi data, dan perpanjangan tidak memiliki opsi hapus/ubah di belakang layar, menjamin data audit bersih.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide" data-notes="Kami juga menempatkan aspek keamanan sebagai prioritas. Nomor telepon rekan kerja yang meminjam dirahasiakan dari layar publik kiosk agar privasi tetap terjaga. Bila peminjam meninggalkan layar di tengah pengisian form, sistem otomatis melakukan reset dalam hitungan detik agar data tidak terbaca orang berikutnya. Di sisi admin, sesi login otomatis ditutup jika ditinggalkan tanpa aktivitas.">
+            <div class="slide-tag">Keamanan & Kepatuhan</div>
+            <h2 class="slide-title">Keamanan Sistem & Standar Kepatuhan</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Perlindungan Kredensial</div>
+                    <p class="card-text">Tanpa password bawaan di kode sumber. Seluruh kata sandi admin di-hash dengan algoritma Bcrypt berstandar industri.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Perlindungan Privasi (PII)</div>
+                    <p class="card-text">Nomor telepon peminjam hanya dapat dilihat di panel admin berizin; respon publik Kiosk selalu bersih dari data nomor telepon.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Proteksi Anti-Tebak Kode</div>
+                    <p class="card-text">Kiosk lookup dilengkapi pembatas laju percobaan (rate limiter) untuk memblokir upaya brute-force tebakan kode pinjam.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Auto-Reset & Sesi Aman</div>
+                    <p class="card-text">Layar kiosk otomatis reset jika ditinggalkan tanpa aktivitas; sesi login admin memiliki batas idle otomatis.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide" data-notes="Bagi manajemen, sistem ini memberikan tiga manfaat utama. Pertama, risiko kehilangan perangkat kerja berkurang drastis karena mata rantai pertanggungjawabannya tidak terputus. Kedua, efisiensi kerja tim meningkat karena koordinasi ketersediaan barang berjalan otomatis. Ketiga, data pemakaian alat dan kerusakan terekam rapi, sehingga ketika manajemen menyusun anggaran pengadaan alat baru, kita punya data riil tentang alat apa yang paling dibutuhkan dan alat mana yang sering bermasalah.">
+            <div class="slide-tag">Nilai Bisnis</div>
+            <h2 class="slide-title">Dampak Operasional bagi Perusahaan</h2>
+            <div class="grid-2">
+                <div class="card card-highlight">
+                    <div class="card-title">1. Nol Aset Hilang Tanpa Jejak</div>
+                    <p class="card-text">Riwayat pemegang terakhir dan verifikator fisik terekam permanen dalam jejak audit yang tidak dapat dipalsukan.</p>
+                </div>
+                <div class="card card-highlight">
+                    <div class="card-title">2. Efisiensi Kerja Tim IT</div>
+                    <p class="card-text">Mengeliminasi interupsi pertanyaan stok dan pekerjaan administratif pencatatan manual di buku/kertas.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">3. Pengadaan Berbasis Data Riil</div>
+                    <p class="card-text">Manajemen dapat mengevaluasi alat apa yang paling tinggi tingkat pemakaiannya atau sering rusak untuk anggaran tahunan.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">4. Laporan PDF Siap Cetak</div>
+                    <p class="card-text">Rekapitulasi berkala, daftar keterlambatan, dan status stok dapat diunduh instan untuk keperluan pelaporan manajemen.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide" data-notes="Saat ini seluruh modul inti sistem, mulai dari alur peminjam mandiri hingga panel audit admin, sudah selesai dibangun dan diuji keandalannya. Database master divisi dan akun pengelola juga sudah siap digunakan. Langkah kami selanjutnya adalah menempatkan terminal fisik di depan meja IT dan melakukan sosialisasi singkat kepada rekan-rekan divisi lain. Kami siap menjawab pertanyaan dan menerima masukan dari Bapak/Ibu sekalian. Terima kasih.">
+            <div class="slide-tag">Penutup & Rencana</div>
+            <h2 class="slide-title">Kesiapan Sistem & Langkah Berikutnya</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Status Saat Ini</div>
+                    <ul class="card-list">
+                        <li>Modul Kiosk dan Panel Admin selesai dibangun.</li>
+                        <li>Uji integritas logika stok dan audit log telah lulus.</li>
+                        <li>Master divisi dan akun administrator aktif siap digunakan.</li>
+                    </ul>
+                </div>
+                <div class="card card-highlight">
+                    <div class="card-title">Langkah Implementasi</div>
+                    <ul class="card-list">
+                        <li>Penempatan terminal fisik Kiosk di ruang tim IT.</li>
+                        <li>Sosialisasi singkat penggunaan Kiosk ke divisi kerja terkait.</li>
+                        <li>Evaluasi operasional pada minggu pertama implementasi.</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="margin-top: 32px; text-align: center;">
+                <p style="font-size: 18px; color: #38bdf8; font-weight: 600;">Terima kasih. Kami membuka sesi tanya jawab dan masukan.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Speaker Notes Drawer -->
+    <div class="notes-drawer" id="notesDrawer">
+        <div class="notes-header">Catatan Pembicara (Script Presentasi):</div>
+        <div class="notes-content" id="notesContent"></div>
+    </div>
+
+    <footer>
+        <div class="controls-group">
+            <button class="btn" onclick="prevSlide()">◀ Sebelumnya</button>
+            <button class="btn btn-primary" onclick="nextSlide()">Berikutnya ▶</button>
+            <span class="slide-counter" id="slideCounter">Slide 1 / 9</span>
+        </div>
+        <div class="shortcut-hint">
+            Navigasi: <strong>Panah Kanan/Kiri</strong> | Catatan: <strong>N</strong> | Layar Penuh: <strong>F</strong>
+        </div>
+    </footer>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const progressBar = document.getElementById('progressBar');
+        const slideCounter = document.getElementById('slideCounter');
+        const notesContent = document.getElementById('notesContent');
+        const notesDrawer = document.getElementById('notesDrawer');
+
+        function updateSlide() {
+            slides.forEach((s, idx) => {
+                s.classList.toggle('active', idx === currentSlide);
+            });
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            progressBar.style.width = progress + '%';
+            slideCounter.textContent = `Slide ${currentSlide + 1} / ${totalSlides}`;
+            notesContent.textContent = slides[currentSlide].getAttribute('data-notes') || 'Tidak ada catatan untuk slide ini.';
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function toggleNotes() {
+            notesDrawer.classList.toggle('collapsed');
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                prevSlide();
+            } else if (e.key === 'n' || e.key === 'N') {
+                toggleNotes();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullScreen();
+            }
+        });
+
+        // Init
+        updateSlide();
+    </script>
+</body>
+</html>

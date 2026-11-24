@@ -115,8 +115,8 @@ async function simpan() {
     <div class="flex items-center justify-between gap-4 pb-2 border-b border-slate-200">
       <div>
         <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Pengaturan Sistem</h2>
-        <p class="text-sm text-slate-500 mt-0.5">
-          Delapan parameter operasional kiosk dan panel admin (FR-A-12). Nilai baru langsung berlaku.
+        <p class="text-sm text-slate-600 mt-0.5">
+          Parameter operasional kiosk dan panel admin. Nilai baru langsung berlaku.
         </p>
       </div>
       <TombolBesar
@@ -134,22 +134,24 @@ async function simpan() {
 
     <Memuat v-if="sedangMuat" tipe="skeleton" :baris="4" />
 
+    <StatusKosong v-else-if="!sedangMuat && daftar.length === 0" judul="Konfigurasi Kosong" deskripsi="Tidak ada pengaturan sistem yang tersedia." />
+
     <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div
         v-for="item in daftar"
         :key="item.kunci"
-        class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between gap-3"
+        class="bg-white p-5 rounded-lg border border-slate-200 shadow-xs flex flex-col justify-between gap-3"
       >
         <div>
           <div class="flex items-start justify-between gap-2">
             <h3 class="font-bold text-slate-900 text-sm md:text-base">
               {{ INFO_KUNCI[item.kunci]?.label || item.kunci }}
             </h3>
-            <span class="text-xs font-semibold px-2 py-0.5 bg-slate-100 text-slate-600 rounded">
+            <span class="text-xs font-semibold px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md">
               {{ item.min }} – {{ item.maks }} {{ INFO_KUNCI[item.kunci]?.satuan || '' }}
             </span>
           </div>
-          <p class="text-xs text-slate-500 mt-1">
+          <p class="text-xs text-slate-600 mt-1">
             {{ INFO_KUNCI[item.kunci]?.deskripsi || item.kunci }}
           </p>
         </div>

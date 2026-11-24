@@ -71,11 +71,29 @@ for (const f of ['aksi', 'entitas', 'user_id']) {
   assert.ok(audit.includes(`f.${f}`) || audit.includes(f), `AuditPage memiliki filter ${f}`)
 }
 
+// Desain ulang 5.10 (DESAIN 10.5, R-11): radius tunggal, tanpa pill/shadow tebal, teks tanpa referensi FR
+for (const [nama, isi] of [
+  ['PengaturanPage', pengaturan],
+  ['AkunPage', akun],
+  ['AuditPage', audit],
+]) {
+  assert.ok(!isi.includes('rounded-2xl'), `${nama} tidak memakai radius 2xl (DESAIN 10.5)`)
+  assert.ok(!isi.includes('rounded-xl'), `${nama} tidak memakai radius xl (DESAIN 10.5)`)
+  assert.ok(!isi.includes('rounded-full'), `${nama} tidak memakai badge pill (R-11)`)
+  assert.ok(!isi.includes('shadow-2xl'), `${nama} tidak memakai bayangan tebal (R-11)`)
+  assert.ok(!isi.includes('text-slate-500'), `${nama} tidak memakai slate-500 untuk teks (DESAIN 10.5)`)
+  assert.ok(!isi.includes('FR-A'), `${nama} tidak menampilkan referensi FR di UI`)
+}
+assert.ok(akun.includes('ModalKonfirmasi'), 'AkunPage memakai modal bersama (R-26)')
+assert.ok(audit.includes('ModalKonfirmasi'), 'AuditPage memakai modal bersama (R-26)')
+
 // Task 5.11 — Halaman galat 403, 404, 419 (DESAIN 10.3 / 10.6)
 const galat = baca('src/pages/galat/GalatPage.vue')
 assert.ok(galat.includes('403') && galat.includes('404') && galat.includes('419'), 'GalatPage menangani kode 403, 404, dan 419')
 assert.ok(galat.includes('Sesi berakhir, silakan masuk lagi'), 'GalatPage 419 memuat pesan sesi berakhir (DESAIN 10.6)')
 assert.ok(galat.includes('/admin/login?sesi=berakhir'), 'GalatPage 419 mengarahkan ke login dengan parameter sesi=berakhir')
+assert.ok(!galat.includes('rounded-2xl') && !galat.includes('rounded-xl') && !galat.includes('rounded-full'), 'GalatPage tidak memakai radius berlebih atau pill (R-11)')
+assert.ok(!galat.includes('text-slate-500'), 'GalatPage tidak memakai slate-500 (DESAIN 10.5)')
 
 // Router: rute pengaturan, akun, audit, galat terdaftar
 const routerJs = baca('src/router/index.js')

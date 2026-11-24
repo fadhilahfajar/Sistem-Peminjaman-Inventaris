@@ -161,7 +161,7 @@ async function simpanGantiPassword() {
     <div class="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-slate-200">
       <div>
         <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Kelola Akun Admin</h2>
-        <p class="text-sm text-slate-500 mt-0.5">
+        <p class="text-sm text-slate-600 mt-0.5">
           Daftar akun pengelola panel, tambah admin baru, dan kelola akses.
         </p>
       </div>
@@ -180,7 +180,7 @@ async function simpanGantiPassword() {
     <Memuat v-if="sedangMuat" tipe="skeleton" :baris="3" />
     <StatusKosong v-else-if="daftar.length === 0" judul="Belum ada akun admin" />
 
-    <div v-else class="bg-white rounded-2xl border border-slate-200 shadow-xs divide-y divide-slate-100 overflow-hidden">
+    <div v-else class="bg-white rounded-lg border border-slate-200 shadow-xs divide-y divide-slate-100 overflow-hidden">
       <div
         v-for="u in daftar"
         :key="u.id"
@@ -191,13 +191,13 @@ async function simpanGantiPassword() {
             <p class="font-bold text-slate-900">{{ u.name }}</p>
             <span
               v-if="u.id === sesi.user?.id"
-              class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-800 border border-blue-200"
+              class="px-2 py-0.5 rounded-md text-xs font-bold bg-blue-50 text-blue-800 border border-blue-200"
             >
               Akun Anda
             </span>
           </div>
           <p class="text-sm font-mono text-slate-800">{{ u.username }}</p>
-          <p v-if="u.email" class="text-xs text-slate-500">{{ u.email }}</p>
+          <p v-if="u.email" class="text-xs text-slate-600">{{ u.email }}</p>
           <p class="text-xs text-slate-400 mt-0.5">
             Login terakhir: {{ u.login_terakhir ? formatWaktuIndo(u.login_terakhir) : 'Belum pernah' }}
           </p>
@@ -206,7 +206,7 @@ async function simpanGantiPassword() {
         <div class="flex items-center gap-3">
           <span
             :class="[
-              'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border',
+              'inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold border',
               u.aktif ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-300',
             ]"
           >
@@ -226,117 +226,101 @@ async function simpanGantiPassword() {
       </div>
     </div>
 
-    <!-- Modal Tambah Admin -->
-    <div
-      v-if="modalTambah"
-      class="fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
+    <!-- Modal Tambah Admin: modal bersama memberi Escape, klik luar, dan kunci gulir (R-26). -->
+    <ModalKonfirmasi
+      :terbuka="modalTambah"
+      judul="Tambah Akun Admin Baru"
+      teks-batal="Batal"
+      teks-konfirmasi="Simpan Akun"
+      :memuat="sedangKirim"
+      @update:terbuka="modalTambah = $event"
+      @konfirmasi="simpanTambah"
     >
-      <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
-        <h3 class="text-lg font-bold text-slate-900">Tambah Akun Admin Baru</h3>
+      <FormField id="u-nama" label="Nama Lengkap" wajib :galat="errors.name?.[0]">
+        <input
+          id="u-nama"
+          v-model="formTambah.name"
+          type="text"
+          maxlength="100"
+          placeholder="Contoh: Budi Santoso"
+          class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
+        >
+      </FormField>
 
-        <FormField id="u-nama" label="Nama Lengkap" wajib :galat="errors.name?.[0]">
-          <input
-            id="u-nama"
-            v-model="formTambah.name"
-            type="text"
-            maxlength="100"
-            placeholder="Contoh: Budi Santoso"
-            class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
-          >
-        </FormField>
+      <FormField id="u-username" label="Username" wajib :galat="errors.username?.[0]">
+        <input
+          id="u-username"
+          v-model="formTambah.username"
+          type="text"
+          name="username"
+          maxlength="50"
+          autocomplete="username"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="Contoh: budi.santoso"
+          class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
+        >
+      </FormField>
 
-        <FormField id="u-username" label="Username" wajib :galat="errors.username?.[0]">
-          <input
-            id="u-username"
-            v-model="formTambah.username"
-            type="text"
-            name="username"
-            maxlength="50"
-            autocomplete="username"
-            autocapitalize="off"
-            spellcheck="false"
-            placeholder="Contoh: budi.santoso"
-            class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
-          >
-        </FormField>
+      <FormField id="u-email" label="Email (opsional)" :galat="errors.email?.[0]">
+        <input
+          id="u-email"
+          v-model="formTambah.email"
+          type="email"
+          name="email"
+          maxlength="190"
+          placeholder="admin@perusahaan.com"
+          class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
+        >
+      </FormField>
 
-        <FormField id="u-email" label="Email (opsional)" :galat="errors.email?.[0]">
-          <input
-            id="u-email"
-            v-model="formTambah.email"
-            type="email"
-            name="email"
-            maxlength="190"
-            placeholder="admin@perusahaan.com"
-            class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
-          >
-        </FormField>
-
-        <FormField id="u-pass" label="Kata sandi" wajib bantuan="Minimal 12 karakter." :galat="errors.password?.[0]">
-          <input
-            id="u-pass"
-            v-model="formTambah.password"
-            type="password"
-            class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
-          >
-        </FormField>
-
-        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-          <TombolBesar varian="sekunder" ukuran="sedang" @click="modalTambah = false">Batal</TombolBesar>
-          <TombolBesar varian="primer" ukuran="sedang" :memuat="sedangKirim" @click="simpanTambah">
-            Simpan
-          </TombolBesar>
-        </div>
-      </div>
-    </div>
+      <FormField id="u-pass" label="Kata sandi" wajib bantuan="Minimal 12 karakter." :galat="errors.password?.[0]">
+        <input
+          id="u-pass"
+          v-model="formTambah.password"
+          type="password"
+          class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
+        >
+      </FormField>
+    </ModalKonfirmasi>
 
     <!-- Modal Ganti Password Sendiri -->
-    <div
-      v-if="modalGantiPass"
-      class="fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
+    <ModalKonfirmasi
+      :terbuka="modalGantiPass"
+      judul="Ganti Password Sendiri"
+      teks-batal="Batal"
+      teks-konfirmasi="Simpan Password"
+      :memuat="sedangKirim"
+      @update:terbuka="modalGantiPass = $event"
+      @konfirmasi="simpanGantiPassword"
     >
-      <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
-        <h3 class="text-lg font-bold text-slate-900">Ganti Password Sendiri</h3>
+      <FormField id="gp-lama" label="Password Lama" wajib :galat="errors.password_lama?.[0]">
+        <input
+          id="gp-lama"
+          v-model="formPass.password_lama"
+          type="password"
+          class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
+        >
+      </FormField>
 
-        <FormField id="gp-lama" label="Password Lama" wajib :galat="errors.password_lama?.[0]">
-          <input
-            id="gp-lama"
-            v-model="formPass.password_lama"
-            type="password"
-            class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
-          >
-        </FormField>
+      <FormField id="gp-baru" label="Password Baru" wajib bantuan="Minimal 12 karakter." :galat="errors.password_baru?.[0]">
+        <input
+          id="gp-baru"
+          v-model="formPass.password_baru"
+          type="password"
+          class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
+        >
+      </FormField>
 
-        <FormField id="gp-baru" label="Password Baru" wajib bantuan="Minimal 12 karakter." :galat="errors.password_baru?.[0]">
-          <input
-            id="gp-baru"
-            v-model="formPass.password_baru"
-            type="password"
-            class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
-          >
-        </FormField>
-
-        <FormField id="gp-konf" label="Konfirmasi Password Baru" wajib :galat="errors.password_baru_confirmation?.[0]">
-          <input
-            id="gp-konf"
-            v-model="formPass.password_baru_confirmation"
-            type="password"
-            class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
-          >
-        </FormField>
-
-        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-          <TombolBesar varian="sekunder" ukuran="sedang" @click="modalGantiPass = false">Batal</TombolBesar>
-          <TombolBesar varian="primer" ukuran="sedang" :memuat="sedangKirim" @click="simpanGantiPassword">
-            Simpan Password
-          </TombolBesar>
-        </div>
-      </div>
-    </div>
+      <FormField id="gp-konf" label="Konfirmasi Password Baru" wajib :galat="errors.password_baru_confirmation?.[0]">
+        <input
+          id="gp-konf"
+          v-model="formPass.password_baru_confirmation"
+          type="password"
+          class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
+        >
+      </FormField>
+    </ModalKonfirmasi>
 
     <!-- Konfirmasi Nonaktifkan Akun -->
     <ModalKonfirmasi

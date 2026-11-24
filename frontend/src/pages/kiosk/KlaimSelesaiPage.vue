@@ -23,7 +23,7 @@ const LABEL_KONDISI = { baik: 'Baik', rusak: 'Rusak', hilang: 'Hilang' }
 const ringkasanBarang = computed(() =>
   (dataKlaim.value?.lines || []).map((line) => ({
     ...line,
-    nama: `${line.nama} — ${LABEL_KONDISI[line.kondisi_dilaporkan] || line.kondisi_dilaporkan}`,
+    nama: `${line.nama}, ${LABEL_KONDISI[line.kondisi_dilaporkan] || line.kondisi_dilaporkan}`,
   })),
 )
 
@@ -54,7 +54,7 @@ function selesai() {
   <div v-if="dataKlaim" class="space-y-6 max-w-2xl mx-auto py-4">
     <!-- Header Sukses (sembunyi saat cetak) -->
     <div class="print:hidden text-center space-y-2">
-      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center mx-auto mb-3">
         <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
         </svg>
@@ -66,18 +66,18 @@ function selesai() {
       <p class="text-slate-600 text-base">
         Ajukan pada {{ formatWaktuIndo(dataKlaim.diklaim_pada) }}.
       </p>
-      <p class="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-sm font-bold">
+      <p class="inline-flex items-center px-3 py-1 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-sm font-bold">
         Menunggu Verifikasi
       </p>
     </div>
 
-    <!-- Pengingat Menyerahkan Barang Fisik (FR-K-06) -->
-    <div class="print:hidden p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm text-center">
+    <!-- Pengingat Menyerahkan Barang Fisik -->
+    <div class="print:hidden p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-sm text-center">
       <strong>PENTING:</strong> Serahkan barang fisik ke petugas IT untuk diverifikasi.
       Status klaim masih <strong>Menunggu Verifikasi</strong> sampai petugas memeriksa barang.
     </div>
 
-    <!-- Bukti Klaim (FR-K-06, tata letak cetak) -->
+    <!-- Bukti Klaim (tata letak cetak) -->
     <StrukCetak
       judul="BUKTI KLAIM PENGEMBALIAN"
       :kode="dataKlaim.kode_klaim"

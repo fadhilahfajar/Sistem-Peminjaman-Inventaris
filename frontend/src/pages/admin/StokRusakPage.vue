@@ -13,7 +13,7 @@ import { useGalat } from '@/composables/useGalat'
 import { useToast } from '@/composables/useToast'
 
 const router = useRouter()
-const { pesanGalat, memuat: sedangKirim, tanganiGalat, bersihkan } = useGalat()
+const { errors, pesanGalat, memuat: sedangKirim, tanganiGalat, bersihkan } = useGalat()
 const { tampil: toast } = useToast()
 
 // Daftar barang rusak > 0 (FR-A-09, GET /api/admin/repairs, tanpa pagination).
@@ -45,15 +45,15 @@ async function muat() {
 onMounted(muat)
 
 function namaKategori(b) {
-  return b.kategori?.nama ?? '—'
+  return b.kategori?.nama ?? ''
 }
 
-// --- Modal aksi perbaikan / afkir ---
+// --- Modal aksi perbaikan / rusak ---
 const modalAksi = ref(false)
-const jenisAksi = ref('perbaikan') // perbaikan | afkir
+const jenisAksi = ref('perbaikan') // perbaikan | rusak
 const targetAksi = ref(null)
 const jumlah = ref(1)
-const teks = ref('') // catatan (perbaikan) atau alasan (afkir)
+const teks = ref('') // catatan (perbaikan) atau alasan (rusak)
 
 function bukaPerbaikan(b) {
   bersihkan()
@@ -103,7 +103,7 @@ async function jalankanAksi() {
       toast(`${jumlahIsi} unit selesai diperbaiki dan kembali tersedia.`)
     } else {
       await adminApi.writeOff(itemId, { jumlah: jumlahIsi, alasan: isi })
-      toast(`${jumlahIsi} unit diafkir.`)
+      toast(`${jumlahIsi} unit rusak.`)
     }
     targetAksi.value = null
     await muat()
@@ -120,8 +120,8 @@ async function jalankanAksi() {
   <section class="space-y-6">
     <div>
       <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Stok Rusak</h2>
-      <p class="text-sm text-slate-500 mt-0.5">
-        Barang dengan unit rusak. Aksi: selesai diperbaiki (BR-09) atau afkir. Tandai rusak dilakukan dari daftar Barang.
+      <p class="text-sm text-slate-600 mt-0.5">
+        Barang dengan unit rusak. Aksi: selesai diperbaiki atau rusak. Tandai rusak dilakukan dari daftar Barang.
       </p>
     </div>
 
@@ -136,7 +136,7 @@ async function jalankanAksi() {
       <TombolBesar varian="sekunder" ukuran="sedang" @click="router.push('/admin/barang')">Lihat Daftar Barang</TombolBesar>
     </StatusKosong>
 
-    <div v-else class="bg-white rounded-xl border border-slate-200 shadow-xs divide-y divide-slate-100">
+    <div v-else class="bg-white rounded-lg border border-slate-200 shadow-xs divide-y divide-slate-100">
       <div
         v-for="b in baris"
         :key="b.id"
@@ -144,56 +144,46 @@ async function jalankanAksi() {
       >
         <div class="flex-1 min-w-[180px]">
           <p class="font-semibold text-slate-900">{{ b.nama }}</p>
-          <p class="text-xs text-slate-500">{{ namaKategori(b) }} &middot; rusak {{ b.rusak }} dari total {{ b.total }} (tersedia {{ b.tersedia }})</p>
+          <p class="text-xs text-slate-600">{{ namaKategori(b) }} &middot; rusak {{ b.rusak }} dari total {{ b.total }} (tersedia {{ b.tersedia }})</p>
         </div>
 
         <div class="flex items-center gap-2">
           <TombolBesar varian="sukses" ukuran="sedang" @click="bukaPerbaikan(b)">Selesai Diperbaiki</TombolBesar>
-          <TombolBesar varian="bahaya" ukuran="sedang" @click="bukaAfkir(b)">Afkir</TombolBesar>
+          <TombolBesar varian="bahaya" ukuran="sedang" @click="bukaAfkir(b)">Rusak</TombolBesar>
         </div>
       </div>
     </div>
 
-    <!-- Modal aksi -->
-    <div
-      v-if="modalAksi"
-      class="fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
+    <!-- Modal aksi: pakai modal bersama agar Escape, klik luar, dan kunci gulir konsisten (R-26). -->
+    <ModalKonfirmasi
+      :terbuka="modalAksi"
+      :judul="`${jenisAksi === 'perbaikan' ? 'Selesai Diperbaiki' : 'Rusak'}: ${targetAksi?.nama ?? ''}`"
+      :pesan="`Unit rusak saat ini: ${targetAksi?.rusak ?? 0}. ${jenisAksi === 'perbaikan' ? 'Rusak berkurang, tersedia bertambah, total tetap.' : 'Rusak dan total berkurang sama banyak.'}`"
+      teks-batal="Batal"
+      :teks-konfirmasi="jenisAksi === 'perbaikan' ? 'Simpan Perbaikan' : 'Ya, Rusak'"
+      :varian-konfirmasi="jenisAksi === 'perbaikan' ? 'sukses' : 'bahaya'"
+      :memuat="sedangKirim"
+      @update:terbuka="modalAksi = $event"
+      @konfirmasi="jalankanAksi"
     >
-      <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
-        <h3 class="text-lg font-bold text-slate-900">
-          {{ jenisAksi === 'perbaikan' ? 'Selesai Diperbaiki' : 'Afkir' }} — {{ targetAksi?.nama }}
-        </h3>
+      <FormField id="s-jumlah" label="Jumlah Unit" wajib :galat="errors.jumlah?.[0]">
+        <InputJumlah id="s-jumlah" v-model="jumlah" :min="1" :max="Number(targetAksi?.rusak) || 1" />
+      </FormField>
 
-        <p class="text-xs text-slate-500">
-          Unit rusak saat ini: {{ targetAksi?.rusak }}. {{ jenisAksi === 'perbaikan' ? 'Rusak berkurang, tersedia bertambah, total tetap.' : 'Rusak dan total berkurang sama banyak.' }}
-        </p>
-
-        <FormField id="s-jumlah" label="Jumlah Unit" wajib>
-          <InputJumlah id="s-jumlah" v-model="jumlah" :min="1" :max="Number(targetAksi?.rusak) || 1" />
-        </FormField>
-
-        <FormField
+      <FormField
+        id="s-teks"
+        :label="labelTeks()"
+        :wajib="jenisAksi === 'afkir'"
+        :galat="errors.alasan?.[0] || errors.catatan?.[0]"
+      >
+        <input
           id="s-teks"
-          :label="labelTeks()"
-          :wajib="jenisAksi === 'afkir'"
-          :galat="errors.alasan?.[0] || errors.catatan?.[0]"
+          v-model="teks"
+          type="text"
+          maxlength="500"
+          class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
         >
-          <input
-            id="s-teks"
-            v-model="teks"
-            type="text"
-            maxlength="500"
-            class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)]"
-          >
-        </FormField>
-
-        <div class="flex justify-end gap-2">
-          <TombolBesar varian="sekunder" ukuran="sedang" @click="modalAksi = false">Batal</TombolBesar>
-          <TombolBesar varian="primer" ukuran="sedang" :memuat="sedangKirim" @click="jalankanAksi">Simpan</TombolBesar>
-        </div>
-      </div>
-    </div>
+      </FormField>
+    </ModalKonfirmasi>
   </section>
 </template>

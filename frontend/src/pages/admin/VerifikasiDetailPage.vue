@@ -151,18 +151,18 @@ async function simpan() {
 
     <template v-if="data">
       <!-- Konteks klaim -->
-      <section class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-xs">
+      <section class="bg-white p-5 md:p-6 rounded-lg border border-slate-200 shadow-xs">
         <h3 class="text-base font-bold text-slate-900 pb-3 mb-4 border-b border-slate-100">Konteks Klaim</h3>
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
-          <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Peminjam</dt><dd class="font-bold text-slate-900">{{ data.peminjaman?.nama_peminjam }}</dd></div>
-          <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Kode Pinjam</dt><dd class="font-bold text-slate-900 font-mono">{{ data.peminjaman?.kode_pinjam }}</dd></div>
-          <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Telepon</dt><dd class="font-bold text-slate-900">{{ data.peminjaman?.telepon || '—' }}</dd></div>
-          <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Divisi</dt><dd class="font-bold text-slate-900">{{ data.peminjaman?.divisi?.nama ?? '—' }}</dd></div>
-          <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Tanggal Pinjam</dt><dd class="font-bold text-slate-900">{{ formatTanggalIndo(data.peminjaman?.tanggal_pinjam) }}</dd></div>
-          <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Batas Kembali</dt><dd class="font-bold text-slate-900">{{ formatTanggalIndo(data.peminjaman?.batas_kembali) }}</dd></div>
-          <div class="flex justify-between sm:block"><dt class="text-slate-500 font-semibold">Diklaim</dt><dd class="font-bold text-slate-900">{{ formatWaktuIndo(data.diklaim_pada) }}</dd></div>
+          <div class="flex justify-between sm:block"><dt class="text-slate-600 font-semibold">Peminjam</dt><dd class="font-bold text-slate-900">{{ data.peminjaman?.nama_peminjam }}</dd></div>
+          <div class="flex justify-between sm:block"><dt class="text-slate-600 font-semibold">Kode Pinjam</dt><dd class="font-bold text-slate-900 font-mono">{{ data.peminjaman?.kode_pinjam }}</dd></div>
+          <div class="flex justify-between sm:block"><dt class="text-slate-600 font-semibold">Telepon</dt><dd class="font-bold text-slate-900">{{ data.peminjaman?.telepon || '' }}</dd></div>
+          <div class="flex justify-between sm:block"><dt class="text-slate-600 font-semibold">Divisi</dt><dd class="font-bold text-slate-900">{{ data.peminjaman?.divisi?.nama ?? '' }}</dd></div>
+          <div class="flex justify-between sm:block"><dt class="text-slate-600 font-semibold">Tanggal Pinjam</dt><dd class="font-bold text-slate-900">{{ formatTanggalIndo(data.peminjaman?.tanggal_pinjam) }}</dd></div>
+          <div class="flex justify-between sm:block"><dt class="text-slate-600 font-semibold">Batas Kembali</dt><dd class="font-bold text-slate-900">{{ formatTanggalIndo(data.peminjaman?.batas_kembali) }}</dd></div>
+          <div class="flex justify-between sm:block"><dt class="text-slate-600 font-semibold">Diklaim</dt><dd class="font-bold text-slate-900">{{ formatWaktuIndo(data.diklaim_pada) }}</dd></div>
           <div class="flex justify-between sm:block">
-            <dt class="text-slate-500 font-semibold">Terlambat saat klaim</dt>
+            <dt class="text-slate-600 font-semibold">Terlambat saat klaim</dt>
             <dd class="font-bold" :class="Number(data.hari_terlambat) > 0 ? 'text-red-700' : 'text-slate-900'">
               {{ Number(data.hari_terlambat) > 0 ? `${data.hari_terlambat} hari` : 'Tidak' }}
             </dd>
@@ -175,11 +175,11 @@ async function simpan() {
       </section>
 
       <!-- Isi klaim -->
-      <section class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+      <section class="bg-white p-5 md:p-6 rounded-lg border border-slate-200 shadow-xs space-y-4">
         <div class="pb-3 border-b border-slate-100">
           <h3 class="text-base font-bold text-slate-900">Isi Klaim ({{ data.jumlah_unit }} unit)</h3>
-          <p class="text-xs text-slate-500 mt-0.5">
-            <template v-if="menunggu">Bagi tiap baris ke Baik, Rusak, Hilang, Ditolak. Total harus sama dengan dilaporkan (FR-A-04).</template>
+          <p class="text-xs text-slate-600 mt-0.5">
+            <template v-if="menunggu">Bagi tiap baris ke Baik, Rusak, Hilang, Ditolak. Total harus sama dengan dilaporkan.</template>
             <template v-else>Hasil verifikasi (baca saja).</template>
           </p>
         </div>
@@ -189,11 +189,11 @@ async function simpan() {
         <div
           v-for="l in data.lines"
           :key="l.line_id"
-          class="rounded-xl border border-slate-200 p-4 space-y-3"
+          class="rounded-lg border border-slate-200 p-4 space-y-3"
         >
           <div class="flex flex-wrap items-center justify-between gap-2">
             <p class="font-semibold text-slate-900">{{ l.nama }}</p>
-            <p class="text-xs text-slate-500">
+            <p class="text-xs text-slate-600">
               Dilaporkan <span class="font-bold capitalize">{{ l.kondisi_dilaporkan }}</span> &middot;
               <span class="tabular-nums font-bold text-slate-900">{{ l.qty }} unit</span>
             </p>
@@ -212,19 +212,19 @@ async function simpan() {
 
           <div v-else class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
             <div class="px-3 py-2 rounded-lg bg-slate-50 border border-slate-200">
-              <p class="text-xs font-bold uppercase text-slate-500">Baik</p>
+              <p class="text-xs font-bold text-slate-600">Baik</p>
               <p class="font-bold tabular-nums text-slate-900">{{ l.hasil?.qty_baik ?? 0 }}</p>
             </div>
             <div class="px-3 py-2 rounded-lg bg-slate-50 border border-slate-200">
-              <p class="text-xs font-bold uppercase text-slate-500">Rusak</p>
+              <p class="text-xs font-bold text-slate-600">Rusak</p>
               <p class="font-bold tabular-nums text-slate-900">{{ l.hasil?.qty_rusak ?? 0 }}</p>
             </div>
             <div class="px-3 py-2 rounded-lg bg-slate-50 border border-slate-200">
-              <p class="text-xs font-bold uppercase text-slate-500">Hilang</p>
+              <p class="text-xs font-bold text-slate-600">Hilang</p>
               <p class="font-bold tabular-nums text-slate-900">{{ l.hasil?.qty_hilang ?? 0 }}</p>
             </div>
             <div class="px-3 py-2 rounded-lg bg-slate-50 border border-slate-200">
-              <p class="text-xs font-bold uppercase text-slate-500">Ditolak</p>
+              <p class="text-xs font-bold text-slate-600">Ditolak</p>
               <p class="font-bold tabular-nums text-slate-900">{{ l.hasil?.qty_ditolak ?? 0 }}</p>
             </div>
           </div>
@@ -235,7 +235,7 @@ async function simpan() {
               <span v-else class="font-semibold text-red-700">Selisih {{ selisih(l) > 0 ? `${selisih(l)} belum dibagi` : `${-selisih(l)} kelebihan` }}.</span>
             </p>
             <p v-if="hasilBedaLaporan(l) && !catatanAdmin.trim()" class="text-xs font-semibold text-amber-700">
-              Hasil berbeda dari laporan — catatan admin wajib (BR-06).
+              Hasil berbeda dari laporan. Catatan admin wajib (BR-06).
             </p>
           </template>
         </div>
@@ -261,8 +261,8 @@ async function simpan() {
           <span class="font-bold">Catatan admin:</span> {{ data.catatan_admin }}
         </p>
 
-        <p v-if="!menunggu" class="text-xs text-slate-500">
-          Diverifikasi {{ formatWaktuIndo(data.diverifikasi_pada) }} oleh {{ data.verifikator?.nama ?? '—' }}
+        <p v-if="!menunggu" class="text-xs text-slate-600">
+          Diverifikasi {{ formatWaktuIndo(data.diverifikasi_pada) }} oleh {{ data.verifikator?.nama ?? '' }}
         </p>
       </section>
 
@@ -274,7 +274,7 @@ async function simpan() {
         <TombolBesar varian="primer" ukuran="sedang" :memuat="sedangKirim" :dinonaktifkan="!semuaPas" @click="mintaSimpan">
           Simpan Verifikasi
         </TombolBesar>
-        <p class="w-full text-xs text-slate-500">
+        <p class="w-full text-xs text-slate-600">
           Simpan aktif setelah semua baris dibagi pas. Stok berubah sesuai hasil (Baik, Rusak, Hilang); Ditolak tidak mengubah stok.
         </p>
       </section>

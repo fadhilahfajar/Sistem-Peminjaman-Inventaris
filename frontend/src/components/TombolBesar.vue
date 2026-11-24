@@ -36,7 +36,7 @@ defineEmits(['click'])
     :type="tipe"
     :disabled="dinonaktifkan || memuat"
     :class="[
-      'inline-flex items-center justify-center font-semibold rounded-xl transition-colors cursor-pointer select-none',
+      'inline-flex items-center justify-center font-semibold rounded-lg transition-colors cursor-pointer select-none',
       'focus-visible:outline-3 focus-visible:outline-offset-2',
       ukuran === 'besar'
         ? 'min-h-[56px] px-6 py-3 text-lg md:text-xl gap-3'

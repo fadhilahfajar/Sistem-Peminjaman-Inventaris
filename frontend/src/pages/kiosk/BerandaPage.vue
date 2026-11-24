@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const menuKiosk = [
+  // R-14: Tiga aksi kiosk utama dapat berat sama; kartu seragam memang menyampaikan paritas.
   {
     judul: 'Lihat Katalog',
     deskripsi: 'Cari barang inventaris dan cek ketersediaan stok terkini.',
@@ -38,24 +39,24 @@ function navigasi(rute) {
 <template>
   <div class="py-4 md:py-8 space-y-8">
     <!-- Header Hero Kiosk -->
-    <div class="text-center max-w-2xl mx-auto space-y-2">
-      <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-        Selamat Datang di Inventaris IT
-      </h2>
-      <p class="text-base md:text-lg text-slate-600">
-        Pilih salah satu menu di bawah ini untuk memulai layanan mandiri.
+    <header class="text-center py-4">
+      <h1 class="text-4xl md:text-6xl font-black text-slate-900">
+        IT <span class="text-blue-600">Inventory</span>
+      </h1>
+      <p class="mt-4 text-lg text-slate-600 font-medium">
+        Sistem Peminjaman Mandiri Tim IT
       </p>
-    </div>
+    </header>
 
     <!-- Tiga Tombol Utama Layar Sentuh -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
       <button
         v-for="menu in menuKiosk"
         :key="menu.rute"
         type="button"
         :class="[
-          'group relative flex flex-col justify-between p-6 rounded-2xl border-2 text-left cursor-pointer transition-all duration-150',
-          'min-h-[220px] shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0',
+          'group relative flex flex-col justify-between p-6 rounded-lg border-2 text-left cursor-pointer transition-all duration-150',
+          'min-h-[220px] shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0',
           'focus-visible:outline-3 focus-visible:outline-offset-2',
           menu.varian,
         ]"
@@ -64,7 +65,7 @@ function navigasi(rute) {
         <div class="space-y-4">
           <!-- Ikon SVG & Badge -->
           <div class="flex items-center justify-between">
-            <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+            <div class="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
               <!-- Ikon Katalog -->
               <svg
                 v-if="menu.ikon === 'katalog'"
@@ -99,7 +100,7 @@ function navigasi(rute) {
               </svg>
             </div>
 
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/20 tracking-wide uppercase">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-white/20">
               {{ menu.badge }}
             </span>
           </div>
@@ -115,16 +116,17 @@ function navigasi(rute) {
           </div>
         </div>
 
-        <!-- Tombol Panah Bawah -->
         <div class="mt-6 flex items-center gap-2 text-sm font-bold text-white/95">
           <span>Buka Layanan</span>
-          <span class="text-lg transition-transform group-hover:translate-x-1">&rarr;</span>
+          <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7M3 12h18" />
+          </svg>
         </div>
       </button>
     </div>
 
     <!-- Catatan Informasi Operasional -->
-    <div class="max-w-xl mx-auto p-4 rounded-xl bg-slate-100 text-slate-600 text-xs text-center border border-slate-200">
+    <div class="max-w-xl mx-auto p-4 rounded-lg bg-slate-100 text-slate-600 text-xs text-center border border-slate-200">
       Kiosk mandiri beroperasi untuk tim internal dan magang. Pastikan mencatat kode peminjaman setelah menyelesaikan permohonan.
     </div>
   </div>

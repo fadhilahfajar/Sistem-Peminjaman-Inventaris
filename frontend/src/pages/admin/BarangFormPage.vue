@@ -122,8 +122,8 @@ async function simpan() {
         <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">
           {{ idUbah ? 'Ubah Barang' : 'Tambah Barang' }}
         </h2>
-        <p class="text-sm text-slate-500 mt-0.5">
-          {{ idUbah ? 'Stok diubah lewat penyesuaian, bukan form ini (FR-A-03).' : 'Stok awal masuk lewat mutasi TAMBAH_STOK.' }}
+        <p class="text-sm text-slate-600 mt-0.5">
+          {{ idUbah ? 'Stok diubah lewat penyesuaian stok, bukan lewat form ini.' : 'Stok awal barang dicatat lewat mutasi stok.' }}
         </p>
       </div>
       <TombolBesar varian="sekunder" ukuran="sedang" @click="router.push('/admin/barang')">&larr; Kembali</TombolBesar>
@@ -131,7 +131,7 @@ async function simpan() {
 
     <PesanGalat v-if="pesanGalat" :pesan="pesanGalat" />
 
-    <form class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5" @submit.prevent="simpan">
+    <form class="bg-white p-5 md:p-6 rounded-lg border border-slate-200 shadow-xs space-y-5" @submit.prevent="simpan">
       <FormField id="b-nama" label="Nama Barang" wajib :galat="errors.nama?.[0]">
         <input
           id="b-nama"

@@ -116,9 +116,9 @@ async function jalankanToggle() {
     <div class="flex items-center justify-between gap-4">
       <div>
         <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Kategori Barang</h2>
-        <p class="text-sm text-slate-500 mt-0.5">Tambah, ubah nama, dan nonaktifkan (BR-28, BR-33).</p>
+        <p class="text-sm text-slate-600 mt-0.5">Tambah, ubah nama, dan nonaktifkan kategori.</p>
       </div>
-      <TombolBesar varian="primer" ukuran="sedang" @click="bukaTambah">+ Tambah</TombolBesar>
+      <TombolBesar varian="primer" ukuran="sedang" @click="bukaTambah">+ Tambah Kategori</TombolBesar>
     </div>
 
     <PesanGalat v-if="pesanGalat" :pesan="pesanGalat" />
@@ -126,7 +126,7 @@ async function jalankanToggle() {
     <Memuat v-if="sedangMuat" tipe="skeleton" :baris="3" />
     <StatusKosong v-else-if="daftar.length === 0" judul="Belum ada kategori" />
 
-    <div v-else class="bg-white rounded-xl border border-slate-200 shadow-xs divide-y divide-slate-100">
+    <div v-else class="bg-white rounded-lg border border-slate-200 shadow-xs divide-y divide-slate-100">
       <div
         v-for="k in daftar"
         :key="k.id"
@@ -138,7 +138,7 @@ async function jalankanToggle() {
 
         <span
           :class="[
-            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border whitespace-nowrap',
+            'inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold border whitespace-nowrap',
             k.aktif ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-300',
           ]"
         >
@@ -159,36 +159,26 @@ async function jalankanToggle() {
       </div>
     </div>
 
-    <!-- Form tambah/ubah nama -->
-    <div
-      v-if="modeForm !== 'tutup'"
-      class="fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
+    <!-- Form tambah/ubah nama: pakai modal bersama agar Escape, klik luar, dan kunci gulir bekerja (R-26). -->
+    <ModalKonfirmasi
+      :terbuka="modeForm !== 'tutup'"
+      :judul="modeForm === 'tambah' ? 'Tambah Kategori' : 'Ubah Kategori'"
+      teks-batal="Batal"
+      :teks-konfirmasi="modeForm === 'tambah' ? 'Tambah' : 'Simpan'"
+      :memuat="sedangKirim"
+      @update:terbuka="!$event && (modeForm = 'tutup')"
+      @konfirmasi="simpan"
     >
-      <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
-        <h3 class="text-lg font-bold text-slate-900">
-          {{ modeForm === 'tambah' ? 'Tambah Kategori' : 'Ubah Kategori' }}
-        </h3>
-
-        <FormField id="nama" label="Nama Kategori" wajib :galat="errors.nama?.[0]">
-          <input
-            id="nama"
-            v-model="nama"
-            type="text"
-            maxlength="100"
-            class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent"
-          >
-        </FormField>
-
-        <div class="flex justify-end gap-2">
-          <TombolBesar varian="sekunder" ukuran="sedang" @click="modeForm = 'tutup'">Batal</TombolBesar>
-          <TombolBesar varian="primer" ukuran="sedang" :memuat="sedangKirim" @click="simpan">
-            {{ modeForm === 'tambah' ? 'Tambah' : 'Simpan' }}
-          </TombolBesar>
-        </div>
-      </div>
-    </div>
+      <FormField id="nama" label="Nama Kategori" wajib :galat="errors.nama?.[0]">
+        <input
+          id="nama"
+          v-model="nama"
+          type="text"
+          maxlength="100"
+          class="w-full min-h-[44px] px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent"
+        >
+      </FormField>
+    </ModalKonfirmasi>
 
     <!-- Konfirmasi nonaktif -->
     <ModalKonfirmasi

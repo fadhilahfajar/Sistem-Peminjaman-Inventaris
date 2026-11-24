@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Penjelasan rinci kontribusi Peran C (a710230117-faris) pada frontend Sistem Peminjaman Inventaris.">
+  <title>Peran C — Frontend Sistem Peminjaman Inventaris</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --latar: #f3f6fa;
+      --kertas: #fff;
+      --tinta: #172235;
+      --redup: #526176;
+      --garis: #dce4ee;
+      --aksen: #12675e;
+      --aksen-muda: #e8f5f2;
+      --biru: #2857a4;
+      --biru-muda: #edf3fd;
+      --kuning: #8a5a00;
+      --kuning-muda: #fff6dc;
+      --merah: #a6322c;
+      --merah-muda: #fff0ef;
+      --bayang: 0 10px 32px rgb(22 39 61 / 7%);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+
+    body {
+      margin: 0;
+      background: var(--latar);
+      color: var(--tinta);
+      font: 16px/1.72 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    a { color: var(--biru); }
+    a:hover { text-decoration-thickness: 2px; }
+
+    .masthead {
+      padding: 52px max(24px, calc((100% - 1120px) / 2));
+      background: #14283b;
+      color: #fff;
+    }
+
+    .masthead .label {
+      margin: 0 0 12px;
+      color: #91dbcb;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 { line-height: 1.25; }
+    h1 { max-width: 860px; margin: 0; font-size: clamp(32px, 5vw, 52px); }
+    .masthead .intro { max-width: 820px; margin: 18px 0 0; color: #d5e0ec; font-size: 19px; }
+    .identity { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 24px; }
+    .identity span { padding: 5px 11px; border: 1px solid #456077; border-radius: 999px; color: #e3edf6; font-size: 13px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100% - 40px));
+      margin: 30px auto 72px;
+      align-items: start;
+    }
+
+    nav {
+      position: sticky;
+      top: 20px;
+      padding: 20px;
+      border: 1px solid var(--garis);
+      border-radius: 14px;
+      background: var(--kertas);
+      box-shadow: var(--bayang);
+    }
+
+    nav h2 { margin: 0 0 12px; font-size: 15px; }
+    nav ol { margin: 0; padding-left: 21px; }
+    nav li { margin: 6px 0; color: var(--redup); font-size: 13px; line-height: 1.45; }
+    nav a { text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+
+    article { min-width: 0; }
+    section {
+      margin-bottom: 22px;
+      padding: clamp(22px, 4vw, 38px);
+      border: 1px solid var(--garis);
+      border-radius: 16px;
+      background: var(--kertas);
+      box-shadow: var(--bayang);
+      scroll-margin-top: 18px;
+    }
+
+    section > :first-child { margin-top: 0; }
+    section > :last-child { margin-bottom: 0; }
+    h2 { margin: 0 0 15px; font-size: clamp(24px, 3vw, 32px); }
+    h3 { margin: 25px 0 8px; font-size: 19px; }
+    p { margin: 10px 0; }
+    .muted { color: var(--redup); }
+    .eyebrow { margin: 0 0 8px; color: var(--aksen); font-size: 12px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+
+    .callout {
+      margin: 18px 0;
+      padding: 15px 18px;
+      border-left: 4px solid var(--aksen);
+      border-radius: 0 10px 10px 0;
+      background: var(--aksen-muda);
+    }
+
+    .callout.warning { border-left-color: #bd810a; background: var(--kuning-muda); }
+    .callout.caution { border-left-color: var(--merah); background: var(--merah-muda); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 16px 0;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--garis);
+      border-radius: 12px;
+      background: #fcfdff;
+    }
+
+    .card h3 { margin: 0 0 7px; font-size: 17px; }
+    .card p { margin: 0; color: var(--redup); }
+    .table-wrap { overflow-x: auto; margin: 15px 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td { padding: 11px 12px; border: 1px solid var(--garis); text-align: left; vertical-align: top; }
+    th { background: #edf2f7; font-weight: 750; }
+    td { color: #334258; }
+    .status { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 12px; font-weight: 750; white-space: nowrap; }
+    .done { background: #e4f5ee; color: #12613f; }
+    .pending { background: #fff1d2; color: #805100; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+      counter-reset: flow;
+    }
+
+    .flow div {
+      position: relative;
+      min-height: 125px;
+      padding: 42px 13px 13px;
+      border: 1px solid var(--garis);
+      border-radius: 11px;
+      background: #fcfdff;
+      color: var(--redup);
+      font-size: 13px;
+    }
+
+    .flow div::before {
+      counter-increment: flow;
+      content: counter(flow);
+      position: absolute;
+      top: 10px;
+      left: 13px;
+      display: grid;
+      width: 24px;
+      height: 24px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--aksen-muda);
+      color: var(--aksen);
+      font-weight: 800;
+    }
+
+    .flow strong { display: block; margin-bottom: 4px; color: var(--tinta); }
+    code { padding: 2px 5px; border-radius: 4px; background: #edf2f7; font: .9em ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
+    pre {
+      overflow-x: auto;
+      padding: 17px;
+      border-radius: 10px;
+      background: #172438;
+      color: #e9f1fb;
+      font: 13px/1.65 ui-monospace, Consolas, monospace;
+    }
+
+    ul, ol { padding-left: 23px; }
+    li + li { margin-top: 5px; }
+    .small { font-size: 13px; }
+    footer { padding: 20px; color: var(--redup); text-align: center; }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      nav { position: static; }
+      nav ol { columns: 2; column-gap: 24px; }
+      nav li { break-inside: avoid; }
+      .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 600px) {
+      .masthead { padding: 34px 20px; }
+      .layout { width: min(100% - 22px, 1180px); margin-top: 12px; }
+      section { padding: 20px; }
+      .grid, .flow { grid-template-columns: 1fr; }
+      nav ol { columns: 1; }
+      .flow div { min-height: 92px; }
+    }
+
+    @media print {
+      :root { color-scheme: light; }
+      body { background: #fff; font-size: 11pt; }
+      .masthead { padding: 24px 0; background: #fff; color: #111; }
+      .masthead .label, .masthead .intro { color: #333; }
+      .identity span { border-color: #888; color: #222; }
+      .layout { display: block; width: 100%; margin: 0; }
+      nav { display: none; }
+      section { break-inside: avoid; box-shadow: none; }
+      .card, pre, .callout { print-color-adjust: exact; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="masthead">
+    <p class="label">Dokumen kontribusi peran</p>
+    <h1>Peran C — Frontend</h1>
+    <p class="intro">Penjelasan rinci tentang pekerjaan frontend untuk Sistem Peminjaman Inventaris: tanggung jawab, teknologi, arsitektur UI, alur kiosk dan panel admin, integrasi API, pengujian, serta status task.</p>
+    <div class="identity">
+      <span>Peran: C</span>
+      <span>Identitas: a710230117-faris</span>
+      <span>Bahasa: JavaScript</span>
+      <span>UI: Vue 3</span>
+      <span>Status: Fase 4–5 dan Task 6.3 tercatat selesai</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav aria-label="Daftar isi">
+      <h2>Daftar isi</h2>
+      <ol>
+        <li><a href="#ikhtisar">Ikhtisar kontribusi</a></li>
+        <li><a href="#batas-peran">Batas peran C</a></li>
+        <li><a href="#stack">Teknologi frontend</a></li>
+        <li><a href="#arsitektur">Arsitektur frontend</a></li>
+        <li><a href="#fondasi">Fondasi dan komponen bersama</a></li>
+        <li><a href="#kiosk">Kiosk peminjam</a></li>
+        <li><a href="#admin">Panel admin</a></li>
+        <li><a href="#integrasi">Integrasi API dan state</a></li>
+        <li><a href="#keamanan">Keamanan, privasi, aksesibilitas</a></li>
+        <li><a href="#pengujian">Pengujian dan verifikasi</a></li>
+        <li><a href="#status">Status task dan pekerjaan berikutnya</a></li>
+        <li><a href="#narasi">Contoh narasi presentasi</a></li>
+        <li><a href="#rujukan">Rujukan</a></li>
+      </ol>
+    </nav>
+
+    <article>
+      <section id="ikhtisar">
+        <p class="eyebrow">01 · Ikhtisar</p>
+        <h2>Apa yang dikerjakan Peran C?</h2>
+        <p>Peran C membangun lapisan antarmuka pengguna untuk dua kelompok pemakai: peminjam yang menggunakan kiosk tanpa akun, dan petugas IT yang menggunakan panel admin setelah login. Pekerjaan mencakup navigasi halaman, formulir, tampilan data, interaksi, keadaan memuat/kosong/galat, responsivitas, aksesibilitas, serta penghubung frontend ke API yang disediakan backend.</p>
+        <div class="grid">
+          <div class="card">
+            <h3>Kiosk</h3>
+            <p>Mengutamakan alur mandiri yang mudah dipahami pada layar sentuh: katalog, transaksi peminjaman, bukti, cek status, klaim pengembalian, perpanjangan, pembatalan pemesanan, dan reset saat idle.</p>
+          </div>
+          <div class="card">
+            <h3>Panel admin</h3>
+            <p>Menyajikan navigasi kerja petugas, tabel dan filter, detail transaksi, verifikasi, pengelolaan master data, pengaturan, akun, audit, serta laporan.</p>
+          </div>
+        </div>
+        <div class="callout">
+          <strong>Ringkasnya:</strong> frontend menampilkan data dan mengirim aksi pengguna. Validasi akhir, keputusan bisnis, status peminjaman, dan mutasi stok tetap menjadi tanggung jawab backend.
+        </div>
+      </section>
+
+      <section id="batas-peran">
+        <p class="eyebrow">02 · Batas tanggung jawab</p>
+        <h2>Frontend bukan pemilik aturan bisnis</h2>
+        <p>Antarmuka boleh membantu pengguna mengisi data dengan benar dan menyembunyikan atau menonaktifkan aksi yang menurut respons server tidak tersedia. Namun, perilaku UI itu bukan pengganti pemeriksaan server. Backend selalu memvalidasi ulang permintaan dan menentukan apakah suatu aksi sah.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Peran frontend C</th><th>Bukan tanggung jawab frontend C</th></tr></thead>
+            <tbody>
+              <tr><td>Menampilkan jumlah tersedia yang diterima dari API dan membatasi pencacah berdasarkan nilai tersebut untuk membantu pengguna.</td><td>Menghitung atau menyimpan kebenaran stok; melakukan update stok langsung.</td></tr>
+              <tr><td>Menampilkan status dan kelayakan aksi yang dikirim backend, termasuk alasan ketika tombol tidak tersedia.</td><td>Menentukan sendiri status peminjaman atau mengesahkan klaim pengembalian.</td></tr>
+              <tr><td>Validasi awal formulir agar kesalahan mudah diperbaiki sebelum dikirim.</td><td>Menganggap validasi browser cukup; server tetap wajib memvalidasi.</td></tr>
+              <tr><td>Mengirim request sesuai kontrak endpoint dan menampilkan respons/galat.</td><td>Mengimplementasikan migration, Service domain, Controller, atau route API backend.</td></tr>
+              <tr><td>Mengirim angka hasil pilihan pengguna sebagai niat tindakan.</td><td>Mengubah kolom stok atau menulis buku besar mutasi dari Vue.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout warning">
+          Pembagian tim menempatkan API dan aturan bisnis di pekerjaan A/B. Peran C membangun UI berdasarkan kontrak yang telah disepakati dan endpoint yang sudah tersedia.
+        </div>
+      </section>
+
+      <section id="stack">
+        <p class="eyebrow">03 · Teknologi</p>
+        <h2>Stack yang digunakan frontend</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Teknologi</th><th>Peran di frontend</th><th>Catatan proyek</th></tr></thead>
+            <tbody>
+              <tr><td>JavaScript</td><td>Bahasa untuk logika aplikasi dan komponen Vue.</td><td>Keputusan K-1 menetapkan JavaScript dengan Composition API / <code>&lt;script setup&gt;</code>, tanpa TypeScript.</td></tr>
+              <tr><td>Vue 3</td><td>Membangun halaman dan komponen reaktif.</td><td>Komponen disusun sebagai Single-File Components <code>.vue</code>.</td></tr>
+              <tr><td>Vite</td><td>Menjalankan server pengembangan dan membangun bundle produksi.</td><td>Server lokal menggunakan port 5173; proxy meneruskan <code>/api</code> dan <code>/sanctum</code> ke backend dev.</td></tr>
+              <tr><td>Vue Router</td><td>Memetakan URL ke halaman kiosk, login, admin, dan halaman galat.</td><td>Halaman admin menggunakan route metadata dan guard sesi; beberapa halaman dimuat secara lazy.</td></tr>
+              <tr><td>Pinia</td><td>Menyimpan state UI/sesi yang dibutuhkan lintas komponen.</td><td>Data kiosk dan profil admin yang sensitif terhadap sesi disimpan dalam memori, bukan persistensi browser.</td></tr>
+              <tr><td>Axios</td><td>Mengirim request API dan memusatkan penanganan respons/galat.</td><td>Satu client menggunakan cookie kredensial, header JSON, CSRF, dan interceptor.</td></tr>
+              <tr><td>Tailwind CSS</td><td>Menyusun layout, jarak, warna, tipografi, dan perilaku responsif.</td><td>Token desain ditetapkan pada pekerjaan fondasi UI.</td></tr>
+              <tr><td>Node.js 24</td><td>Runtime untuk tooling dan perintah frontend.</td><td>Versi dipin melalui <code>.nvmrc</code> dan batas <code>engines</code> >=24 &lt;25.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted small">Versi dependensi rinci dapat berubah melalui pengelolaan paket proyek. Rujuk manifest frontend saat memerlukan angka versi terkini.</p>
+      </section>
+
+      <section id="arsitektur">
+        <p class="eyebrow">04 · Arsitektur frontend</p>
+        <h2>Susunan lapisan antarmuka</h2>
+        <pre>Pengguna
+  ↓
+Vue pages ──→ komponen bersama
+  ↓                 ↓
+Pinia state ←── composables / utilitas UI
+  ↓
+API client (Axios + interceptor)
+  ↓ HTTP JSON + cookie sesi/CSRF
+Laravel API
+  ↓
+MySQL (diakses backend, bukan browser)</pre>
+        <p>Komponen halaman mengatur presentasi dan interaksi. Komponen bersama merapikan elemen UI yang dipakai ulang. Store menjaga state yang diperlukan beberapa halaman. Klien API memisahkan detail endpoint dari komponen. Backend memvalidasi dan menjalankan aturan bisnis; browser hanya menerima hasil untuk ditampilkan.</p>
+        <h3>Struktur source utama</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Direktori</th><th>Isi</th></tr></thead>
+            <tbody>
+              <tr><td><code>frontend/src/pages/</code></td><td>Halaman berdasarkan fitur kiosk, admin, dan galat.</td></tr>
+              <tr><td><code>frontend/src/components/</code></td><td>Komponen dasar, navigasi, tabel, badge, form, modal, struk, dan pemilih barang.</td></tr>
+              <tr><td><code>frontend/src/layouts/</code></td><td>Layout kiosk, login, dan admin.</td></tr>
+              <tr><td><code>frontend/src/api/</code></td><td>Client Axios, endpoint kiosk, endpoint admin/auth, dan ekspor klien.</td></tr>
+              <tr><td><code>frontend/src/stores/</code></td><td>State sesi admin, kiosk, UI, dan notifikasi.</td></tr>
+              <tr><td><code>frontend/src/composables/</code></td><td>Logika UI yang dapat dipakai ulang seperti galat form, toast, dan idle kiosk.</td></tr>
+              <tr><td><code>frontend/src/utils/</code></td><td>Fungsi bantu teruji seperti tanggal, validasi peminjaman, klaim, dan pemilih barang.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="fondasi">
+        <p class="eyebrow">05 · Fondasi UI</p>
+        <h2>Navigasi, komponen, dan pola visual</h2>
+        <h3>Layout dan navigasi</h3>
+        <ul>
+          <li><strong>LayoutKiosk:</strong> kerangka kiosk, tautan kembali/beranda, ruang konten utama, dan perilaku idle reset.</li>
+          <li><strong>LayoutLogin:</strong> area terfokus untuk autentikasi admin.</li>
+          <li><strong>LayoutAdmin:</strong> sidebar, menu responsif, navbar, konten halaman, toast, dan ringkasan/lencana admin.</li>
+          <li><strong>Vue Router:</strong> nama rute dan judul halaman; route admin diberi metadata sesi yang diperiksa sebelum halaman terlindungi dibuka.</li>
+        </ul>
+        <h3>Komponen reusable</h3>
+        <div class="grid">
+          <div class="card"><h3>Form dan aksi</h3><p><code>TombolBesar</code>, <code>FormField</code>, <code>InputJumlah</code>, <code>InputKode</code>, <code>ModalKonfirmasi</code>.</p></div>
+          <div class="card"><h3>Feedback</h3><p><code>NotifikasiToast</code>, <code>StatusKosong</code>, <code>Memuat</code>, <code>PesanGalat</code>.</p></div>
+          <div class="card"><h3>Informasi transaksi</h3><p><code>BadgeStatus</code>, <code>BadgeLencana</code>, <code>StrukCetak</code>, <code>LiniMasa</code>, <code>KartuAngka</code>.</p></div>
+          <div class="card"><h3>Daftar</h3><p><code>TabelData</code> menyediakan pagination, state memuat/kosong, slot sel, serta mode kartu di layar sempit. <code>FilterBar</code> menyatukan kontrol filter.</p></div>
+        </div>
+        <p>Tujuannya bukan hanya mengurangi pengulangan kode: pola komponen yang konsisten juga membantu label input, fokus keyboard, pesan galat, ukuran target sentuh, dan tampilan responsif tetap seragam antarhalaman.</p>
+      </section>
+
+      <section id="kiosk">
+        <p class="eyebrow">06 · Kiosk</p>
+        <h2>Alur peminjam tanpa akun</h2>
+        <p>Kiosk dirancang sebagai alur layanan mandiri. Peminjam tidak membuat akun; ia memilih barang, mengisi identitas transaksi, lalu menggunakan kode transaksi untuk melihat informasi berikutnya.</p>
+        <h3>Beranda dan katalog</h3>
+        <ul>
+          <li>Beranda menyediakan jalan pintas ke katalog, peminjaman, dan cek/pengembalian.</li>
+          <li>Katalog memuat barang dari API, menyediakan pencarian nama dengan debounce, filter kategori, dan keadaan memuat, kosong, atau galat.</li>
+          <li>Jumlah tersedia ditampilkan sesuai respons API. Barang dengan stok tersedia nol dapat tampil, tetapi tombol pemilihannya dinonaktifkan.</li>
+          <li>Pencacah jumlah membantu mencegah pilihan pengguna melampaui jumlah tersedia terakhir yang dilihatnya. Server tetap memeriksa ulang saat transaksi dibuat.</li>
+        </ul>
+        <h3>Form peminjaman/pemesanan</h3>
+        <p>Form mengumpulkan nama, divisi, tipe peminjam, nomor WhatsApp, keperluan, tanggal pinjam, batas kembali, barang, dan jumlah. Validasi sisi klien memberi umpan balik langsung, tetapi tidak menggantikan validasi backend.</p>
+        <ul>
+          <li>Data formulir dan aturan tanggal dibantu fungsi utilitas frontend.</li>
+          <li>Jika tanggal dipilih di masa depan, UI menerangkan bahwa barang dipesan dan stok ditahan menurut aturan server.</li>
+          <li>Satu kunci idempotensi UUID digunakan untuk mencegah pengiriman berulang menjadi transaksi ganda.</li>
+          <li>Tombol kirim dinonaktifkan selama request berlangsung. Jika server merespons konflik stok, UI menampilkan pesan dan memperbarui data yang relevan.</li>
+          <li>Setelah sukses, halaman bukti menampilkan kode dan rincian transaksi; kode tidak dijadikan parameter URL.</li>
+        </ul>
+        <h3>Bukti, cek, klaim, dan tindakan lanjutan</h3>
+        <ul>
+          <li><strong>Bukti peminjaman:</strong> kode besar, nama/divisi, keperluan, tanggal, penanda pemesanan jika relevan, batas kembali, daftar barang, dan petunjuk pengembalian. Tata letak cetak menyembunyikan navigasi dan tombol aplikasi.</li>
+          <li><strong>Cek peminjaman:</strong> kode dikirim di badan POST, bukan URL. UI menangani kode tidak ditemukan dan pembatasan percobaan tanpa membuka informasi sensitif.</li>
+          <li><strong>Kartu peminjaman:</strong> menampilkan status/lencana, informasi batas waktu, ringkasan per barang, sisa dan riwayat klaim, serta alasan kelayakan aksi dari API.</li>
+          <li><strong>Klaim pengembalian:</strong> form parsial mencatat jumlah baik/rusak/hilang per barang, membatasi jumlah input sesuai sisa yang dikirim server, menyediakan catatan opsional, konfirmasi, dan kunci idempotensi.</li>
+          <li><strong>Bukti klaim:</strong> menunjukkan kode klaim dan status menunggu verifikasi, mengingatkan peminjam untuk menyerahkan barang fisik kepada petugas, serta menyediakan tata letak cetak.</li>
+          <li><strong>Perpanjangan:</strong> menampilkan batas lama/baru sebelum konfirmasi dan menyajikan alasan dari server bila tindakan tidak tersedia.</li>
+          <li><strong>Pembatalan pemesanan:</strong> merangkum transaksi dan meminta konfirmasi; UI menampilkan hasil backend, bukan mengubah angka stok sendiri.</li>
+        </ul>
+        <h3>Reset otomatis saat kiosk ditinggalkan</h3>
+        <p>Composable idle membaca nilai konfigurasi publik kiosk. Setelah tidak aktif, UI menampilkan hitung mundur; interaksi dapat membatalkan hitung mundur. Jika waktu habis, store kiosk dibersihkan dan aplikasi kembali ke beranda. Data peminjam dan kode tidak disimpan di localStorage atau URL.</p>
+      </section>
+
+      <section id="admin">
+        <p class="eyebrow">07 · Panel admin</p>
+        <h2>Antarmuka kerja petugas IT</h2>
+        <h3>Login dan sesi</h3>
+        <p>Halaman login mengirim kredensial melalui API sesi. Guard router meminta profil dari <code>/api/auth/me</code> sebelum rute admin terlindungi ditampilkan. Profil admin berada dalam memori Pinia; cookie sesi dikelola browser dan backend. Bila sesi habis, pengguna memperoleh pesan dan diarahkan ke login, dengan tujuan halaman sebelumnya bila tersedia.</p>
+        <h3>Dasbor dan pemantauan</h3>
+        <p>Dasbor merangkum angka dari respons summary backend: peminjaman berjalan, keterlambatan, antrean verifikasi, serta unit stok rusak. Ringkasan diperbarui saat dasbor dimuat dan polling berkala digunakan untuk lencana/menu tanpa me-refresh seluruh halaman.</p>
+        <h3>Barang dan master data</h3>
+        <ul>
+          <li>Daftar barang memakai pencarian/filter, pagination, form tambah/ubah, dan konfirmasi untuk hapus soft-delete.</li>
+          <li>Penyesuaian stok atau penandaan rusak hanya mengirim aksi beserta alasan ke endpoint; frontend tidak menulis stok.</li>
+          <li>Halaman stok rusak memberi jalur ke penyelesaian perbaikan atau afkir, sesuai hasil dan validasi server.</li>
+          <li>Halaman kategori/divisi menampilkan data, menambah atau mengubah nama, dan mengaktif/nonaktifkan lewat API; konflik seperti kategori masih digunakan disampaikan sebagai galat.</li>
+        </ul>
+        <h3>Peminjaman dan verifikasi klaim</h3>
+        <ul>
+          <li>Daftar peminjaman menggabungkan filter yang disediakan endpoint dan pagination.</li>
+          <li>Detail menampilkan identitas dan barang, lencana, rincian unit, serta lini masa transaksi.</li>
+          <li>Aksi koreksi, perpanjangan, atau pembatalan disajikan melalui form/konfirmasi dan alasan sesuai kebutuhan desain; keberhasilan ditentukan respons server.</li>
+          <li>Antrean verifikasi memisahkan klaim menunggu dari riwayat. Detail verifikasi menyediakan empat hasil per barang: baik, rusak, hilang, atau ditolak.</li>
+          <li>UI memperlihatkan selisih jumlah dan menonaktifkan simpan jika pembagian belum sesuai. Catatan admin wajib ditunjukkan ketika aturan desain mengharuskannya. Server tetap menjadi pemeriksa akhir.</li>
+        </ul>
+        <h3>Pengaturan, akun, audit, dan laporan</h3>
+        <ul>
+          <li><strong>Pengaturan:</strong> menampilkan delapan parameter; UI membantu memvalidasi rentang sebelum memperbarui melalui API.</li>
+          <li><strong>Akun admin:</strong> daftar/tambah/nonaktifkan akun dan ganti kata sandi sendiri; UI mencegah tindakan yang tidak sesuai, sementara backend memvalidasi.</li>
+          <li><strong>Jejak audit:</strong> tabel hanya baca dengan filter dan tampilan rincian peristiwa.</li>
+          <li><strong>Laporan:</strong> pilihan jenis, filter tanggal/kategori yang relevan, unduhan PDF dengan nama berkas dari header respons, dan penanganan galat JSON bila unduhan gagal.</li>
+          <li><strong>Halaman galat:</strong> pesan ramah untuk 403, 404, dan 419 serta rute catch-all, tanpa menampilkan rincian internal server.</li>
+        </ul>
+      </section>
+
+      <section id="integrasi">
+        <p class="eyebrow">08 · Integrasi API dan state</p>
+        <h2>Kontrak request/response di sisi UI</h2>
+        <p>Frontend mengelompokkan pemanggilan endpoint ke dalam klien kiosk, autentikasi, dan admin. Komponen memanggil fungsi klien tersebut sehingga URL endpoint, metode HTTP, dan pengaturan response tidak tersebar di setiap halaman.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Kelompok klien</th><th>Contoh interaksi UI</th><th>Pola</th></tr></thead>
+            <tbody>
+              <tr><td>Kiosk</td><td>Config, katalog, kategori, divisi, buat transaksi, lookup kode, klaim, perpanjangan, batal.</td><td>Endpoint publik; kode dikirim di request body untuk operasi lookup/aksi.</td></tr>
+              <tr><td>Auth</td><td>Login, profil sesi, logout, ganti kata sandi.</td><td>Cookie sesi Sanctum dan CSRF; request dengan kredensial ke origin aplikasi.</td></tr>
+              <tr><td>Admin</td><td>Summary, barang, peminjaman, klaim, master data, pengaturan, audit, laporan.</td><td>Rute terlindungi sesi; parameter filter dikirim sebagai query sesuai kontrak.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Penanganan respons dan galat</h3>
+        <ul>
+          <li><strong>Jaringan tidak tersedia:</strong> pesan koneksi umum dan kesempatan mencoba kembali.</li>
+          <li><strong>401:</strong> rute admin mengarahkan ke login; pesan sesi berakhir dibedakan dari keadaan belum pernah login.</li>
+          <li><strong>419:</strong> CSRF dicoba diperbarui dan request diulang sekali; kegagalan sesudahnya ditampilkan dengan pesan yang sesuai, tidak dianggap otomatis sebagai sesi habis.</li>
+          <li><strong>403:</strong> akses ditolak dengan pesan yang aman.</li>
+          <li><strong>409:</strong> konflik bisnis/stok ditampilkan agar pengguna dapat meninjau ulang data.</li>
+          <li><strong>422:</strong> detail kesalahan field dipetakan ke formulir terkait dan ringkasan galat disajikan.</li>
+          <li><strong>429:</strong> UI menggunakan informasi jeda <code>Retry-After</code> bila tersedia.</li>
+          <li><strong>500 atau galat jaringan:</strong> pesan umum tanpa jejak internal backend.</li>
+        </ul>
+        <h3>Pengelolaan state</h3>
+        <ul>
+          <li>State navigasi umum disimpan dalam router.</li>
+          <li>Data kiosk yang berkaitan dengan form/kode berada dalam store Pinia runtime dan dibersihkan saat idle/reset.</li>
+          <li>Profil admin dan ringkasan berada dalam store sesi; bukan tempat menyimpan password atau kode peminjaman.</li>
+          <li>Notifikasi dan state layout dipisah ke store/composable yang sesuai.</li>
+        </ul>
+      </section>
+
+      <section id="keamanan">
+        <p class="eyebrow">09 · Mutu UI</p>
+        <h2>Keamanan, privasi, aksesibilitas, dan responsivitas</h2>
+        <div class="grid">
+          <div class="card"><h3>Kode transaksi tidak bocor ke URL</h3><p>Kode pinjam/klaim ditransmisikan melalui body request dan state memori, bukan query path atau localStorage.</p></div>
+          <div class="card"><h3>Minimisasi data kiosk</h3><p>Frontend kiosk menampilkan kontrak publik dan tidak menyimpan nomor kontak peminjam sebagai data persisten.</p></div>
+          <div class="card"><h3>Validasi aman</h3><p>Konten dari server ditampilkan sebagai teks biasa; tidak memakai mekanisme HTML mentah untuk data pengguna.</p></div>
+          <div class="card"><h3>Sesi admin</h3><p>Autentikasi memakai cookie sesi/CSRF, bukan menyimpan token autentikasi di localStorage.</p></div>
+          <div class="card"><h3>Aksesibilitas</h3><p>Label input, fokus yang terlihat, status/galat yang dapat diumumkan, tombol dengan nama yang bermakna, dan indikator tekstual selain warna.</p></div>
+          <div class="card"><h3>Layar beragam</h3><p>Kiosk ditata untuk sentuh; panel admin menggunakan menu geser dan mode kartu tabel pada viewport sempit.</p></div>
+        </div>
+        <p>Target UI yang tercatat mencakup layar 360 px dan 768 px, target sentuh kiosk minimal 44 × 44 px, state memuat/kosong/galat, cetak tanpa navigasi, dan pesan ramah untuk kondisi sesi/akses.</p>
+      </section>
+
+      <section id="pengujian">
+        <p class="eyebrow">10 · Verifikasi</p>
+        <h2>Bagaimana bagian frontend diuji?</h2>
+        <p>Catatan task C menyebut pengujian kompilasi komponen, tes unit/utilitas, tes halaman, build produksi, serta skenario manual untuk alur kiosk dan panel admin. Validasi API/backend tetap memiliki suite terpisah pada bagian A/B.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Jenis pemeriksaan</th><th>Contoh yang diperiksa</th></tr></thead>
+            <tbody>
+              <tr><td>Build</td><td><code>npm run build</code> memastikan aplikasi dapat dikompilasi untuk produksi.</td></tr>
+              <tr><td>Tes frontend</td><td><code>npm test</code> menjalankan tes komponen, fondasi admin, halaman, kiosk, dan utilitas tanggal yang tercantum pada script saat ini.</td></tr>
+              <tr><td>Uji alur kiosk</td><td>Peminjaman, pengiriman berulang, kode tidak di URL/riwayat, cetak, responsivitas, validasi, serta idle reset.</td></tr>
+              <tr><td>Uji alur admin</td><td>Guard sesi, status badge konsisten, tabel responsif, halaman galat, dan perilaku halaman pengelolaan.</td></tr>
+              <tr><td>Verifikasi kontrak</td><td>Frontend diuji bersama respons API yang tersedia; bentuk API harus mengikuti kontrak backend, bukan ditebak dari placeholder.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout warning">
+          Hasil tes yang tertulis di log task adalah bukti pada saat task tersebut diverifikasi. Sebelum demo atau rilis, jalankan kembali perintah tes pada branch/build yang benar dan gunakan hasil terbaru.
+        </div>
+      </section>
+
+      <section id="status">
+        <p class="eyebrow">11 · Status pekerjaan</p>
+        <h2>Task Peran C menurut daftar proyek</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Task</th><th>Ruang lingkup</th><th>Status todo.md</th><th>Keterangan</th></tr></thead>
+            <tbody>
+              <tr><td>1.19a</td><td>Scaffold frontend</td><td><span class="status done">Selesai</span></td><td>Vue, tooling, layout, halaman awal, proxy, Node 24.</td></tr>
+              <tr><td>1.19b</td><td>Bukti integrasi</td><td><span class="status done">Bersama A+B+C</span></td><td>Pekerjaan lintas peran; bukan hasil frontend C yang berdiri sendiri.</td></tr>
+              <tr><td>4.1–4.11</td><td>UI kiosk, fondasi bersama, uji penerimaan kiosk</td><td><span class="status done">Selesai</span></td><td>Termasuk katalog, form pinjam, bukti, cek/kartu, klaim, perpanjang/batal, idle reset, dan uji manual.</td></tr>
+              <tr><td>5.1–5.12</td><td>Panel admin</td><td><span class="status done">Selesai</span></td><td>Login, navigasi, tabel, dasbor, barang, peminjaman, verifikasi, stok rusak, master data, pengaturan/akun/audit, halaman galat, uji admin.</td></tr>
+              <tr><td>6.3</td><td>Halaman laporan frontend</td><td><span class="status done">Selesai</span></td><td>Pemilihan jenis/filter dan unduh PDF sesuai endpoint backend.</td></tr>
+              <tr><td>7.7</td><td>README instalasi dan SOP</td><td><span class="status pending">Belum selesai</span></td><td>Masih tercatat belum dicentang.</td></tr>
+              <tr><td>7.9</td><td>UAT dengan pengguna dan sign-off</td><td><span class="status pending">Belum selesai</span></td><td>Memerlukan pelaksanaan dan persetujuan pengguna nyata.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout caution">
+          Fase 4–5 dan halaman laporan frontend tercatat selesai, tetapi itu tidak sama dengan seluruh proyek siap produksi. Task 7.7 dan 7.9 milik C masih terbuka; task rilis/infrastruktur lain juga dimiliki peran lain.
+        </div>
+      </section>
+
+      <section id="narasi">
+        <p class="eyebrow">12 · Narasi presentasi</p>
+        <h2>Contoh penjelasan lisan tentang bagian C</h2>
+        <div class="callout">
+          <p>“Kontribusi saya sebagai Peran C berfokus pada frontend. Saya menggunakan Vue 3 dan JavaScript untuk membangun dua pengalaman: kiosk mandiri bagi peminjam dan panel admin bagi petugas IT. Kiosk mencakup katalog, formulir peminjaman, bukti, pengecekan transaksi, klaim pengembalian, perpanjangan, pembatalan pemesanan, dan reset saat tidak aktif. Panel admin menyediakan login berbasis sesi, dasbor, pengelolaan barang dan master data, pemantauan peminjaman, verifikasi, pengaturan, akun, audit, halaman galat, dan laporan.”</p>
+          <p>“Frontend berkomunikasi dengan Laravel melalui klien Axios dan API JSON. Saya menangani navigasi, state UI, validasi awal untuk kenyamanan, serta tampilan respons dan galat. Tetapi aturan bisnis dan perubahan stok tidak dilakukan di Vue; backend memvalidasi request, menjalankan Service dan transaksi, lalu frontend menampilkan hasilnya. Task frontend kiosk, panel admin, dan halaman laporan tercatat selesai; README/SOP dan UAT masih menjadi pekerjaan lanjutan.”</p>
+        </div>
+        <h3>Hal yang sebaiknya tidak diklaim</h3>
+        <ul>
+          <li>Jangan menyebut frontend mengubah stok atau menghitung status peminjaman.</li>
+          <li>Jangan mengklaim seluruh proyek siap produksi hanya karena task UI telah dicentang.</li>
+          <li>Jangan menyebut jumlah tes terkini kecuali sudah menjalankan ulang suite yang relevan dan memeriksa hasilnya.</li>
+          <li>Jangan mengatribusikan Service, Controller, endpoint, migrasi, atau aturan domain sebagai implementasi C.</li>
+          <li>Jangan menyebut Task 1.19b sebagai pekerjaan C saja; itu kerja bersama A, B, dan C.</li>
+        </ul>
+      </section>
+
+      <section id="rujukan">
+        <p class="eyebrow">13 · Rujukan</p>
+        <h2>Dokumen sumber proyek</h2>
+        <ul>
+          <li><a href="../PRD.md">PRD.md</a> — tujuan, kebutuhan UI, kriteria penerimaan, dan keputusan K-1.</li>
+          <li><a href="../DESAIN.md">DESAIN.md</a> — kontrak API, aturan UI, desain kiosk/admin, komponen, dan keadaan layar.</li>
+          <li><a href="../../todo.md">todo.md</a> — pemilik task, status checkbox, verifikasi, dan Log C.</li>
+          <li><a href="../../PANDUAN-KOLABORASI-TIM.md">PANDUAN-KOLABORASI-TIM.md</a> — pembagian peran dan serah-terima lintas anggota.</li>
+          <li><a href="../../AGENTS.md">AGENTS.md</a> — aturan kerja dan batas implementasi frontend/backend.</li>
+          <li><a href="../../frontend/package.json">frontend/package.json</a> — runtime Node dan dependensi frontend.</li>
+        </ul>
+        <p class="muted small">Dokumen ini merangkum cakupan Peran C berdasarkan dokumen dan Log C di repository. Untuk status terkini, gunakan checkout dan catatan task terbaru, bukan salinan presentasi lama.</p>
+      </section>
+    </article>
+  </div>
+  <footer>Peran C (a710230117-faris) · Frontend Sistem Peminjaman Inventaris</footer>
+</body>
+</html>

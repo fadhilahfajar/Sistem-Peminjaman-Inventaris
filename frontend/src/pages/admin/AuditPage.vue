@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { adminApi } from '@/api'
 import FilterBar from '@/components/FilterBar.vue'
 import FormField from '@/components/FormField.vue'
+import ModalKonfirmasi from '@/components/ModalKonfirmasi.vue'
 import PesanGalat from '@/components/PesanGalat.vue'
 import TabelData from '@/components/TabelData.vue'
 import TombolBesar from '@/components/TombolBesar.vue'
@@ -85,8 +86,8 @@ function bukaDetail(baris) {
   <section class="space-y-6">
     <div class="pb-2 border-b border-slate-200">
       <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Jejak Audit</h2>
-      <p class="text-sm text-slate-500 mt-0.5">
-        Catatan aktivitas administratif sistem. Riwayat append-only hanya baca (FR-A-13).
+      <p class="text-sm text-slate-600 mt-0.5">
+        Catatan aktivitas administratif sistem. Riwayat hanya baca.
       </p>
     </div>
 
@@ -169,42 +170,23 @@ function bukaDetail(baris) {
         >
           Rincian
         </TombolBesar>
-        <span v-else class="text-xs text-slate-400">—</span>
+        <span v-else class="text-xs text-slate-400">-</span>
       </template>
     </TabelData>
 
-    <!-- Modal Rincian Detail Audit -->
-    <div
-      v-if="detailTerpilih"
-      class="fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
+    <!-- Rincian audit: baca-saja, modal bersama memberi Escape, klik luar, dan kunci gulir (R-26). -->
+    <ModalKonfirmasi
+      :terbuka="detailTerpilih !== null"
+      :judul="`Rincian Audit #${detailTerpilih?.id ?? ''}`"
+      teks-batal="Tutup"
+      tanpa-konfirmasi
+      @update:terbuka="!$event && (detailTerpilih = null)"
     >
-      <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-          <div>
-            <h3 class="font-bold text-slate-900">Rincian Audit #{{ detailTerpilih.id }}</h3>
-            <p class="text-xs text-slate-500 font-mono">{{ detailTerpilih.aksi }} &middot; {{ detailTerpilih.entitas }}</p>
-          </div>
-          <button
-            type="button"
-            class="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
-            @click="detailTerpilih = null"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+      <p class="text-xs text-slate-600 font-mono -mt-2">
+        {{ detailTerpilih?.aksi }} &middot; {{ detailTerpilih?.entitas }}
+      </p>
 
-        <pre class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs font-mono overflow-x-auto max-h-72">{{ JSON.stringify(detailTerpilih.detail, null, 2) }}</pre>
-
-        <div class="flex justify-end">
-          <TombolBesar varian="sekunder" ukuran="sedang" @click="detailTerpilih = null">
-            Tutup
-          </TombolBesar>
-        </div>
-      </div>
-    </div>
+      <pre class="bg-slate-900 text-slate-100 p-4 rounded-lg text-xs font-mono overflow-x-auto max-h-72">{{ JSON.stringify(detailTerpilih?.detail, null, 2) }}</pre>
+    </ModalKonfirmasi>
   </section>
 </template>

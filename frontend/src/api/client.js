@@ -133,27 +133,27 @@ client.interceptors.response.use(
       // Di kiosk, 401 tidak mengalihkan ke login admin.
     }
 
-    // 409 — Konflik: stok berubah, data sudah diproses (DESAIN 10.6)
+    // 409: Konflik: stok berubah, data sudah diproses (DESAIN 10.6)
     if (status === 409) {
       error.pesanUmum = data?.pesan || 'Data telah berubah. Halaman akan dimuat ulang.'
     }
 
-    // 422 — Validasi: error.response.data.errors berisi detail per kolom
+    // 422: Validasi: error.response.data.errors berisi detail per kolom
     // Ditangani oleh komponen form masing-masing, tidak perlu pesan umum.
 
-    // 429 — Terlalu banyak percobaan
+    // 429: Terlalu banyak percobaan
     if (status === 429) {
       const detik = error.response.headers['retry-after']
       const menit = detik ? Math.ceil(detik / 60) : 1
       error.pesanUmum = `Terlalu banyak percobaan, coba lagi dalam ${menit} menit.`
     }
 
-    // 403 — Dilarang
+    // 403: Dilarang
     if (status === 403) {
       error.pesanUmum = data?.pesan || 'Anda tidak memiliki akses untuk tindakan ini.'
     }
 
-    // 500 — Server error, tanpa informasi internal (DESAIN 10.6)
+    // 500: Server error, tanpa informasi internal (DESAIN 10.6)
     if (status >= 500) {
       error.pesanUmum = 'Terjadi kesalahan pada server. Silakan coba lagi.'
     }

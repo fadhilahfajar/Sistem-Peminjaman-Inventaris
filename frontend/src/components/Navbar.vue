@@ -19,13 +19,14 @@ const sesi = useSesiStore()
     <!-- Menu geser di layar kecil (DESAIN 10.3) -->
     <button
       type="button"
-      class="min-h-sentuh inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 md:hidden"
+      class="min-h-sentuh inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 md:hidden"
       :aria-expanded="sidebarTerbuka"
       aria-controls="sidebar-admin"
       @click="emit('toggle-sidebar')"
     >
+      <!-- R-04: tiga garis = menu, stroke 2.5 agar terbaca di 44px. -->
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2.5" d="M4 7h16M4 12h16M4 17h16" />
       </svg>
       Menu
     </button>

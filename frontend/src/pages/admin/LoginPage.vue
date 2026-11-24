@@ -65,7 +65,7 @@ async function masuk() {
   <section class="space-y-5">
     <div class="space-y-1 text-center">
       <h2 class="text-xl font-bold text-slate-900">Masuk Panel Admin</h2>
-      <p class="text-sm text-slate-500">Inventaris dan Peminjaman Barang Tim IT</p>
+      <p class="text-sm text-slate-600">Inventaris dan Peminjaman Barang Tim IT</p>
     </div>
 
     <!-- UI-08: pesan sesi berakhir -->
