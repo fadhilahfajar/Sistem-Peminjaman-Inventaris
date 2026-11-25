@@ -93,7 +93,7 @@ jobs:
 
       - name: Start frontend dev server
         working-directory: frontend
-        run: npm run dev
+        run: npm run dev &
         shell: bash
 
       - name: Wait for servers
