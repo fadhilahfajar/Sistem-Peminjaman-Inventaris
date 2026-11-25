@@ -81,6 +81,10 @@ jobs:
             sleep 2
           done
 
+      - name: Install Playwright Chromium
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
       - name: Run Playwright
         working-directory: frontend
         env:
