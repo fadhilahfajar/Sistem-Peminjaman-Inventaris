@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Navbar from '@/components/Navbar.vue'
 import Sidebar from '@/components/Sidebar.vue'
@@ -26,7 +26,15 @@ async function ambilRingkasan() {
   }
 }
 
+function tutupSidebarEsc(event) {
+  if (event.key === 'Escape' && ui.sidebarTerbuka) {
+    ui.sidebarTerbuka = false
+  }
+}
+
 onMounted(async () => {
+  document.addEventListener('keydown', tutupSidebarEsc)
+
   if (!sesi.termuat) {
     try {
       await sesi.muatProfil()
@@ -42,6 +50,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  document.removeEventListener('keydown', tutupSidebarEsc)
   clearInterval(timerRingkasan)
   timerRingkasan = null
 })
@@ -60,7 +69,8 @@ async function keluar() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 font-sans text-admin text-slate-900">
+  <!-- R-21: terang karena petugas baca antrean di kantor, bukan alat terminal. -->
+  <div class="min-h-screen bg-slate-50 font-sans text-admin text-slate-900">
     <!-- Overlay menu geser di layar kecil -->
     <div
       v-if="ui.sidebarTerbuka"
@@ -73,10 +83,10 @@ async function keluar() {
       <!-- Sidebar kiri (layar lebar) / menu geser (layar sempit) -->
       <aside
         id="sidebar-admin"
-        class="fixed inset-y-0 left-0 z-40 w-64 bg-slate-800 p-4 overflow-y-auto transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0"
+        class="fixed inset-y-0 left-0 z-40 w-64 border-r border-slate-200 bg-white p-4 overflow-y-auto transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0"
         :class="ui.sidebarTerbuka ? 'translate-x-0' : '-translate-x-full'"
       >
-        <p class="px-2 pb-4 font-extrabold text-white">Panel Admin</p>
+        <p class="px-2 pb-4 text-sm font-bold text-slate-900">Inventaris IT</p>
         <Sidebar @navigasi="ui.sidebarTerbuka = false" />
       </aside>
 

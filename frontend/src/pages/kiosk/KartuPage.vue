@@ -43,7 +43,7 @@ function keHalamanBatal() {
     <!-- Navigasi Atas -->
     <div class="flex items-center justify-between gap-4 pb-2 border-b border-slate-200">
       <div>
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900">
           Kartu Peminjaman
         </h2>
         <p class="text-xs md:text-sm text-slate-600 mt-0.5">
@@ -59,11 +59,11 @@ function keHalamanBatal() {
     </div>
 
     <!-- Kartu Utama Ringkasan Transaksi -->
-    <section class="bg-white rounded-2xl border border-slate-200 p-5 md:p-6 shadow-xs space-y-5">
+    <section class="bg-white rounded-lg border border-slate-200 p-5 md:p-6 shadow-xs space-y-5">
       <!-- Baris Atas: Kode Pinjam Besar & Badge Status -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
         <div>
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest block">
+          <span class="text-xs font-semibold text-slate-600 block">
             {{ kartu.pemesanan ? 'KODE PEMESANAN' : 'KODE PEMINJAMAN' }}
           </span>
           <span class="text-2xl md:text-3xl font-mono font-extrabold tracking-widest text-slate-900">
@@ -94,7 +94,7 @@ function keHalamanBatal() {
       <!-- Kasus 1: Pemesanan -->
       <div
         v-if="kartu.pemesanan"
-        class="p-4 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 flex items-start gap-3"
+        class="p-4 rounded-lg bg-purple-50 border border-purple-200 text-purple-900 flex items-start gap-3"
       >
         <svg class="w-6 h-6 text-purple-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -112,7 +112,7 @@ function keHalamanBatal() {
       <!-- Kasus 2: Terlambat -->
       <div
         v-else-if="kartu.hitung_mundur?.hari_terlambat > 0"
-        class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-900 flex items-start gap-3"
+        class="p-4 rounded-lg bg-red-50 border border-red-200 text-red-900 flex items-start gap-3"
       >
         <svg class="w-6 h-6 text-red-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -130,7 +130,7 @@ function keHalamanBatal() {
       <!-- Kasus 3: Berjalan normal (sisa hari) -->
       <div
         v-else-if="kartu.status === 'dipinjam' && kartu.hitung_mundur?.sisa_hari !== null"
-        class="p-4 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 flex items-start gap-3"
+        class="p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-900 flex items-start gap-3"
       >
         <svg class="w-6 h-6 text-[var(--color-aksen,#1d4ed8)] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -147,24 +147,24 @@ function keHalamanBatal() {
 
       <!-- Detail Grid Peminjam & Tanggal -->
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs md:text-sm pt-2">
-        <div class="p-3 bg-slate-50 rounded-xl space-y-0.5">
-          <span class="text-slate-500 font-semibold block text-[11px] uppercase">Peminjam</span>
+        <div class="p-3 bg-slate-50 rounded-lg space-y-0.5">
+          <span class="text-slate-600 font-semibold block text-[11px]">Peminjam</span>
           <span class="font-bold text-slate-900 block truncate">{{ kartu.nama_peminjam }}</span>
-          <span class="text-slate-500 text-xs capitalize block">{{ kartu.tipe_peminjam }}</span>
+          <span class="text-slate-600 text-xs capitalize block">{{ kartu.tipe_peminjam }}</span>
         </div>
 
-        <div class="p-3 bg-slate-50 rounded-xl space-y-0.5">
-          <span class="text-slate-500 font-semibold block text-[11px] uppercase">Divisi</span>
+        <div class="p-3 bg-slate-50 rounded-lg space-y-0.5">
+          <span class="text-slate-600 font-semibold block text-[11px]">Divisi</span>
           <span class="font-bold text-slate-900 block truncate">{{ kartu.division?.nama || '-' }}</span>
         </div>
 
-        <div class="p-3 bg-slate-50 rounded-xl space-y-0.5">
-          <span class="text-slate-500 font-semibold block text-[11px] uppercase">Tanggal Pinjam</span>
+        <div class="p-3 bg-slate-50 rounded-lg space-y-0.5">
+          <span class="text-slate-600 font-semibold block text-[11px]">Tanggal Pinjam</span>
           <span class="font-bold text-slate-900 block">{{ formatTanggalIndo(kartu.tanggal_pinjam) }}</span>
         </div>
 
-        <div class="p-3 bg-slate-50 rounded-xl space-y-0.5">
-          <span class="text-slate-500 font-semibold block text-[11px] uppercase">Batas Kembali</span>
+        <div class="p-3 bg-slate-50 rounded-lg space-y-0.5">
+          <span class="text-slate-600 font-semibold block text-[11px]">Batas Kembali</span>
           <span class="font-bold text-slate-900 block">{{ formatTanggalIndo(kartu.batas_kembali) }}</span>
           <span
             v-if="kartu.batas_kembali_awal && kartu.batas_kembali_awal !== kartu.batas_kembali"
@@ -177,16 +177,16 @@ function keHalamanBatal() {
 
       <div
         v-if="kartu.keperluan"
-        class="p-3 bg-slate-50 rounded-xl space-y-0.5 text-xs md:text-sm"
+        class="p-3 bg-slate-50 rounded-lg space-y-0.5 text-xs md:text-sm"
       >
-        <span class="text-slate-500 font-semibold block text-[11px] uppercase">Keperluan</span>
+        <span class="text-slate-600 font-semibold block text-[11px]">Keperluan</span>
         <span class="font-bold text-slate-900 block whitespace-pre-line">{{ kartu.keperluan }}</span>
       </div>
 
       <!-- Info Kuota Perpanjangan (FR-K-04) -->
       <div
         v-if="!kartu.pemesanan && kartu.status !== 'dibatalkan'"
-        class="text-xs text-slate-600 bg-slate-50 px-4 py-2.5 rounded-xl flex flex-wrap items-center justify-between gap-2 border border-slate-100"
+        class="text-xs text-slate-600 bg-slate-50 px-4 py-2.5 rounded-lg flex flex-wrap items-center justify-between gap-2 border border-slate-100"
       >
         <span>
           Status Perpanjangan: <strong>{{ kartu.perpanjangan?.terpakai || 0 }}</strong> dari <strong>{{ kartu.perpanjangan?.maks || 0 }}</strong> terpakai
@@ -198,12 +198,12 @@ function keHalamanBatal() {
     </section>
 
     <!-- Daftar Barang & Status Unit (FR-K-04: Per barang dipinjam, menunggu, terverifikasi, sisa) -->
-    <section class="bg-white rounded-2xl border border-slate-200 p-5 md:p-6 shadow-xs space-y-4">
+    <section class="bg-white rounded-lg border border-slate-200 p-5 md:p-6 shadow-xs space-y-4">
       <div class="border-b border-slate-100 pb-3">
         <h3 class="text-lg md:text-xl font-bold text-slate-900">
           Daftar Barang Inventaris
         </h3>
-        <p class="text-xs md:text-sm text-slate-500">
+        <p class="text-xs md:text-sm text-slate-600">
           Rincian status unit per barang: dipinjam, sedang menunggu verifikasi petugas, terverifikasi, dan sisa.
         </p>
       </div>
@@ -211,7 +211,7 @@ function keHalamanBatal() {
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs md:text-sm border-collapse min-w-[550px]">
           <thead>
-            <tr class="border-b border-slate-200 text-slate-500 uppercase text-[11px] tracking-wider bg-slate-50">
+            <tr class="border-b border-slate-200 font-semibold text-slate-600 text-[11px] tracking-wide bg-slate-50">
               <th class="py-3 px-3">Nama Barang</th>
               <th class="py-3 px-3 text-center">Dipinjam</th>
               <th class="py-3 px-3 text-center">Menunggu</th>
@@ -240,7 +240,7 @@ function keHalamanBatal() {
               <td class="py-3.5 px-3 text-center">
                 <span
                   :class="[
-                    'font-semibold px-2 py-0.5 rounded-full text-xs',
+                    'font-semibold px-2 py-0.5 rounded-md text-xs',
                     item.menunggu > 0 ? 'bg-amber-100 text-amber-800' : 'text-slate-400',
                   ]"
                 >
@@ -250,7 +250,7 @@ function keHalamanBatal() {
               <td class="py-3.5 px-3 text-center">
                 <span
                   :class="[
-                    'font-semibold px-2 py-0.5 rounded-full text-xs',
+                    'font-semibold px-2 py-0.5 rounded-md text-xs',
                     item.terverifikasi > 0 ? 'bg-emerald-100 text-emerald-800' : 'text-slate-400',
                   ]"
                 >
@@ -260,7 +260,7 @@ function keHalamanBatal() {
               <td class="py-3.5 px-3 text-center">
                 <span
                   :class="[
-                    'font-extrabold px-2.5 py-1 rounded-full text-xs',
+                    'font-extrabold px-2.5 py-1 rounded-md text-xs',
                     item.sisa > 0 ? 'bg-blue-100 text-blue-900 border border-blue-200' : 'bg-slate-100 text-slate-400',
                   ]"
                 >
@@ -274,12 +274,12 @@ function keHalamanBatal() {
     </section>
 
     <!-- Riwayat Klaim Pengembalian (FR-K-04 & FR-K-09: Hasil klaim & catatan admin terlihat peminjam) -->
-    <section class="bg-white rounded-2xl border border-slate-200 p-5 md:p-6 shadow-xs space-y-4">
+    <section class="bg-white rounded-lg border border-slate-200 p-5 md:p-6 shadow-xs space-y-4">
       <div class="border-b border-slate-100 pb-3">
         <h3 class="text-lg md:text-xl font-bold text-slate-900">
           Riwayat Pengembalian (Klaim)
         </h3>
-        <p class="text-xs md:text-sm text-slate-500">
+        <p class="text-xs md:text-sm text-slate-600">
           Riwayat permohonan pengembalian barang dan hasil pemeriksaan fisik oleh petugas IT.
         </p>
       </div>
@@ -289,7 +289,7 @@ function keHalamanBatal() {
         <div
           v-for="c in kartu.klaim"
           :key="c.kode_klaim"
-          class="border border-slate-200 rounded-xl p-4 md:p-5 space-y-3 bg-slate-50/50"
+          class="border border-slate-200 rounded-lg p-4 md:p-5 space-y-3 bg-slate-50/50"
         >
           <!-- Header Baris Klaim -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-200">
@@ -299,7 +299,7 @@ function keHalamanBatal() {
               </span>
               <span
                 :class="[
-                  'text-xs font-bold px-2.5 py-0.5 rounded-full border',
+                  'text-xs font-bold px-2.5 py-0.5 rounded-md border',
                   c.status === 'diverifikasi'
                     ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                     : 'bg-amber-50 text-amber-700 border-amber-200',
@@ -309,7 +309,7 @@ function keHalamanBatal() {
               </span>
             </div>
 
-            <span class="text-xs text-slate-500">
+            <span class="text-xs text-slate-600">
               Diajukan: {{ formatWaktuIndo(c.diklaim_pada) }}
             </span>
           </div>
@@ -324,7 +324,7 @@ function keHalamanBatal() {
           <div v-if="c.status === 'diverifikasi'" class="space-y-3 pt-1">
             <!-- Rincian Hasil Barang -->
             <div v-if="c.hasil && c.hasil.length > 0" class="space-y-1.5">
-              <span class="text-xs font-bold text-slate-700 uppercase tracking-wide block">
+              <span class="text-xs font-bold text-slate-700 font-bold block">
                 Hasil Pemeriksaan Fisik:
               </span>
               <div class="space-y-1.5">
@@ -335,7 +335,7 @@ function keHalamanBatal() {
                 >
                   <div>
                     <span class="font-bold text-slate-900 block">{{ h.nama }}</span>
-                    <span class="text-slate-500 text-[11px]">
+                    <span class="text-slate-600 text-[11px]">
                       Kondisi dilaporkan: <strong class="capitalize">{{ h.kondisi_dilaporkan }}</strong> ({{ h.qty }} unit)
                     </span>
                   </div>
@@ -389,13 +389,13 @@ function keHalamanBatal() {
       </div>
 
       <!-- Jika Belum Ada Klaim -->
-      <div v-else class="text-center py-6 text-slate-500 text-xs md:text-sm">
+      <div v-else class="text-center py-6 text-slate-600 text-xs md:text-sm">
         Belum ada riwayat pengajuan pengembalian (klaim) untuk peminjaman ini.
       </div>
     </section>
 
     <!-- Tombol Aksi Bawah (DESAIN 10.2: Kembalikan, Perpanjang, Batalkan hanya bila berlaku) -->
-    <section class="bg-white rounded-2xl border border-slate-200 p-5 md:p-6 shadow-xs space-y-4">
+    <section class="bg-white rounded-lg border border-slate-200 p-5 md:p-6 shadow-xs space-y-4">
       <h3 class="text-base font-bold text-slate-900">
         Tindakan Peminjaman
       </h3>
@@ -430,7 +430,7 @@ function keHalamanBatal() {
           >
             Kembalikan Barang
           </TombolBesar>
-          <p v-if="!kartu.aksi?.klaim?.boleh && kartu.aksi?.klaim?.alasan" class="text-xs text-slate-500 text-center">
+          <p v-if="!kartu.aksi?.klaim?.boleh && kartu.aksi?.klaim?.alasan" class="text-xs text-slate-600 text-center">
             {{ kartu.aksi.klaim.alasan }}
           </p>
         </div>
@@ -446,7 +446,7 @@ function keHalamanBatal() {
           >
             Perpanjang Batas Waktu
           </TombolBesar>
-          <p v-if="!kartu.aksi?.perpanjang?.boleh && kartu.aksi?.perpanjang?.alasan" class="text-xs text-slate-500 text-center">
+          <p v-if="!kartu.aksi?.perpanjang?.boleh && kartu.aksi?.perpanjang?.alasan" class="text-xs text-slate-600 text-center">
             {{ kartu.aksi.perpanjang.alasan }}
           </p>
         </div>

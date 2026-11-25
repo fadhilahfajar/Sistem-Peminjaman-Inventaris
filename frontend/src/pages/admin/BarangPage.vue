@@ -78,7 +78,7 @@ function aturUlang() {
 }
 
 function namaKategori(baris) {
-  return baris.kategori?.nama ?? '—'
+  return baris.kategori?.nama ?? ''
 }
 
 function labelKondisi(kondisi) {
@@ -197,7 +197,7 @@ watch(() => router.currentRoute.value.path, () => {
     <div class="flex items-center justify-between gap-4">
       <div>
         <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Barang</h2>
-        <p class="text-sm text-slate-500 mt-0.5">Kelola inventaris, penyesuaian stok lewat mutasi berkas besar (FR-A-03).</p>
+        <p class="text-sm text-slate-600 mt-0.5">Kelola inventaris dan penyesuaian stok lewat mutasi berkas besar.</p>
       </div>
       <TombolBesar varian="primer" ukuran="sedang" @click="router.push('/admin/barang/baru')">+ Tambah Barang</TombolBesar>
     </div>
@@ -237,7 +237,7 @@ watch(() => router.currentRoute.value.path, () => {
       <template #cell-kondisi="{ baris: b }">
         <span
           :class="[
-            'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border whitespace-nowrap',
+            'inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold border whitespace-nowrap',
             b.kondisi === 'baik' ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
               : b.kondisi === 'semua_rusak' ? 'bg-red-50 text-red-800 border-red-200'
               : 'bg-yellow-50 text-yellow-800 border-yellow-200',
@@ -268,8 +268,8 @@ watch(() => router.currentRoute.value.path, () => {
       role="dialog"
       aria-modal="true"
     >
-      <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
-        <h3 class="text-lg font-bold text-slate-900">{{ judulAksi() }} — {{ targetAksi?.nama }}</h3>
+      <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-sm space-y-4">
+        <h3 class="text-lg font-bold text-slate-900">{{ judulAksi() }}: {{ targetAksi?.nama }}</h3>
 
         <div v-if="jenisAksi === 'stok'" class="space-y-4">
           <FormField id="a-arah" label="Arah" wajib>

@@ -31,7 +31,7 @@ function selesai() {
   <div v-if="dataPerpanjang" class="space-y-6 max-w-2xl mx-auto py-4">
     <!-- Header Sukses (sembunyi saat cetak) -->
     <div class="print:hidden text-center space-y-2">
-      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center mx-auto mb-3">
         <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
         </svg>
@@ -45,7 +45,7 @@ function selesai() {
       </p>
     </div>
 
-    <!-- Bukti Perpanjangan (FR-K-08, dapat dicetak) -->
+    <!-- Bukti Perpanjangan (dapat dicetak) -->
     <StrukCetak
       judul="BUKTI PERPANJANGAN BATAS KEMBALI"
       :kode="dataPerpanjang.kode_pinjam"

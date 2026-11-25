@@ -22,7 +22,7 @@ const emit = defineEmits(['terapkan', 'atur-ulang'])
 
 <template>
   <form
-    class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-xs"
+    class="bg-white p-4 md:p-5 rounded-lg border border-slate-200 shadow-xs"
     @submit.prevent="emit('terapkan')"
     @reset.prevent="emit('atur-ulang')"
   >

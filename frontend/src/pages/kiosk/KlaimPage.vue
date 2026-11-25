@@ -158,7 +158,7 @@ async function kirimKlaim() {
     <!-- Header -->
     <div class="flex items-center justify-between gap-4 pb-2 border-b border-slate-200">
       <div>
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900">
           Klaim Pengembalian Barang
         </h2>
         <p class="text-xs md:text-sm text-slate-600 mt-0.5">
@@ -174,7 +174,7 @@ async function kirimKlaim() {
     <!-- Banner terlambat -->
     <div
       v-if="kartu.hitung_mundur?.hari_terlambat > 0"
-      class="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-900 text-sm"
+      class="p-3.5 rounded-lg bg-red-50 border border-red-200 text-red-900 text-sm"
     >
       <strong>Terlambat {{ kartu.hitung_mundur.hari_terlambat }} hari.</strong>
       Hari keterlambatan akan dicatat pada klaim ini (BR-10).
@@ -186,7 +186,7 @@ async function kirimKlaim() {
     <!-- Aksi tidak berlaku -->
     <div
       v-if="!bolehKlaim"
-      class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm"
+      class="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-sm"
     >
       <strong>Klaim tidak dapat diajukan:</strong> {{ alasanTidakBoleh }}
     </div>
@@ -198,10 +198,10 @@ async function kirimKlaim() {
       </p>
 
       <!-- Daftar barang (FR-K-05: per barang Baik, Rusak, Hilang, total ≤ sisa) -->
-      <section class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+      <section class="bg-white p-5 md:p-6 rounded-lg border border-slate-200 shadow-xs space-y-4">
         <div class="pb-3 border-b border-slate-100">
           <h3 class="text-lg md:text-xl font-bold text-slate-900">Barang yang Masih Dipinjam</h3>
-          <p class="text-xs md:text-sm text-slate-500">
+          <p class="text-xs md:text-sm text-slate-600">
             Tentukan jumlah unit per kondisi: baik, rusak, atau hilang. Total tidak boleh melebihi sisa.
           </p>
         </div>
@@ -209,12 +209,12 @@ async function kirimKlaim() {
         <div
           v-for="item in barangSisa"
           :key="item.item_id"
-          class="rounded-xl border border-slate-200 p-4 space-y-3"
+          class="rounded-lg border border-slate-200 p-4 space-y-3"
           :class="errors[`item_${item.item_id}`] ? 'border-red-300 bg-red-50/40' : ''"
         >
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <span class="font-bold text-slate-900">{{ item.nama }}</span>
-            <span class="text-xs font-semibold text-slate-500">
+            <span class="text-xs font-semibold text-slate-600">
               Sisa: {{ item.sisa }} unit
               <template v-if="item.qty_dipinjam > item.sisa">
                 (dipinjam {{ item.qty_dipinjam }})
@@ -273,7 +273,7 @@ async function kirimKlaim() {
       </section>
 
       <!-- Catatan opsional -->
-      <section class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-xs">
+      <section class="bg-white p-5 md:p-6 rounded-lg border border-slate-200 shadow-xs">
         <FormField
           id="catatan"
           label="Catatan (Opsional)"
@@ -287,7 +287,7 @@ async function kirimKlaim() {
             maxlength="500"
             placeholder="Contoh: Adaptor tidak ikut dikembalikan karena dipakai rapat."
             :disabled="sedangKirim"
-            class="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm md:text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors"
+            class="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-lg text-sm md:text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors"
           ></textarea>
         </FormField>
       </section>

@@ -103,7 +103,7 @@ onUnmounted(() => {
       :aria-labelledby="`${dialogId}-judul`"
       :aria-describedby="`${dialogId}-keterangan`"
     >
-      <div class="w-full max-w-2xl max-h-[92vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
+      <div class="w-full max-w-2xl max-h-[92vh] bg-white rounded-lg shadow-lg border border-slate-200 flex flex-col overflow-hidden">
         <div class="px-5 pt-5 pb-4 border-b border-slate-100">
           <h2 :id="`${dialogId}-judul`" class="text-xl md:text-2xl font-bold text-slate-900">
             Pilih Barang Inventaris
@@ -121,7 +121,7 @@ onUnmounted(() => {
             v-model="cari"
             type="text"
             placeholder="Ketik nama barang..."
-            class="w-full min-h-[44px] px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-sm md:text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent"
+            class="w-full min-h-[44px] px-3.5 bg-slate-50 border border-slate-300 rounded-lg text-sm md:text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent"
           >
         </div>
 
@@ -130,7 +130,7 @@ onUnmounted(() => {
             v-for="b in daftarTampil"
             :key="b.id"
             :class="[
-              'rounded-xl border border-slate-200 border-l-4 p-3 flex items-center justify-between gap-3 min-h-[64px]',
+              'rounded-lg border border-slate-200 border-l-4 p-3 flex items-center justify-between gap-3 min-h-[64px]',
               apakahDipilih(b)
                 ? 'border-l-[var(--color-aksen,#1d4ed8)] bg-blue-50'
                 : 'border-l-transparent bg-white',
@@ -154,7 +154,7 @@ onUnmounted(() => {
               type="button"
               :aria-pressed="apakahDipilih(b) ? 'true' : 'false'"
               :class="[
-                'shrink-0 inline-flex items-center justify-center gap-1.5 min-h-[44px] px-4 rounded-xl border-2 text-sm font-bold cursor-pointer select-none transition-colors focus-visible:outline-3 focus-visible:outline-offset-2',
+                'shrink-0 inline-flex items-center justify-center gap-1.5 min-h-[44px] px-4 rounded-lg border-2 text-sm font-bold cursor-pointer select-none transition-colors focus-visible:outline-3 focus-visible:outline-offset-2',
                 apakahDipilih(b)
                   ? 'border-[var(--color-aksen,#1d4ed8)] bg-[var(--color-aksen,#1d4ed8)] text-white focus-visible:outline-[var(--color-aksen,#1d4ed8)]'
                   : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100 focus-visible:outline-slate-500',
@@ -195,7 +195,7 @@ onUnmounted(() => {
 
           <p
             v-if="daftarTampil.length === 0"
-            class="text-sm text-slate-500 text-center py-6"
+            class="text-sm text-slate-600 text-center py-6"
           >
             Tidak ada barang yang cocok dengan pencarian.
           </p>

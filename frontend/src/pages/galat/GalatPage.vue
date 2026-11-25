@@ -51,8 +51,8 @@ function kembali() {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-slate-50 p-4 font-sans text-slate-900">
-    <div class="max-w-md w-full bg-white p-8 rounded-2xl border border-slate-200 shadow-sm text-center space-y-5">
-      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 text-slate-700 font-extrabold text-2xl font-mono">
+    <div class="max-w-md w-full bg-white p-8 rounded-lg border border-slate-200 shadow-sm text-center space-y-5">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-slate-100 text-slate-700 font-extrabold text-2xl font-mono">
         {{ kodeAktif }}
       </div>
 
@@ -60,7 +60,7 @@ function kembali() {
         <h1 class="text-xl md:text-2xl font-extrabold text-slate-900">
           {{ info.judul }}
         </h1>
-        <p class="text-sm text-slate-500">
+        <p class="text-sm text-slate-600">
           {{ info.pesan }}
         </p>
       </div>

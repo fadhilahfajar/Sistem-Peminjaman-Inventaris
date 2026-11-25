@@ -10,7 +10,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node test/components.test.js && node test/admin-fondasi.test.js && node test/admin-halaman.test.js && node test/admin-sisa.test.js && node test/kiosk-pages.test.js && node test/tanggal.test.js"
+    "test": "node test/components.test.js && node test/admin-fondasi.test.js && node test/admin-halaman.test.js && node test/admin-sisa.test.js && node test/kiosk-pages.test.js && node test/tanggal.test.js",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "axios": "^1.21.0",
@@ -19,6 +20,7 @@
     "vue-router": "^5.4.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-vue": "^6.0.10",
     "tailwindcss": "^4.3.3",

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -28,6 +29,16 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('kiosk-tulis', function (Request $request) {
             return Limit::perMinute(30)->by($request->ip());
+        });
+
+        // Backend pure API JSON (DESAIN): tamu yang belum masuk harus dapat
+        // 401 JSON via PenangananGalat, bukan redirect ke route web yang tak ada.
+        Authenticate::redirectUsing(function (Request $request): ?string {
+            if ($request->is('api/*') || $request->is('sanctum/*') || $request->expectsJson()) {
+                return null;
+            }
+
+            return '/login';
         });
     }
 }

@@ -72,7 +72,7 @@ async function periksaKode() {
   <div class="space-y-6 max-w-2xl mx-auto py-4">
     <!-- Header Halaman -->
     <div class="pb-3 border-b border-slate-200">
-      <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900">
         Cek Peminjaman & Pengembalian
       </h2>
       <p class="text-sm md:text-base text-slate-600 mt-0.5">
@@ -81,9 +81,9 @@ async function periksaKode() {
     </div>
 
     <!-- Formulir Pencarian Kode -->
-    <div class="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+    <div class="bg-white p-6 md:p-8 rounded-lg border border-slate-200 shadow-xs space-y-6">
       <div class="text-center space-y-2 max-w-md mx-auto">
-        <div class="w-14 h-14 bg-blue-50 text-[var(--color-aksen,#1d4ed8)] rounded-2xl flex items-center justify-center mx-auto mb-2">
+        <div class="w-14 h-14 bg-blue-50 text-[var(--color-aksen,#1d4ed8)] rounded-lg flex items-center justify-center mx-auto mb-2">
           <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
           </svg>
@@ -91,7 +91,7 @@ async function periksaKode() {
         <h3 class="text-xl font-bold text-slate-900">
           Masukkan Kode Peminjaman
         </h3>
-        <p class="text-xs md:text-sm text-slate-500">
+        <p class="text-xs md:text-sm text-slate-600">
           Kode tercantum pada struk bukti peminjaman dengan format <strong>PJM-XXXXXX</strong>.
         </p>
       </div>
@@ -135,7 +135,7 @@ async function periksaKode() {
     </div>
 
     <!-- Bantuan / Petunjuk SOP -->
-    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs md:text-sm text-slate-600 space-y-1.5">
+    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs md:text-sm text-slate-600 space-y-1.5">
       <strong class="font-bold text-slate-800 block">Lupa atau kehilangan kode peminjaman?</strong>
       <p>
         Silakan hubungi petugas IT yang bertugas di ruangan untuk bantuan pencarian kartu peminjaman berdasarkan identitas Anda.

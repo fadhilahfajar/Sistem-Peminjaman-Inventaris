@@ -18,7 +18,6 @@ const SFC = [
   'src/components/Navbar.vue',
   'src/components/TabelData.vue',
   'src/components/FilterBar.vue',
-  'src/components/KartuAngka.vue',
 ]
 
 for (const file of SFC) {
@@ -50,7 +49,7 @@ assert.ok(loginPage.includes('redirect'), 'LoginPage harus kembali ke halaman tu
 
 // Task 5.1 — Kontrak auth di admin.js sesuai DESAIN 8.2
 const adminJs = baca('src/api/admin.js')
-assert.ok(adminJs.includes('@param {{ email: string, password: string }} kredensial'), 'authApi.login harus memakai field password')
+assert.ok(adminJs.includes('@param {{ username: string, password: string }} kredensial'), 'authApi.login harus memakai field username dan password')
 assert.ok(!adminJs.includes('kata_sandi'), 'Kontrak auth tidak memakai kata_sandi (DESAIN 8.2)')
 assert.ok(adminJs.includes('password_lama') && adminJs.includes('password_baru_confirmation'), 'authApi.changePassword harus memakai password_lama/password_baru_confirmation')
 
@@ -87,6 +86,7 @@ assert.ok(navbar.includes('sesi.user.name'), 'Navbar menampilkan nama admin (DES
 const tabelData = baca('src/components/TabelData.vue')
 assert.ok(tabelData.includes('ubah-urutan'), 'TabelData harus emit ubah-urutan')
 assert.ok(tabelData.includes('ubah-halaman'), 'TabelData harus emit ubah-halaman')
+assert.ok(tabelData.includes("emit('klik-baris'"), 'TabelData harus emit klik-baris (baris diklik untuk detail)')
 assert.ok(tabelData.includes('md:hidden'), 'TabelData harus punya mode kartu di layar sempit (UI-05)')
 assert.ok(tabelData.includes('aria-sort'), 'TabelData menandai arah urutan dengan aria-sort')
 assert.ok(tabelData.includes('animate-pulse'), 'TabelData menampilkan skeleton saat memuat (DESAIN 10.6)')

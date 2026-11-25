@@ -52,11 +52,11 @@ async function batalkan() {
     <!-- Header -->
     <div class="flex items-center justify-between gap-4 pb-2 border-b border-slate-200">
       <div>
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900">
           Batalkan Pemesanan
         </h2>
         <p class="text-xs md:text-sm text-slate-600 mt-0.5">
-          Stok barang akan langsung dikembalikan setelah pembatalan berhasil (FR-K-12).
+          Stok barang akan langsung dikembalikan setelah pembatalan berhasil.
         </p>
       </div>
 
@@ -74,7 +74,7 @@ async function batalkan() {
 
     <!-- Layar Sukses -->
     <div v-if="suksesData" class="space-y-6">
-      <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm text-center">
+      <div class="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm text-center">
         <strong>Pemesanan {{ suksesData.kode_pinjam }} berhasil dibatalkan</strong>
         pada {{ formatWaktuIndo(suksesData.dibatalkan_pada) }}. Stok barang telah kembali tersedia.
       </div>
@@ -86,32 +86,32 @@ async function batalkan() {
       <!-- Aksi tidak berlaku -->
       <div
         v-if="!bolehBatal"
-        class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm"
+        class="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-sm"
       >
         <strong>Pembatalan tidak dapat dilakukan:</strong> {{ alasanTidakBoleh }}
       </div>
 
       <!-- Ringkasan Pemesanan -->
-      <section class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+      <section class="bg-white p-5 md:p-6 rounded-lg border border-slate-200 shadow-xs space-y-4">
         <div class="pb-3 border-b border-slate-100">
           <h3 class="text-lg md:text-xl font-bold text-slate-900">Ringkasan Pemesanan</h3>
         </div>
 
         <div class="text-sm space-y-2">
           <div class="flex justify-between">
-            <span class="text-slate-500">Kode Pemesanan:</span>
+            <span class="text-slate-600">Kode Pemesanan:</span>
             <span class="font-mono font-bold text-slate-900">{{ kartu.kode_pinjam }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-slate-500">Peminjam:</span>
+            <span class="text-slate-600">Peminjam:</span>
             <span class="font-bold text-slate-900">{{ kartu.nama_peminjam }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-slate-500">Tanggal Mulai:</span>
+            <span class="text-slate-600">Tanggal Mulai:</span>
             <span class="font-bold text-slate-900">{{ formatTanggalIndo(kartu.tanggal_pinjam) }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-slate-500">Total Barang:</span>
+            <span class="text-slate-600">Total Barang:</span>
             <span class="font-bold text-slate-900">
               {{ (kartu.items || []).length }} jenis &middot;
               {{ (kartu.items || []).reduce((t, i) => t + (i.qty_dipinjam || 0), 0) }} unit
@@ -146,7 +146,7 @@ async function batalkan() {
       </div>
     </div>
 
-    <!-- Modal Konfirmasi (FR-K-12) -->
+    <!-- Modal Konfirmasi -->
     <ModalKonfirmasi
       :terbuka="modalTerbuka"
       judul="Konfirmasi Pembatalan"

@@ -60,11 +60,11 @@ function bukaDetail(baris) {
 }
 
 function namaPeminjam(b) {
-  return b.peminjaman?.nama_peminjam ?? '—'
+  return b.peminjaman?.nama_peminjam ?? ''
 }
 
 function kodePinjam(b) {
-  return b.peminjaman?.kode_pinjam ?? '—'
+  return b.peminjaman?.kode_pinjam ?? ''
 }
 </script>
 
@@ -73,7 +73,7 @@ function kodePinjam(b) {
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Antrean Verifikasi</h2>
-        <p class="text-sm text-slate-500 mt-0.5">
+        <p class="text-sm text-slate-600 mt-0.5">
           Klaim pengembalian menunggu, terlama di atas. Antrean sekarang:
           <span class="font-bold text-slate-900 tabular-nums">{{ sesi.ringkasan?.antrean_verifikasi ?? '…' }}</span>
         </p>
@@ -87,7 +87,7 @@ function kodePinjam(b) {
         role="tab"
         :aria-selected="tab === 'menunggu'"
         :class="[
-          'min-h-[44px] px-4 rounded-xl text-sm font-bold border transition',
+          'min-h-[44px] px-4 rounded-lg text-sm font-bold border transition',
           tab === 'menunggu'
             ? 'bg-[var(--color-aksen,#1d4ed8)] text-white border-transparent'
             : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50',
@@ -101,7 +101,7 @@ function kodePinjam(b) {
         role="tab"
         :aria-selected="tab === 'riwayat'"
         :class="[
-          'min-h-[44px] px-4 rounded-xl text-sm font-bold border transition',
+          'min-h-[44px] px-4 rounded-lg text-sm font-bold border transition',
           tab === 'riwayat'
             ? 'bg-[var(--color-aksen,#1d4ed8)] text-white border-transparent'
             : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50',
@@ -126,14 +126,14 @@ function kodePinjam(b) {
     >
       <template #cell-peminjam="{ baris: b }">
         <p class="font-medium text-slate-900">{{ namaPeminjam(b) }}</p>
-        <p class="text-xs text-slate-500 font-mono">{{ kodePinjam(b) }}</p>
+        <p class="text-xs text-slate-600 font-mono">{{ kodePinjam(b) }}</p>
       </template>
       <template #cell-batas_kembali="{ baris: b }">
-        {{ b.peminjaman?.batas_kembali ? formatWaktuIndo(b.peminjaman.batas_kembali) : '—' }}
+        {{ b.peminjaman?.batas_kembali ? formatWaktuIndo(b.peminjaman.batas_kembali) : '' }}
       </template>
       <template #cell-hari_terlambat="{ nilai }">
-        <span :class="Number(nilai) > 0 ? 'font-bold text-red-700' : 'text-slate-500'" class="tabular-nums">
-          {{ Number(nilai) > 0 ? `${nilai} hari` : '—' }}
+        <span :class="Number(nilai) > 0 ? 'font-bold text-red-700' : 'text-slate-600'" class="tabular-nums">
+          {{ Number(nilai) > 0 ? `${nilai} hari` : '' }}
         </span>
       </template>
       <template #cell-diklaim_pada="{ nilai }">{{ formatWaktuIndo(nilai) }}</template>

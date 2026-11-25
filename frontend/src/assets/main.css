@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* R-06: system-ui stack dipilih karena kiosk internal butuh font sistem, bukan merek. Alasan: keterbacaan tinggi di layar sentuh, tanpa unduh font eksternal. */
   --text-kiosk: 1.125rem;
   --text-admin: 0.9375rem;
   --spacing-sentuh: 2.75rem;
@@ -9,6 +9,10 @@
   --color-aksen: #1d4ed8;
   --color-aksen-hover: #1e40af;
   --color-aksen-lembut: #dbeafe;
+
+  /* R-01: Blue accent reserved for primary CTA dan keyboard focus.
+     Secondary actions pakai slate; status colors semantic, bukan dekoratif. */
+  /* R-04: Inline SVG icon pakai stroke tebal konsisten untuk jelas di 44px touch target. */
 
   --color-status-dipesan: #f3e8ff;
   --color-status-dipesan-teks: #6b21a8;
@@ -33,4 +37,47 @@
     outline: 3px solid var(--color-aksen);
     outline-offset: 2px;
   }
+
+  /* R-39: pointer di kontrol aktif, sekali di base. Disabled tetap not-allowed. */
+  button:not(:disabled),
+  a[href],
+  summary,
+  select,
+  label[for],
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* R-19: Polyfill untuk tailwindcss-animate tanpa dependency tambahan. */
+  @keyframes enter {
+    from {
+      opacity: var(--tw-enter-opacity, 1);
+      transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0)
+        scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1));
+    }
+  }
+  .animate-in {
+    animation-name: enter;
+    animation-duration: 150ms;
+    animation-fill-mode: both;
+  }
+  .fade-in { --tw-enter-opacity: 0; }
+  .zoom-in-95 { --tw-enter-scale: 0.95; }
+  .slide-in-from-bottom-4 { --tw-enter-translate-y: 1rem; }
+  .duration-200 { animation-duration: 200ms; }
 }

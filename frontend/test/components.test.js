@@ -11,7 +11,6 @@ const expected = [
   'FormField.vue',
   'InputJumlah.vue',
   'InputKode.vue',
-  'KartuAngka.vue',
   'KartuBarang.vue',
   'LiniMasa.vue',
   'Memuat.vue',

@@ -94,7 +94,7 @@ async function kirimPerpanjangan() {
     <!-- Header -->
     <div class="flex items-center justify-between gap-4 pb-2 border-b border-slate-200">
       <div>
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900">
           Perpanjangan Batas Kembali
         </h2>
         <p class="text-xs md:text-sm text-slate-600 mt-0.5">
@@ -113,17 +113,17 @@ async function kirimPerpanjangan() {
     <!-- Aksi tidak berlaku (BR-11: tombol nonaktif dengan alasan) -->
     <div
       v-if="!bolehPerpanjang"
-      class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm"
+      class="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-sm"
     >
       <strong>Perpanjangan tidak dapat diajukan:</strong> {{ alasanTidakBoleh }}
     </div>
 
     <form v-else class="space-y-6" @submit.prevent="bukaKonfirmasi">
       <!-- Formulir tambahan hari -->
-      <section class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+      <section class="bg-white p-5 md:p-6 rounded-lg border border-slate-200 shadow-xs space-y-5">
         <div class="pb-3 border-b border-slate-100">
           <h3 class="text-lg md:text-xl font-bold text-slate-900">Pilih Tambahan Hari</h3>
-          <p class="text-xs md:text-sm text-slate-500">
+          <p class="text-xs md:text-sm text-slate-600">
             Batas kembali baru dihitung dari batas saat ini. Maksimal {{ maksHari }} hari per perpanjangan.
           </p>
         </div>
@@ -158,19 +158,19 @@ async function kirimPerpanjangan() {
               maxlength="500"
               placeholder="Contoh: Proyek tunda satu minggu."
               :disabled="sedangKirim"
-              class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors"
+              class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-lg text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors"
             >
           </FormField>
         </div>
 
-        <!-- Ringkasan batas lama dan baru (FR-K-07) -->
+        <!-- Ringkasan batas lama dan baru -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase block mb-1">Batas Lama</span>
+          <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <span class="text-[11px] font-semibold text-slate-600 block mb-1">Batas Lama</span>
             <span class="font-bold text-slate-900 text-base">{{ formatTanggalIndo(batasLama) }}</span>
           </div>
-          <div class="p-4 bg-blue-50 rounded-xl border border-blue-200">
-            <span class="text-[11px] font-semibold text-blue-500 uppercase block mb-1">Batas Baru</span>
+          <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <span class="text-[11px] font-semibold text-blue-950 block mb-1">Batas Baru</span>
             <span class="font-bold text-blue-950 text-base">{{ formatTanggalIndo(batasBaru) }}</span>
           </div>
         </div>

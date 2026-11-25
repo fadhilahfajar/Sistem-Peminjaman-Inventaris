@@ -324,7 +324,7 @@ onMounted(() => {
   <div class="space-y-6">
     <!-- Header Halaman -->
     <div class="pb-2 border-b border-slate-200">
-      <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900">
         Formulir Peminjaman Barang
       </h2>
       <p class="text-sm md:text-base text-slate-600 mt-0.5">
@@ -348,7 +348,7 @@ onMounted(() => {
 
       <p
         v-if="ringkasanKurang"
-        class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm md:text-base font-semibold"
+        class="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-sm md:text-base font-semibold"
         role="status"
         aria-live="polite"
       >
@@ -356,13 +356,13 @@ onMounted(() => {
       </p>
 
       <!-- Bagian 1: Keranjang Barang -->
-      <section class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+      <section class="bg-white p-5 md:p-6 rounded-lg border border-slate-200 shadow-xs space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
           <div>
             <h3 class="text-lg md:text-xl font-bold text-slate-900">
               1. Keranjang Barang Inventaris
             </h3>
-            <p class="text-xs md:text-sm text-slate-500">
+            <p class="text-xs md:text-sm text-slate-600">
               Pilih perangkat dan tentukan jumlah unit yang dibutuhkan.
             </p>
           </div>
@@ -390,7 +390,7 @@ onMounted(() => {
               <h4 class="font-bold text-slate-900 text-base md:text-lg">
                 {{ item.nama }}
               </h4>
-              <p class="text-xs text-slate-500">
+              <p class="text-xs text-slate-600">
                 Stok tersedia: <strong>{{ item.tersedia }}</strong> unit
               </p>
               <p
@@ -414,7 +414,7 @@ onMounted(() => {
               <button
                 type="button"
                 :disabled="sedangKirim"
-                class="min-h-[44px] min-w-[44px] flex items-center justify-center text-red-600 hover:text-red-800 hover:bg-red-50 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                class="min-h-[44px] min-w-[44px] flex items-center justify-center text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
                 aria-label="Hapus barang dari keranjang"
                 @click="hapusDariKeranjang(item.item_id)"
               >
@@ -453,12 +453,12 @@ onMounted(() => {
       </section>
 
       <!-- Bagian 2: Data Diri Peminjam -->
-      <section class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+      <section class="bg-white p-5 md:p-6 rounded-lg border border-slate-200 shadow-xs space-y-5">
         <div class="pb-3 border-b border-slate-100">
           <h3 class="text-lg md:text-xl font-bold text-slate-900">
             2. Identitas Peminjam
           </h3>
-          <p class="text-xs md:text-sm text-slate-500">
+          <p class="text-xs md:text-sm text-slate-600">
             Data peminjam yang bertanggung jawab atas perangkat inventaris.
           </p>
         </div>
@@ -478,7 +478,7 @@ onMounted(() => {
               maxlength="100"
               placeholder="Contoh: Budi Santoso"
               :disabled="sedangKirim"
-              class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors"
+              class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-lg text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors"
             >
           </FormField>
 
@@ -493,7 +493,7 @@ onMounted(() => {
               id="division_id"
               v-model="form.division_id"
               :disabled="sedangKirim"
-              class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors cursor-pointer"
+              class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-lg text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors cursor-pointer"
             >
               <option value="" disabled>
                 -- Pilih Divisi --
@@ -517,7 +517,7 @@ onMounted(() => {
             <div class="grid grid-cols-2 gap-3 pt-1">
               <label
                 :class="[
-                  'min-h-[48px] px-4 py-2 flex items-center justify-center gap-2 rounded-xl border-2 font-semibold text-sm cursor-pointer select-none transition-all',
+                  'min-h-[48px] px-4 py-2 flex items-center justify-center gap-2 rounded-lg border-2 font-semibold text-sm cursor-pointer select-none transition-all',
                   form.tipe_peminjam === 'karyawan'
                     ? 'border-[var(--color-aksen,#1d4ed8)] bg-blue-50 text-[var(--color-aksen,#1d4ed8)]'
                     : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100',
@@ -537,7 +537,7 @@ onMounted(() => {
 
               <label
                 :class="[
-                  'min-h-[48px] px-4 py-2 flex items-center justify-center gap-2 rounded-xl border-2 font-semibold text-sm cursor-pointer select-none transition-all',
+                  'min-h-[48px] px-4 py-2 flex items-center justify-center gap-2 rounded-lg border-2 font-semibold text-sm cursor-pointer select-none transition-all',
                   form.tipe_peminjam === 'magang'
                     ? 'border-[var(--color-aksen,#1d4ed8)] bg-blue-50 text-[var(--color-aksen,#1d4ed8)]'
                     : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100',
@@ -573,7 +573,7 @@ onMounted(() => {
               maxlength="24"
               placeholder="081234567890 atau +62 812-3456-7890"
               :disabled="sedangKirim"
-              class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors"
+              class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-lg text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors"
             >
           </FormField>
 
@@ -593,9 +593,9 @@ onMounted(() => {
                 maxlength="255"
                 placeholder="Contoh: Membawa laptop ke rapat tim"
                 :disabled="sedangKirim"
-                class="w-full min-h-[80px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors resize-y"
+                class="w-full min-h-[80px] px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors resize-y"
               />
-              <p class="text-xs text-slate-500 text-right tabular-nums" aria-hidden="true">
+              <p class="text-xs text-slate-600 text-right tabular-nums" aria-hidden="true">
                 {{ panjangKeperluan }}/255
               </p>
             </FormField>
@@ -604,12 +604,12 @@ onMounted(() => {
       </section>
 
       <!-- Bagian 3: Jadwal Peminjaman / Pemesanan -->
-      <section class="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+      <section class="bg-white p-5 md:p-6 rounded-lg border border-slate-200 shadow-xs space-y-5">
         <div class="pb-3 border-b border-slate-100">
           <h3 class="text-lg md:text-xl font-bold text-slate-900">
             3. Jadwal Waktu
           </h3>
-          <p class="text-xs md:text-sm text-slate-500">
+          <p class="text-xs md:text-sm text-slate-600">
             Tentukan tanggal mulai dan batas waktu pengembalian barang.
           </p>
         </div>
@@ -617,7 +617,7 @@ onMounted(() => {
         <!-- Banner Pemberitahuan Pemesanan (Booking) -->
         <div
           v-if="apakahPemesanan"
-          class="p-4 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-sm flex items-start gap-3"
+          class="p-4 rounded-lg bg-purple-50 border border-purple-200 text-purple-900 text-sm flex items-start gap-3"
         >
           <svg class="w-5 h-5 text-purple-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -646,7 +646,7 @@ onMounted(() => {
               :min="hariIni"
               :max="tanggalPinjamMaks"
               :disabled="sedangKirim"
-              class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors cursor-pointer"
+              class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-lg text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors cursor-pointer"
             >
           </FormField>
 
@@ -665,7 +665,7 @@ onMounted(() => {
               :min="form.tanggal_pinjam || hariIni"
               :max="batasKembaliMaks"
               :disabled="sedangKirim"
-              class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors cursor-pointer"
+              class="w-full min-h-[48px] px-3.5 bg-slate-50 border border-slate-300 rounded-lg text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-aksen,#1d4ed8)] focus:border-transparent transition-colors cursor-pointer"
             >
           </FormField>
         </div>

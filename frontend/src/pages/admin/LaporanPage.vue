@@ -146,12 +146,12 @@ onMounted(muatPilihanFilter)
   <section class="space-y-6">
     <div class="pb-2 border-b border-slate-200">
       <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Laporan</h2>
-      <p class="text-sm text-slate-500 mt-0.5">
+      <p class="text-sm text-slate-600 mt-0.5">
         Pilih jenis laporan dan filter yang diperlukan, lalu unduh sebagai PDF.
       </p>
     </div>
 
-    <p v-if="sedangMuat" class="text-sm text-slate-500" role="status">Memuat pilihan filter…</p>
+    <p v-if="sedangMuat" class="text-sm text-slate-600" role="status">Memuat pilihan filter…</p>
 
     <FilterBar
       teks-terapkan="Unduh PDF"
