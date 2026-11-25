@@ -56,9 +56,9 @@ jobs:
           sed -i "s/SESSION_SAME_SITE=.*/SESSION_SAME_SITE=strict/" .env.testing
           php artisan key:generate --env=testing
 
-      - name: Run migrations (test DB)
+      - name: Run migrations & seeders
         working-directory: backend
-        run: php artisan migrate --env=testing --force
+        run: php artisan migrate:fresh --seed --env=testing --force
 
       - name: Build frontend
         working-directory: frontend
