@@ -34,7 +34,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
@@ -118,12 +118,23 @@ jobs:
             kill $BE_PID $FE_PID 2>/dev/null || true
             exit 1
           fi
+          set +e
           npx playwright test
+          TEST_STATUS=$?
+          set -e
+          echo "--- backend log ---"
+          cat /tmp/backend.log 2>/dev/null || true
+          echo "--- frontend log ---"
+          cat /tmp/frontend.log 2>/dev/null || true
           kill $BE_PID $FE_PID 2>/dev/null || true
+          exit $TEST_STATUS
 
-      - name: Upload traces on failure
+      - name: Upload test results on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-traces
-          path: frontend/test-results/**/trace.zip
+          name: playwright-results
+          path: |
+            frontend/test-results/**
+            frontend/playwright-report/**
+          if-no-files-found: ignore
