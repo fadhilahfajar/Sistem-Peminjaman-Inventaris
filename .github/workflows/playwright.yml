@@ -70,7 +70,7 @@ jobs:
           UJI_ADMIN_USERNAME: ${{ secrets.UJI_ADMIN_USERNAME }}
           UJI_ADMIN_PASSWORD: ${{ secrets.UJI_ADMIN_PASSWORD }}
         run: |
-          php artisan tinker --env=testing <<'PHP'
+          APP_ENV=testing php artisan tinker <<'PHP'
           User::updateOrCreate(
               ['username' => getenv('UJI_ADMIN_USERNAME')],
               [
