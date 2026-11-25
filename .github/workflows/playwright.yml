@@ -60,14 +60,27 @@ jobs:
         working-directory: backend
         run: php artisan migrate --env=testing --force
 
-      - name: Seed test data
+      - name: Seed items for E2E
+        working-directory: backend
+        run: php artisan db:seed --class=BarangContohSeeder --env=testing
+
+      - name: Create E2E admin
         working-directory: backend
         env:
           UJI_ADMIN_USERNAME: ${{ secrets.UJI_ADMIN_USERNAME }}
           UJI_ADMIN_PASSWORD: ${{ secrets.UJI_ADMIN_PASSWORD }}
         run: |
-          php artisan db:seed --class=BarangContohSeeder --env=testing
-          echo "use Illuminate\Support\Facades\Hash; User::updateOrCreate(['username' => '$UJI_ADMIN_USERNAME'], ['name' => 'Admin Uji CI', 'email' => 'admin-ci@example.com', 'password' => Hash::make('$UJI_ADMIN_PASSWORD'), 'aktif' => true]);" | php artisan tinker --env=testing
+          php artisan tinker --env=testing <<'PHP'
+          User::updateOrCreate(
+              ['username' => getenv('UJI_ADMIN_USERNAME')],
+              [
+                  'name' => 'Admin Uji CI',
+                  'email' => 'admin-ci@example.com',
+                  'password' => Hash::make(getenv('UJI_ADMIN_PASSWORD')),
+                  'aktif' => true,
+              ],
+          );
+          PHP
 
       - name: Build frontend
         working-directory: frontend
@@ -78,9 +91,9 @@ jobs:
         run: php artisan serve --env=testing --host=0.0.0.0 --port=8000 &
         shell: bash
 
-      - name: Start frontend preview
+      - name: Start frontend dev server
         working-directory: frontend
-        run: npx vite preview --host 0.0.0.0 --port 5173 &
+        run: npm run dev
         shell: bash
 
       - name: Wait for servers
