@@ -1,0 +1,94 @@
+name: Playwright E2E
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: inventaris_it_test
+          MYSQL_ROOT_PASSWORD: root
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_mysql, bcmath
+          ini-values: memory_limit=512M
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install backend deps
+        working-directory: backend
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Prepare .env.testing
+        working-directory: backend
+        run: |
+          cp .env.example .env.testing
+          sed -i "s/DB_DATABASE=.*/DB_DATABASE=inventaris_it_test/" .env.testing
+          sed -i "s/SESSION_SAME_SITE=.*/SESSION_SAME_SITE=strict/" .env.testing
+          php artisan key:generate --env=testing
+
+      - name: Run migrations (test DB)
+        working-directory: backend
+        run: php artisan migrate --env=testing --force
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Start backend
+        working-directory: backend
+        run: php artisan serve --env=testing --host=0.0.0.0 --port=8000 &
+        shell: bash
+
+      - name: Start frontend preview
+        working-directory: frontend
+        run: npx vite preview --host 0.0.0.0 --port 5173 &
+        shell: bash
+
+      - name: Wait for servers
+        run: |
+          for i in {1..30}; do
+            curl -sf http://127.0.0.1:8000/up && curl -sf http://127.0.0.1:5173 && break
+            sleep 2
+          done
+
+      - name: Run Playwright
+        working-directory: frontend
+        env:
+          UJI_ADMIN_USERNAME: ${{ secrets.UJI_ADMIN_USERNAME }}
+          UJI_ADMIN_PASSWORD: ${{ secrets.UJI_ADMIN_PASSWORD }}
+        run: npx playwright test
+
+      - name: Upload traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: frontend/test-results/**/trace.zip
