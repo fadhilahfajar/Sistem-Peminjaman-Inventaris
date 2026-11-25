@@ -51,6 +51,8 @@ jobs:
         run: |
           cp .env.example .env.testing
           sed -i "s/DB_DATABASE=.*/DB_DATABASE=inventaris_it_test/" .env.testing
+          sed -i "s/DB_USERNAME=.*/DB_USERNAME=root/" .env.testing
+          sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=root/" .env.testing
           sed -i "s/SESSION_SAME_SITE=.*/SESSION_SAME_SITE=strict/" .env.testing
           php artisan key:generate --env=testing
 
