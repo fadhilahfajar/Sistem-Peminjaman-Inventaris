@@ -56,9 +56,18 @@ jobs:
           sed -i "s/SESSION_SAME_SITE=.*/SESSION_SAME_SITE=strict/" .env.testing
           php artisan key:generate --env=testing
 
-      - name: Run migrations & seeders
+      - name: Run migrations (test DB)
         working-directory: backend
-        run: php artisan migrate:fresh --seed --env=testing --force
+        run: php artisan migrate --env=testing --force
+
+      - name: Seed test data
+        working-directory: backend
+        env:
+          UJI_ADMIN_USERNAME: ${{ secrets.UJI_ADMIN_USERNAME }}
+          UJI_ADMIN_PASSWORD: ${{ secrets.UJI_ADMIN_PASSWORD }}
+        run: |
+          php artisan db:seed --class=BarangContohSeeder --env=testing
+          echo "use App\Models\User; use Illuminate\Support\Facades\Hash; User::updateOrCreate(['username' => '$UJI_ADMIN_USERNAME'], ['name' => 'Admin Uji CI', 'email' => 'admin-ci@example.com', 'password' => Hash::make('$UJI_ADMIN_PASSWORD'), 'aktif' => true]);" | php artisan tinker --env=testing
 
       - name: Build frontend
         working-directory: frontend
