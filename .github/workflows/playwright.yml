@@ -88,20 +88,26 @@ jobs:
 
       - name: Start backend
         working-directory: backend
-        run: php artisan serve --env=testing --host=0.0.0.0 --port=8000 &
+        run: php artisan serve --env=testing --host=0.0.0.0 --port=8000 > /tmp/backend.log 2>&1 &
         shell: bash
 
       - name: Start frontend dev server
         working-directory: frontend
-        run: npm run dev &
+        run: npm run dev > /tmp/frontend.log 2>&1 &
         shell: bash
 
       - name: Wait for servers
         run: |
-          for i in {1..30}; do
-            curl -sf http://127.0.0.1:8000/up && curl -sf http://127.0.0.1:5173 && break
+          ok=0
+          for i in {1..60}; do
+            if curl -sf http://127.0.0.1:8000/up > /dev/null && curl -sf http://127.0.0.1:5173 > /dev/null; then
+              ok=1; break
+            fi
             sleep 2
           done
+          if [ "$ok" != "1" ]; then
+            echo "SERVERS NOT READY"; echo "--- backend ---"; cat /tmp/backend.log 2>/dev/null; echo "--- frontend ---"; cat /tmp/frontend.log 2>/dev/null; exit 1
+          fi
 
       - name: Install Playwright Chromium
         working-directory: frontend

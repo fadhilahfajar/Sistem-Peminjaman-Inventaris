@@ -33,6 +33,9 @@ test('BUG: popup pemilih barang /pinjam menampilkan daftar barang', async ({ pag
   await expect(dialog).toBeVisible()
   await expect(dialog.getByText('Pilih Barang Inventaris')).toBeVisible()
   await expect(dialog.locator('#pemilih-barang-cari')).toHaveValue('')
+  // Tunggu tombol + Pilih muncul (data barang dari API masih async).
+  const tombolPilihPertama = dialog.getByRole('button', { name: '+ Pilih' })
+  await expect(tombolPilihPertama).toBeVisible()
   const jumlahTombolPilih = await dialog.getByRole('button', { name: '+ Pilih' }).count()
   expect(jumlahTombolPilih).toBeGreaterThan(0)
   const isiDialog = await dialog.innerText()
@@ -45,6 +48,7 @@ test('BUG: popup pemilih barang /pinjam menampilkan daftar barang', async ({ pag
   const dialog2 = page.getByRole('dialog')
   await expect(dialog2).toBeVisible()
   await expect(dialog2.getByText('Pilih Barang Inventaris')).toBeVisible()
+  await expect(dialog2.getByRole('button', { name: '+ Pilih' })).toBeVisible()
   expect(await dialog2.getByRole('button', { name: '+ Pilih' }).count()).toBeGreaterThan(0)
   await page.getByRole('button', { name: 'Tutup' }).click()
   await expect(dialog2).not.toBeVisible()
