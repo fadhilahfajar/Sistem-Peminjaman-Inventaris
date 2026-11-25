@@ -67,7 +67,7 @@ jobs:
           UJI_ADMIN_PASSWORD: ${{ secrets.UJI_ADMIN_PASSWORD }}
         run: |
           php artisan db:seed --class=BarangContohSeeder --env=testing
-          echo "use App\Models\User; use Illuminate\Support\Facades\Hash; User::updateOrCreate(['username' => '$UJI_ADMIN_USERNAME'], ['name' => 'Admin Uji CI', 'email' => 'admin-ci@example.com', 'password' => Hash::make('$UJI_ADMIN_PASSWORD'), 'aktif' => true]);" | php artisan tinker --env=testing
+          echo "use Illuminate\Support\Facades\Hash; User::updateOrCreate(['username' => '$UJI_ADMIN_USERNAME'], ['name' => 'Admin Uji CI', 'email' => 'admin-ci@example.com', 'password' => Hash::make('$UJI_ADMIN_PASSWORD'), 'aktif' => true]);" | php artisan tinker --env=testing
 
       - name: Build frontend
         working-directory: frontend
